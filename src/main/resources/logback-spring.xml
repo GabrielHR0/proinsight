@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Defaults -->
+    <property name="LOG_PATH" value="./logs"/>
+    <property name="LOG_FILE" value="proinsight.log"/>
+
+    <!-- Lê propriedades do Spring (se definidas em application.properties) -->
+    <springProperty name="LOG_PATH" source="logging.file.path"/>
+    <springProperty name="LOG_FILE" source="logging.file.name"/>
+    <springProperty name="appName" source="spring.application.name"/>
+
+    <!-- Console appender (human readable) - em tempo real -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Rolling file appender (JSON) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE}</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rotaciona diariamente e por tamanho -->
+            <fileNamePattern>${LOG_PATH}/archived/%d{yyyy-MM-dd}.%i.${LOG_FILE}.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+
+        <!-- JSON encoder para agregadores -->
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app":"${appName:-proinsight}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- níveis padrão por package -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.hibernate" level="WARN"/>
+
+    <!-- root logger: console (realtime) + file (json rotativo) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>
