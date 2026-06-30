@@ -33,10 +33,10 @@ public class AcademiaService {
 
     private Academia toDomain(AcademiaDocument d) {
         if (d == null) return null;
-        Endereco.Endereco e = null;
+        Endereco e = null;
         if (d.getEndereco() != null) {
             var ed = d.getEndereco();
-            e = new Endereco.Endereco(ed.getRua(), ed.getNumero(), ed.getCidade(), ed.getEstado(), ed.getCep());
+            e = new Endereco(ed.getRua(), ed.getNumero(), ed.getCidade(), ed.getEstado(), ed.getCep());
         }
         return new Academia(d.getId(), d.getUserId(), d.getNomeFantasia(), d.getRazaoSocial(), d.getCnpj(), e, d.getTelefone(), d.getCreatedAt(), d.getUpdatedAt());
     }

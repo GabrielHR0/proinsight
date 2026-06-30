@@ -23,6 +23,84 @@ import java.util.*;
 public class GlobalExceptionHandler {
 
     private static final MediaType PROBLEM_JSON = MediaType.parseMediaType("application/problem+json");
+    
+    /**
+     * Trata ValidacaoException - campos obrigatórios, tamanho, etc.
+     * 400 Bad Request: Entrada inválida
+     */
+    @ExceptionHandler(ValidacaoException.class)
+    public ResponseEntity<Object> handleValidacaoException(ValidacaoException ex, HttpServletRequest request) {
+        Map<String, Object> body = construirErroRFC7807(
+            "https://example.com/problems/validation-error",
+            "Validation Failed",
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Trata RegraNeggocioException - pré-requisitos, frequência cardíaca, etc.
+     * 422 Unprocessable Entity: Semântica inválida (regra de negócio)
+     */
+    @ExceptionHandler(RegraNeggocioException.class)
+    public ResponseEntity<Object> handleRegraNeggocioException(RegraNeggocioException ex, HttpServletRequest request) {
+        Map<String, Object> body = construirErroRFC7807(
+            "https://example.com/problems/business-rule-violation",
+            "Business Rule Violation",
+            422,
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+    
+    /**
+     * Trata RecursoNaoEncontradoException - tabela, cliente, avaliador, etc.
+     * 404 Not Found: Recurso não existe
+     */
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<Object> handleRecursoNaoEncontradoException(RecursoNaoEncontradoException ex, HttpServletRequest request) {
+        Map<String, Object> body = construirErroRFC7807(
+            "https://example.com/problems/resource-not-found",
+            "Resource Not Found",
+            HttpStatus.NOT_FOUND.value(),
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * Trata AvaliacaoException - erros no processamento da avaliação.
+     * 500 Internal Server Error: Erro no servidor
+     */
+    @ExceptionHandler(AvaliacaoException.class)
+    public ResponseEntity<Object> handleAvaliacaoException(AvaliacaoException ex, HttpServletRequest request) {
+        String traceId = UUID.randomUUID().toString();
+        Map<String, Object> body = construirErroRFC7807(
+            "https://example.com/problems/avaliacao-error",
+            "Evaluation Error",
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Erro ao processar avaliação. traceId: " + traceId,
+            request.getRequestURI()
+        );
+        body.put("traceId", traceId);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
@@ -108,5 +186,27 @@ public class GlobalExceptionHandler {
         headers.setContentType(PROBLEM_JSON);
         return new ResponseEntity<>(body, headers, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    
+    /**
+     * Constrói resposta RFC7807 (Problem Details).
+     * Formato padrão para respostas de erro em APIs REST.
+     */
+    private Map<String, Object> construirErroRFC7807(
+        String type, 
+        String title, 
+        int status, 
+        String detail, 
+        String instance
+    ) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("type", type);
+        body.put("title", title);
+        body.put("status", status);
+        body.put("detail", detail);
+        body.put("instance", instance);
+        body.put("timestamp", Instant.now().toString());
+        return body;
+    }
 }
+
 
