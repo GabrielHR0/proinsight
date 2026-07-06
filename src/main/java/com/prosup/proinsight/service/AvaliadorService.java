@@ -1,10 +1,10 @@
 package com.prosup.proinsight.service;
 
-import com.prosup.proinsight.adapter.out.persistence.AvaliadorDocument;
-import com.prosup.proinsight.adapter.out.persistence.MongoAvaliadorDataRepository;
+import com.prosup.proinsight.infrastructure.persistence.document.AvaliadorDocument;
+import com.prosup.proinsight.infrastructure.persistence.repository.AvaliadorRepository;
 import com.prosup.proinsight.domain.model.Avaliador;
-import com.prosup.proinsight.dto.request.AvaliadorDtoRequest;
-import com.prosup.proinsight.dto.response.AvaliadorDto;
+import com.prosup.proinsight.api.dto.request.AvaliadorRequest;
+import com.prosup.proinsight.api.dto.response.AvaliadorResponse;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,23 +14,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class AvaliadorService {
 
-    private final MongoAvaliadorDataRepository repo;
+    private final AvaliadorRepository repo;
 
-    public AvaliadorService(MongoAvaliadorDataRepository repo) {
+    public AvaliadorService(AvaliadorRepository repo) {
         this.repo = repo;
     }
 
-    public AvaliadorDto create(AvaliadorDtoRequest request) {
+    public AvaliadorResponse create(AvaliadorRequest request) {
         return save(request);
     }
 
-    public AvaliadorDto save(AvaliadorDtoRequest request) {
-        // converter request -> document, persist e retornar DTO
+    public AvaliadorResponse save(AvaliadorRequest request) {
         AvaliadorDocument doc = toDocument(request);
         AvaliadorDocument saved = repo.save(doc);
         Avaliador domain = toDomain(saved);
 
-        return new AvaliadorDto(
+        return new AvaliadorResponse(
                 domain.getId(),
                 domain.getFirstName(),
                 domain.getLastName(),
@@ -40,7 +39,7 @@ public class AvaliadorService {
                 domain.getCref());
     }
 
-    private AvaliadorDocument toDocument(AvaliadorDtoRequest req) {
+    private AvaliadorDocument toDocument(AvaliadorRequest req) {
         AvaliadorDocument d = new AvaliadorDocument();
         d.setUserId(req.getUserId());
         d.setCref(req.getCref());

@@ -1,8 +1,8 @@
 package com.prosup.proinsight.service;
 
-import com.prosup.proinsight.adapter.out.persistence.MongoAvaliadorDataRepository;
-import com.prosup.proinsight.adapter.out.persistence.MongoClienteDataRepository;
-import com.prosup.proinsight.domain.avalicao_strategy.AvaliacaoContext;
+import com.prosup.proinsight.infrastructure.persistence.repository.AvaliadorRepository;
+import com.prosup.proinsight.infrastructure.persistence.repository.ClienteRepository;
+import com.prosup.proinsight.domain.strategy.AvaliacaoContext;
 import com.prosup.proinsight.domain.model.Medicao;
 import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.teste.Teste;
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AvaliacaoService {
 
-    private final MongoClienteDataRepository clienteRepository;
-    private final MongoAvaliadorDataRepository avaliadorRepository;
+    private final ClienteRepository clienteRepository;
+    private final AvaliadorRepository avaliadorRepository;
 
     public AvaliacaoService(
-            MongoClienteDataRepository clienteRepository,
-            MongoAvaliadorDataRepository avaliadorRepository
+            ClienteRepository clienteRepository,
+            AvaliadorRepository avaliadorRepository
     ) {
         this.clienteRepository = clienteRepository;
         this.avaliadorRepository = avaliadorRepository;

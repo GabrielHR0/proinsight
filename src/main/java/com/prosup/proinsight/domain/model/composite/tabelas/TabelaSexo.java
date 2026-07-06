@@ -1,5 +1,6 @@
 package com.prosup.proinsight.domain.model.composite.tabelas;
 
+import com.prosup.proinsight.domain.DadosAvaliacao;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.domain.model.composite.Composite;
 import com.prosup.proinsight.domain.model.composite.Leaf;
@@ -24,12 +25,15 @@ public class TabelaSexo extends Composite {
     }
 
     @Override
-    public Leaf classificar() {
-        return super.classificar();
-    }
-    
-    @Override
     public Leaf classificarComTeste(Teste teste) {
-        return super.classificarComTeste(teste);
+        return classificarComTeste(teste, null);
+    }
+
+    @Override
+    public Leaf classificarComTeste(Teste teste, DadosAvaliacao dados) {
+        if (dados == null || !dados.temSexo() || dados.getSexo() != this.sexo) {
+            return null;
+        }
+        return super.classificarComTeste(teste, dados);
     }
 }

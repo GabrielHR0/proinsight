@@ -22,14 +22,4 @@ public class TabelaEquipamento extends Composite {
     public void setEquipamento(Equipamento equipamento) {
         this.equipamento = equipamento;
     }
-
-    @Override
-    public Leaf classificar() {
-        return super.classificar();
-    }
-    
-    @Override
-    public Leaf classificarComTeste(Teste teste) {
-        return super.classificarComTeste(teste);
-    }
 }

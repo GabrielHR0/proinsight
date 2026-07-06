@@ -1,7 +1,7 @@
 package com.prosup.proinsight.service;
 
-import com.prosup.proinsight.adapter.out.persistence.AcademiaDocument;
-import com.prosup.proinsight.adapter.out.persistence.MongoAcademiaDataRepository;
+import com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument;
+import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
 import com.prosup.proinsight.domain.model.Academia;
 import com.prosup.proinsight.domain.model.Endereco;
 import org.springframework.stereotype.Service;
@@ -12,9 +12,9 @@ import java.util.Optional;
 @Service
 public class AcademiaService {
 
-    private final MongoAcademiaDataRepository repo;
+    private final AcademiaRepository repo;
 
-    public AcademiaService(MongoAcademiaDataRepository repo) {
+    public AcademiaService(AcademiaRepository repo) {
         this.repo = repo;
     }
 
