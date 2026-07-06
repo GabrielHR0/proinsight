@@ -1,14 +1,14 @@
 package com.prosup.proinsight.service;
 
-import com.prosup.proinsight.adapter.out.persistence.MongoPermissionDataRepository;
+import com.prosup.proinsight.infrastructure.persistence.repository.PermissionRepository;
 import com.prosup.proinsight.domain.model.Role;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import com.prosup.proinsight.adapter.out.persistence.MongoRoleDataRepository;
-import com.prosup.proinsight.adapter.out.persistence.MongoUserDataRepository;
-import com.prosup.proinsight.adapter.out.persistence.UserDocument;
+import com.prosup.proinsight.infrastructure.persistence.repository.RoleRepository;
+import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
+import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
 import com.prosup.proinsight.domain.model.User;
 import java.time.Instant;
 import java.util.Optional;
@@ -26,16 +26,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    private final MongoUserDataRepository userRepo;
-    private final MongoRoleDataRepository roleRepo;
-    private final MongoPermissionDataRepository permissionRepo;
+    private final UserRepository userRepo;
+    private final RoleRepository roleRepo;
+    private final PermissionRepository permissionRepo;
 
     private final PasswordEncoder passwordEncoder;
 
     public UserService(
-            MongoUserDataRepository userRepo,
-            MongoRoleDataRepository roleRepo,
-            MongoPermissionDataRepository permissionRepo,
+            UserRepository userRepo,
+            RoleRepository roleRepo,
+            PermissionRepository permissionRepo,
             PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;

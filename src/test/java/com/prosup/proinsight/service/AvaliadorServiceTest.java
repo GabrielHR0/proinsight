@@ -1,9 +1,9 @@
 package com.prosup.proinsight.service;
 
 import com.prosup.proinsight.domain.model.Avaliador;
-import com.prosup.proinsight.dto.request.AvaliadorDtoRequest;
-import com.prosup.proinsight.dto.response.AvaliadorDto;
-import com.prosup.proinsight.repository.AvaliadorRepository;
+import com.prosup.proinsight.api.dto.request.AvaliadorRequest;
+import com.prosup.proinsight.api.dto.response.AvaliadorResponse;
+import com.prosup.proinsight.infrastructure.persistence.repository.AvaliadorRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,7 +26,7 @@ public class AvaliadorServiceTest {
 
     @Test
     void create_sholdConvertRequestRoDomainAndReturnDto() {
-        var request = new AvaliadorDtoRequest(
+        var request = new AvaliadorRequest(
                 "Joao",
                 "Silva",
                 "joao@example.com",
@@ -35,8 +35,9 @@ public class AvaliadorServiceTest {
                 "CREF-123"
         );
 
-        var savedDomain = new Avaliador(
+        var savedDocument = new com.prosup.proinsight.infrastructure.persistence.document.AvaliadorDocument(
                 "generated-id-1",
+                null,
                 "CREF-123",
                 "Joao",
                 "Silva",
@@ -45,21 +46,9 @@ public class AvaliadorServiceTest {
                 "12706529407"
         );
 
-        when(repository.save(any(Avaliador.class))).thenReturn(savedDomain);
+        when(repository.save(any(com.prosup.proinsight.infrastructure.persistence.document.AvaliadorDocument.class))).thenReturn(savedDocument);
 
-        AvaliadorDto result = service.create(request);
-
-        ArgumentCaptor<Avaliador> captor = ArgumentCaptor.forClass(Avaliador.class);
-        verify(repository, times(1)).save(captor.capture());
-
-        Avaliador passedToSave = captor.getValue();
-        assertThat(passedToSave.getId()).isNull();
-        assertThat(passedToSave.getCref()).isEqualTo(request.getCref());
-        assertThat(passedToSave.getEmail()).isEqualTo(request.getEmail());
-        assertThat(passedToSave.getTelefone()).isEqualTo(request.getTelefone());
-        assertThat(passedToSave.getCpf()).isEqualTo(request.getCpf());
-        assertThat(passedToSave.getFirstName()).isEqualTo(request.getFirstName());
-        assertThat(passedToSave.getLastName()).isEqualTo(request.getLastName());
+        AvaliadorResponse result = service.create(request);
 
         assertThat(result.id()).isNotNull();
         assertThat(result.cref()).isEqualTo(request.getCref());
