@@ -5,7 +5,7 @@ import com.prosup.proinsight.domain.enums.TipoLimite;
 import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.teste.Teste;
 
-public class NivelForca extends Leaf {
+public class NivelVo2Max extends Leaf {
 
     private String classificacao;
     private Double min;
@@ -13,13 +13,13 @@ public class NivelForca extends Leaf {
     private TipoLimite tipoMin = TipoLimite.INCLUSIVO;
     private TipoLimite tipoMax = TipoLimite.INCLUSIVO;
 
-    public NivelForca() {}
+    public NivelVo2Max() {}
 
-    public NivelForca(String classificacao, Double min, Double max) {
+    public NivelVo2Max(String classificacao, Double min, Double max) {
         this(classificacao, min, max, TipoLimite.INCLUSIVO, TipoLimite.INCLUSIVO);
     }
 
-    public NivelForca(String classificacao, Double min, Double max, TipoLimite tipoMin, TipoLimite tipoMax) {
+    public NivelVo2Max(String classificacao, Double min, Double max, TipoLimite tipoMin, TipoLimite tipoMax) {
         this.classificacao = classificacao;
         this.min = min;
         this.max = max;

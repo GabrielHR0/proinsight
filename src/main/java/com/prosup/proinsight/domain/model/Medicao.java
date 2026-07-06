@@ -1,6 +1,7 @@
 package com.prosup.proinsight.domain.model;
 
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
+import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.teste.Teste;
 
 import java.time.Instant;
@@ -47,6 +48,10 @@ public abstract class Medicao<T extends Teste> {
 
     public void setTestes(List<T> testes) {
         this.testes = testes;
+    }
+
+    public void addTestes(T teste){
+        this.testes.add(teste);
     }
 
     public MedicaoTipo getTipo() {
