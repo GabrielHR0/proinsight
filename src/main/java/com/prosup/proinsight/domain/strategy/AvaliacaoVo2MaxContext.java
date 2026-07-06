@@ -1,57 +1,65 @@
-package com.prosup.proinsight.domain.avalicao_strategy;
+package com.prosup.proinsight.domain.strategy;
 
-import com.prosup.proinsight.domain.model.MedicaoVo2;
+import com.prosup.proinsight.domain.DadosAvaliacao;
+import com.prosup.proinsight.domain.model.MedicaoVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 
 import java.util.List;
 import java.util.Objects;
 
 
-public class AvaliacaoVo2MaxContext implements AvaliacaoContext<MedicaoVo2, TesteVo2Max> {
-    
+public class AvaliacaoVo2MaxContext implements AvaliacaoContext<MedicaoVo2Max, TesteVo2Max> {
+
     private final String clienteId;
     private final String avaliadorId;
-    private final MedicaoVo2 medicao;
+    private final MedicaoVo2Max medicao;
     private final List<TesteVo2Max> testes;
-    
+    private final DadosAvaliacao dadosAvaliacao;
 
     AvaliacaoVo2MaxContext(
         String clienteId,
         String avaliadorId,
-        MedicaoVo2 medicao,
-        List<TesteVo2Max> testes
+        MedicaoVo2Max medicao,
+        List<TesteVo2Max> testes,
+        DadosAvaliacao dadosAvaliacao
     ) {
         this.clienteId = clienteId;
         this.avaliadorId = avaliadorId;
         this.medicao = medicao;
         this.testes = List.copyOf(testes);
+        this.dadosAvaliacao = dadosAvaliacao;
     }
-    
+
     @Override
     public String getClienteId() {
         return clienteId;
     }
-    
+
     @Override
     public String getAvaliadorId() {
         return avaliadorId;
     }
-    
+
     @Override
-    public MedicaoVo2 getMedicao() {
+    public MedicaoVo2Max getMedicao() {
         return medicao;
     }
-    
+
     @Override
     public List<TesteVo2Max> getTestes() {
         return testes;
     }
-    
+
     @Override
     public String getTabelaClassificacaoId() {
         return medicao.getTabelaClassificacaoId();
     }
-    
+
+    @Override
+    public DadosAvaliacao getDadosAvaliacao() {
+        return dadosAvaliacao;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -60,14 +68,15 @@ public class AvaliacaoVo2MaxContext implements AvaliacaoContext<MedicaoVo2, Test
         return Objects.equals(clienteId, that.clienteId) &&
                 Objects.equals(avaliadorId, that.avaliadorId) &&
                 Objects.equals(medicao, that.medicao) &&
-                Objects.equals(testes, that.testes);
+                Objects.equals(testes, that.testes) &&
+                Objects.equals(dadosAvaliacao, that.dadosAvaliacao);
     }
-    
+
     @Override
     public int hashCode() {
-        return Objects.hash(clienteId, avaliadorId, medicao, testes);
+        return Objects.hash(clienteId, avaliadorId, medicao, testes, dadosAvaliacao);
     }
-    
+
     @Override
     public String toString() {
         return "AvaliacaoVo2MaxContext{" +
@@ -75,6 +84,7 @@ public class AvaliacaoVo2MaxContext implements AvaliacaoContext<MedicaoVo2, Test
                 ", avaliadorId='" + avaliadorId + '\'' +
                 ", tabelaId='" + getTabelaClassificacaoId() + '\'' +
                 ", testes=" + testes.size() +
+                ", dadosAvaliacao=" + dadosAvaliacao +
                 '}';
     }
 }

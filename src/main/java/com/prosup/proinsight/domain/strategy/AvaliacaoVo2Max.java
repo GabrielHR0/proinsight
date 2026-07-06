@@ -1,24 +1,22 @@
-package com.prosup.proinsight.domain.avalicao_strategy;
+package com.prosup.proinsight.domain.strategy;
 
-import com.prosup.proinsight.adapter.out.persistence.MongoTabelaClassificacaoDataRepository;
-import com.prosup.proinsight.adapter.out.persistence.converter.PersistedComponentMapper;
+import com.prosup.proinsight.infrastructure.persistence.repository.TabelaClassificacaoRepository;
+import com.prosup.proinsight.infrastructure.persistence.mapper.PersistedComponentMapper;
 import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.annotation.TypeAlias;
 import org.springframework.stereotype.Component;
 
 @Component
+@StrategyFor("VO2_MAX")
 public class AvaliacaoVo2Max implements AvaliacaoStrategy<AvaliacaoVo2MaxContext> {
 
-    @Transient
-    private MongoTabelaClassificacaoDataRepository tabelaRepository;
-    @Transient
+    private TabelaClassificacaoRepository tabelaRepository;
     private PersistedComponentMapper componentMapper;
 
     public AvaliacaoVo2Max(
-        MongoTabelaClassificacaoDataRepository tabelaRepository,
+        TabelaClassificacaoRepository tabelaRepository,
         PersistedComponentMapper componentMapper
     ) {
         this.tabelaRepository = tabelaRepository;
@@ -33,9 +31,10 @@ public class AvaliacaoVo2Max implements AvaliacaoStrategy<AvaliacaoVo2MaxContext
             ));
 
         var tabelaClassificacao = componentMapper.toDomain(tabelaDoc.getRaiz());
+        var dados = contexto.getDadosAvaliacao();
 
         for (TesteVo2Max teste : contexto.getTestes()) {
-            var resultado = tabelaClassificacao.classificarComTeste(teste);
+            var resultado = tabelaClassificacao.classificarComTeste(teste, dados);
 
             if (resultado != null) {
                 return resultado;
@@ -46,7 +45,7 @@ public class AvaliacaoVo2Max implements AvaliacaoStrategy<AvaliacaoVo2MaxContext
     }
 
     @Autowired
-    public void setTabelaRepository(MongoTabelaClassificacaoDataRepository tabelaRepository) {
+    public void setTabelaRepository(TabelaClassificacaoRepository tabelaRepository) {
         this.tabelaRepository = tabelaRepository;
     }
 

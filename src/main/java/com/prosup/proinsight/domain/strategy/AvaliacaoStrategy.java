@@ -1,4 +1,4 @@
-package com.prosup.proinsight.domain.avalicao_strategy;
+package com.prosup.proinsight.domain.strategy;
 
 import com.prosup.proinsight.domain.model.composite.Leaf;
 
