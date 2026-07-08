@@ -7,6 +7,7 @@ public class TabelaClassificacaoProperties {
 
     private String cooperId = "classificacao_cooper_12min";
     private String rockportId = "classificacao_rockport_1mile";
+    private String ahaId = "classificacao_aha_vo2max";
 
     public String getCooperId() {
         return cooperId;
@@ -22,5 +23,13 @@ public class TabelaClassificacaoProperties {
 
     public void setRockportId(String rockportId) {
         this.rockportId = rockportId;
+    }
+
+    public String getAhaId() {
+        return ahaId;
+    }
+
+    public void setAhaId(String ahaId) {
+        this.ahaId = ahaId;
     }
 }
