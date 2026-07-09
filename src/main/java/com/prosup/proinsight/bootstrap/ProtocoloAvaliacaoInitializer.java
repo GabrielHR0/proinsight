@@ -34,6 +34,8 @@ public class ProtocoloAvaliacaoInitializer implements CommandLineRunner {
               STRATEGY_VO2_MAX, tabelaProperties.getRockportId());
         criar("protocolo_vo2max_aha", "Avaliação VO2 Máx - AHA/FRIEND (Esteira)",
               STRATEGY_VO2_MAX, tabelaProperties.getAhaId());
+        criar("protocolo_vo2max_esteira_incremental", "Teste Incremental Esteira - ACSM",
+              STRATEGY_VO2_MAX, tabelaProperties.getAhaId());
     }
 
     private void criar(String id, String nome, String strategyKey, String tabelaClassificacaoId) {
