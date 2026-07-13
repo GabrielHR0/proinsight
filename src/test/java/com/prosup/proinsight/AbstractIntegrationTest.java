@@ -18,9 +18,6 @@ import org.springframework.test.context.TestPropertySource;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-@TestPropertySource(properties = {
-        "spring.data.mongodb.uri=${MONGO_URI:mongodb://localhost:27017/proinsight}"
-})
 public abstract class AbstractIntegrationTest {
 
 }
