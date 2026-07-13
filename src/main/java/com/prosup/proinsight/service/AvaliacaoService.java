@@ -1,12 +1,13 @@
 package com.prosup.proinsight.service;
 
+import com.prosup.proinsight.infrastructure.persistence.document.AvaliacaoFisicaDocument;
+import com.prosup.proinsight.infrastructure.persistence.repository.AvaliacaoFisicaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.AvaliadorRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.ClienteRepository;
-import com.prosup.proinsight.domain.strategy.AvaliacaoContext;
-import com.prosup.proinsight.domain.model.Medicao;
-import com.prosup.proinsight.domain.model.composite.Leaf;
-import com.prosup.proinsight.domain.model.teste.Teste;
+import com.prosup.proinsight.infrastructure.persistence.repository.ProtocoloAvaliacaoRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 
 @Service
@@ -14,25 +15,31 @@ public class AvaliacaoService {
 
     private final ClienteRepository clienteRepository;
     private final AvaliadorRepository avaliadorRepository;
+    private final ProtocoloAvaliacaoRepository protocoloAvaliacaoRepository;
+    private final AvaliacaoFisicaRepository avaliacaoFisicaRepository;
 
-    public AvaliacaoService(
-            ClienteRepository clienteRepository,
-            AvaliadorRepository avaliadorRepository
-    ) {
+    public AvaliacaoService(ClienteRepository clienteRepository,
+                            AvaliadorRepository avaliadorRepository,
+                            ProtocoloAvaliacaoRepository protocoloAvaliacaoRepository,
+                            AvaliacaoFisicaRepository avaliacaoFisicaRepository)
+    {
         this.clienteRepository = clienteRepository;
         this.avaliadorRepository = avaliadorRepository;
+        this.protocoloAvaliacaoRepository = protocoloAvaliacaoRepository;
+        this.avaliacaoFisicaRepository = avaliacaoFisicaRepository;
     }
 
-    public <M extends Medicao, T extends Teste> void salvarAvaliacao(
-        AvaliacaoContext<M, T> contexto,
-        Leaf resultado
-    ) {
-        clienteRepository.findById(contexto.getClienteId())
-            .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+    public AvaliacaoFisicaDocument save(AvaliacaoFisicaDocument avaliacaoDoc) {
+        clienteRepository.findById(avaliacaoDoc.getClienteId())
+            .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado"));
 
-        avaliadorRepository.findById(contexto.getAvaliadorId())
-            .orElseThrow(() -> new RuntimeException("Avaliador não encontrado"));
+        avaliadorRepository.findById(avaliacaoDoc.getAvaliadorId())
+            .orElseThrow(() -> new NoSuchElementException("Avaliador não encontrado"));
 
+        protocoloAvaliacaoRepository.findById(avaliacaoDoc.getProtocoloId())
+                .orElseThrow(() -> new NoSuchElementException("Protocolo não encontrado"));
 
+        return avaliacaoFisicaRepository.save(avaliacaoDoc);
     }
+
 }

@@ -3,6 +3,8 @@ package com.prosup.proinsight.api.handler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import java.util.*;
 public class GlobalExceptionHandler {
 
     private static final MediaType PROBLEM_JSON = MediaType.parseMediaType("application/problem+json");
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
@@ -31,7 +34,7 @@ public class GlobalExceptionHandler {
         });
 
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("type", "https://example.com/problems/validation-error");
+        body.put("type", "proinsight://problems/validation-error");
         body.put("title", "Validation Failed");
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("detail", "Um ou mais campos estão inválidos. Veja 'violations' para detalhes.");
@@ -56,7 +59,7 @@ public class GlobalExceptionHandler {
         }
 
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("type", "https://example.com/problems/constraint-violation");
+        body.put("type", "proinsight://problems/constraint-violation");
         body.put("title", "Constraint Violation");
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("detail", "Validation constraint violated");
@@ -72,7 +75,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("type", "https://example.com/problems/data-integrity");
+        body.put("type", "proinsight://problems/data-integrity");
         body.put("title", "Data integrity violation");
         body.put("status", HttpStatus.CONFLICT.value());
         body.put("detail", ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage());
@@ -87,7 +90,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
         Map<String, Object> body = construirErroRFC7807(
-            "https://example.com/problems/bad-request",
+            "proinsight://problems/bad-request",
             "Bad Request",
             HttpStatus.BAD_REQUEST.value(),
             ex.getMessage(),
@@ -99,11 +102,44 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, headers, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<Object> handleNotFound(NoSuchElementException ex, HttpServletRequest request) {
+        Map<String, Object> body = construirErroRFC7807(
+            "proinsight://problems/not-found",
+            "Not Found",
+            HttpStatus.NOT_FOUND.value(),
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
+        Map<String, Object> body = construirErroRFC7807(
+            "proinsight://problems/unprocessable-entity",
+            "Unprocessable Entity",
+            HttpStatus.UNPROCESSABLE_ENTITY.value(),
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneric(Exception ex, HttpServletRequest request) {
         String traceId = UUID.randomUUID().toString();
+
+        log.error("Erro interno [{}] - URI: {}", traceId, request.getRequestURI(), ex);
+
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("type", "https://example.com/problems/internal-server-error");
+        body.put("type", "proinsight://problems/internal-server-error");
         body.put("title", "Internal Server Error");
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         body.put("detail", "Ocorreu um erro inesperado. Use o traceId para rastrear.");
