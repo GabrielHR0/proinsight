@@ -8,7 +8,7 @@ public class AvaliacaoFisica {
     private String id;
     private String clienteId;
     private String avaliadorId;
-    private String strategyKey;
+    private String protocoloId;
     private String versaoProtocolo;
     private List<Medicao> medicoes;
     private Map<String, Object> metadados;
@@ -37,12 +37,12 @@ public class AvaliacaoFisica {
         this.avaliadorId = avaliadorId;
     }
 
-    public String getStrategyKey() {
-        return strategyKey;
+    public String getProtocoloId() {
+        return protocoloId;
     }
 
-    public void setStrategyKey(String strategyKey) {
-        this.strategyKey = strategyKey;
+    public void setProtocoloId(String protocoloId) {
+        this.protocoloId = protocoloId;
     }
 
     public String getVersaoProtocolo() {

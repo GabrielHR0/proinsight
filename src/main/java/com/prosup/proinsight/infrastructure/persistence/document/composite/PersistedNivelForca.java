@@ -6,6 +6,8 @@ import org.springframework.data.annotation.TypeAlias;
 @TypeAlias("persistedNivelForca")
 public class PersistedNivelForca extends PersistedLeaf {
 
+    private String nome;
+    private Integer nivel;
     private String classificacao;
     private Double min;
     private Double max;
@@ -24,6 +26,32 @@ public class PersistedNivelForca extends PersistedLeaf {
         this.max = max;
         this.tipoMin = tipoMin;
         this.tipoMax = tipoMax;
+    }
+
+    public PersistedNivelForca(String nome, Integer nivel, String classificacao, Double min, Double max, TipoLimite tipoMin, TipoLimite tipoMax) {
+        this.nome = nome;
+        this.nivel = nivel;
+        this.classificacao = classificacao;
+        this.min = min;
+        this.max = max;
+        this.tipoMin = tipoMin;
+        this.tipoMax = tipoMax;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Integer nivel) {
+        this.nivel = nivel;
     }
 
     public String getClassificacao() {

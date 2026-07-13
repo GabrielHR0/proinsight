@@ -5,10 +5,6 @@ import com.prosup.proinsight.infrastructure.persistence.repository.AvaliadorRepo
 import com.prosup.proinsight.domain.model.Avaliador;
 import org.springframework.stereotype.Component;
 
-/**
- * Legacy adapter kept for compatibility. Services now use Spring Data repositories directly,
- * but this adapter remains available until the codebase is fully migrated.
- */
 @Component
 public class AvaliadorMongoRepositoryAdapter {
 
@@ -26,6 +22,7 @@ public class AvaliadorMongoRepositoryAdapter {
         return new Avaliador(
                 d.getId(),
                 d.getUserId(),
+                d.getAcademiaId(),
                 d.getCref(),
                 d.getFirstName(),
                 d.getLastName(),
@@ -42,6 +39,7 @@ public class AvaliadorMongoRepositoryAdapter {
         return new AvaliadorDocument(
                 a.getId(),
                 a.getUserId(),
+                a.getAcademiaId(),
                 a.getCref(),
                 a.getFirstName(),
                 a.getLastName(),

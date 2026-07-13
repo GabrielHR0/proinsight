@@ -1,5 +1,6 @@
 package com.prosup.proinsight.domain.model.teste;
 
+import com.prosup.proinsight.domain.DadosAvaliacao;
 import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
 
 public abstract class TesteVo2Max implements Teste {
@@ -15,6 +16,8 @@ public abstract class TesteVo2Max implements Teste {
         this.protocolo = protocolo;
         this.valorClassificacao = valorClassificacao;
     }
+
+    public abstract Double calcularVo2Max(DadosAvaliacao dados);
 
     @Override
     public String getCriterio() {

@@ -1,9 +1,13 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
 import com.prosup.proinsight.infrastructure.persistence.document.composite.PersistedComponent;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
 
 
 @Document(collection = "tabelasClassificacao")
@@ -16,6 +20,12 @@ public class TabelaClassificacaoDocument {
     private String nome;
 
     private PersistedComponent raiz;
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 
     public TabelaClassificacaoDocument() {
     }

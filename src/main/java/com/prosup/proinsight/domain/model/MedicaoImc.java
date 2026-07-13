@@ -17,8 +17,8 @@ public class MedicaoImc extends Medicao<TesteImc>{
         super(tipo);
     }
 
-    public MedicaoImc(MedicaoTipo tipo, Instant medidoEm, Instant createdAt, Instant updatedAt, String observacoes, String tabelaClassificacaoId, List<TesteImc> testes) {
-        super(tipo, medidoEm, createdAt, updatedAt, observacoes, tabelaClassificacaoId, testes);
+    public MedicaoImc(MedicaoTipo tipo, Instant medidoEm, Instant createdAt, Instant updatedAt, String observacoes, List<TesteImc> testes) {
+        super(tipo, medidoEm, createdAt, updatedAt, observacoes, testes);
     }
 
     public Integer getResultado() {

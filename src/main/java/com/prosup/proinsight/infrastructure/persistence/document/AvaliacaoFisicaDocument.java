@@ -1,6 +1,8 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -21,12 +23,14 @@ public class AvaliacaoFisicaDocument {
     @Indexed
     private String avaliadorId;
 
-    private String strategyKey;
+    private String protocoloId;
     private List<MedicaoDocument> medicoes = new ArrayList<>();
+
+    @CreatedDate
     private Instant createdAt;
+
+    @LastModifiedDate
     private Instant updatedAt;
-    private String createdBy;
-    private String updatedBy;
 
     public AvaliacaoFisicaDocument() {
     }
@@ -63,12 +67,12 @@ public class AvaliacaoFisicaDocument {
         this.medicoes = medicoes == null ? new ArrayList<>() : new ArrayList<>(medicoes);
     }
 
-    public String getStrategyKey() {
-        return strategyKey;
+    public String getProtocoloId() {
+        return protocoloId;
     }
 
-    public void setStrategyKey(String strategy) {
-        this.strategyKey = strategy;
+    public void setProtocoloId(String protocoloId) {
+        this.protocoloId = protocoloId;
     }
 
     public Instant getCreatedAt() {
@@ -85,21 +89,5 @@ public class AvaliacaoFisicaDocument {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
     }
 }

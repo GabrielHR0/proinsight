@@ -12,6 +12,7 @@ public class NivelVo2Max extends Leaf {
     private Double max;
     private TipoLimite tipoMin = TipoLimite.INCLUSIVO;
     private TipoLimite tipoMax = TipoLimite.INCLUSIVO;
+    private Integer resultadoVo2Max;
 
     public NivelVo2Max() {}
 
@@ -34,7 +35,8 @@ public class NivelVo2Max extends Leaf {
 
     @Override
     public Leaf classificarComTeste(Teste teste, DadosAvaliacao dados) {
-        String valorStr = teste.getValorClassificacao(dados);
+        teste.getValorClassificacao(dados);
+        String valorStr = teste.getValorClassificacao();
         if (valorStr == null) return null;
         try {
             double valor = Double.parseDouble(valorStr);
@@ -90,5 +92,13 @@ public class NivelVo2Max extends Leaf {
 
     public void setTipoMax(TipoLimite tipoMax) {
         this.tipoMax = tipoMax;
+    }
+
+    public Integer getResultadoVo2Max() {
+        return resultadoVo2Max;
+    }
+
+    public void setResultadoVo2Max(Integer resultadoVo2Max) {
+        this.resultadoVo2Max = resultadoVo2Max;
     }
 }

@@ -2,13 +2,6 @@ package com.prosup.proinsight.domain.model;
 
 import java.util.Set;
 
-/**
- * Domain Role aggregate. Keeps minimal information about a role and its permissions.
- *
- * Note: the setter for id is intentionally left as-is (no-op) in the current codebase.
- * This may be deliberate to prevent accidental overwrites by domain code. If you want
- * the id to be assignable from domain objects, we can enable it — tell me and I will change it.
- */
 public class Role {
 
     private String id;
@@ -38,8 +31,8 @@ public class Role {
         return id;
     }
 
-    // Intentionally no-op setter kept to preserve existing behaviour. Change only if agreed.
     public void setId(String id) {
+        this.id = id;
     }
 
     public String getNome() {

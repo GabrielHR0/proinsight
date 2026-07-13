@@ -5,7 +5,9 @@ import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.domain.enums.TipoLimite;
 import com.prosup.proinsight.infrastructure.persistence.document.TabelaClassificacaoDocument;
+import com.prosup.proinsight.infrastructure.persistence.document.composite.PersistedNivelImc;
 import com.prosup.proinsight.infrastructure.persistence.document.composite.PersistedNivelVo2Max;
+import com.prosup.proinsight.infrastructure.persistence.document.composite.PersistedTabelaClassificacaoGenerica;
 import com.prosup.proinsight.infrastructure.persistence.document.composite.PersistedTabelaIdade;
 import com.prosup.proinsight.infrastructure.persistence.document.composite.PersistedTabelaSexo;
 import com.prosup.proinsight.infrastructure.persistence.document.composite.PersistedTabelaVo2Max;
@@ -14,10 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import com.prosup.proinsight.infrastructure.persistence.document.composite.PersistedComposite;
 import java.util.function.Supplier;
 
 @Component
-public class TabelaClassificacaoInitializer implements CommandLineRunner {
+public class    TabelaClassificacaoInitializer implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(TabelaClassificacaoInitializer.class);
 
@@ -75,6 +78,15 @@ public class TabelaClassificacaoInitializer implements CommandLineRunner {
         new Faixa(80, 99, 13, 15, 16, 18),
     };
 
+    private static final PersistedNivelImc[] FAIXAS_IMC = {
+        new PersistedNivelImc("ABAIXO_DO_PESO", null, 18.5, null, TipoLimite.EXCLUSIVO),
+        new PersistedNivelImc("NORMAL", 18.5, 25.0, TipoLimite.INCLUSIVO, TipoLimite.EXCLUSIVO),
+        new PersistedNivelImc("SOBREPESO", 25.0, 30.0, TipoLimite.INCLUSIVO, TipoLimite.EXCLUSIVO),
+        new PersistedNivelImc("OBESIDADE_I", 30.0, 35.0, TipoLimite.INCLUSIVO, TipoLimite.EXCLUSIVO),
+        new PersistedNivelImc("OBESIDADE_II", 35.0, 40.0, TipoLimite.INCLUSIVO, TipoLimite.EXCLUSIVO),
+        new PersistedNivelImc("OBESIDADE_III", 40.0, null, TipoLimite.INCLUSIVO, null),
+    };
+
     private final TabelaClassificacaoRepository repository;
     private final TabelaClassificacaoProperties properties;
 
@@ -91,9 +103,11 @@ public class TabelaClassificacaoInitializer implements CommandLineRunner {
         criar(properties.getCooperId(), "Classificação Cooper 12 min", this::criarRaizCooper);
         criar(properties.getRockportId(), "Classificação Rockport 1 mile", this::criarRaizRockport);
         criar(properties.getAhaId(), "Classificação VO₂ Máx - AHA/FRIEND", this::criarRaizAha);
+        criar(properties.getEsteiraIncrementalId(), "Classificação VO₂ Máx - Esteira Incremental (ACSM/AHA)", this::criarRaizEsteiraIncremental);
+        criar(properties.getImcId(), "Classificação IMC - OMS", this::criarRaizImc);
     }
 
-    private void criar(String id, String descricao, Supplier<PersistedTabelaVo2Max> raizSupplier) {
+    private void criar(String id, String descricao, Supplier<? extends PersistedComposite> raizSupplier) {
         if (repository.existsById(id)) {
             log.info("Tabela '{}' já existe: {}", descricao, id);
             return;
@@ -122,6 +136,30 @@ public class TabelaClassificacaoInitializer implements CommandLineRunner {
         var raiz = new PersistedTabelaVo2Max();
         preencherSexos(raiz, AHA_MASC, AHA_FEM);
         return raiz;
+    }
+
+    private PersistedTabelaClassificacaoGenerica criarRaizEsteiraIncremental() {
+        var raiz = new PersistedTabelaClassificacaoGenerica();
+        preencherSexosGenerico(raiz, AHA_MASC, AHA_FEM);
+        return raiz;
+    }
+
+    private PersistedTabelaClassificacaoGenerica criarRaizImc() {
+        var raiz = new PersistedTabelaClassificacaoGenerica();
+        for (var faixa : FAIXAS_IMC) {
+            raiz.addComponente(faixa);
+        }
+        return raiz;
+    }
+
+    private static void preencherSexosGenerico(PersistedTabelaClassificacaoGenerica raiz, Faixa[] masculino, Faixa[] feminino) {
+        var masc = new PersistedTabelaSexo(Sexo.MASCULINO);
+        for (var f : masculino) masc.addComponente(criarFaixa(f));
+        raiz.addComponente(masc);
+
+        var fem = new PersistedTabelaSexo(Sexo.FEMININO);
+        for (var f : feminino) fem.addComponente(criarFaixa(f));
+        raiz.addComponente(fem);
     }
 
     private static void preencherSexos(PersistedTabelaVo2Max raiz, Faixa[] masculino, Faixa[] feminino) {

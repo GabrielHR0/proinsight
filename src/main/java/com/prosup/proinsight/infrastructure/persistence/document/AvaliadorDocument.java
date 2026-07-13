@@ -1,11 +1,12 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
 
 @Document(collection = "avaliadores")
 public class AvaliadorDocument {
@@ -18,26 +19,34 @@ public class AvaliadorDocument {
 
     private String cref;
 
-    @NotBlank(message = "O nome é obrigatório")
+    private String academiaId;
+
     private String firstName;
 
     private String lastName;
 
-    @Email
     private String email;
 
     private String telefone;
 
-    @CPF
     @Indexed(unique = true)
     private String cpf;
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 
     public AvaliadorDocument() {
     }
 
-    public AvaliadorDocument(String id, String userId, String cref, String firstName, String lastName, String email, String telefone, String cpf) {
+    public AvaliadorDocument(String id, String userId, String academiaId, String cref,
+                             String firstName, String lastName, String email,
+                             String telefone, String cpf) {
         this.id = id;
         this.userId = userId;
+        this.academiaId = academiaId;
         this.cref = cref;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -46,67 +55,36 @@ public class AvaliadorDocument {
         this.cpf = cpf;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public String getUserId() {
-        return userId;
-    }
+    public String getCref() { return cref; }
+    public void setCref(String cref) { this.cref = cref; }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    public String getAcademiaId() { return academiaId; }
+    public void setAcademiaId(String academiaId) { this.academiaId = academiaId; }
 
-    public String getCref() {
-        return cref;
-    }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public void setCref(String cref) {
-        this.cref = cref;
-    }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getFirstName() {
-        return firstName;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    public String getTelefone() { return telefone; }
+    public void setTelefone(String telefone) { this.telefone = telefone; }
 
-    public String getLastName() {
-        return lastName;
-    }
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

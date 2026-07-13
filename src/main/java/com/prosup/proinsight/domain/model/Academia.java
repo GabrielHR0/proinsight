@@ -2,9 +2,6 @@ package com.prosup.proinsight.domain.model;
 
 import java.time.Instant;
 
-/**
- * Domain model for Academia profile. Does not extend Responsavel; kept as a separate profile type.
- */
 public class Academia {
 
     private String id;
@@ -31,6 +28,7 @@ public class Academia {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
 
     // getters / setters
     public String getId() {

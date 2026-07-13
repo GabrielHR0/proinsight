@@ -1,19 +1,36 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
 import com.prosup.proinsight.domain.model.teste.Teste;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
 import java.util.List;
 
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    property = "tipo"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = MedicaoVo2MaxDocument.class, name = "VO2_MAX"),
+    @JsonSubTypes.Type(value = MedicaoImcDocument.class, name = "IMC"),
+    @JsonSubTypes.Type(value = MedicaoBioimpedanciaDocument.class, name = "BIOIMPEDANCIA"),
+})
 public abstract class MedicaoDocument {
 
     private MedicaoTipo tipo;
     private Instant medidoEm;
+
+    @CreatedDate
     private Instant createdAt;
+
+    @LastModifiedDate
     private Instant updatedAt;
+
     private String observacoes;
-    private String tabelaClassificacaoId;
     private List<Teste> testes;
 
     protected MedicaoDocument() {
@@ -26,14 +43,6 @@ public abstract class MedicaoDocument {
     protected MedicaoDocument(MedicaoTipo tipo, List<Teste> testes) {
         this.tipo = tipo;
         this.testes = testes;
-    }
-
-    public String getTabelaClassificacaoId() {
-        return tabelaClassificacaoId;
-    }
-
-    public void setTabelaClassificacaoId(String tabelaClassificacaoId) {
-        this.tabelaClassificacaoId = tabelaClassificacaoId;
     }
 
     public List<Teste> getTestes() {

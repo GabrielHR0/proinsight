@@ -1,78 +1,86 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
 import com.prosup.proinsight.domain.model.Endereco;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+import java.time.Instant;
+
+@Document(collection = "clientes")
+@CompoundIndex(name = "academia_cliente_idx", def = "{'academiaId': 1, 'fullName': 1}")
 public class ClienteDocument {
+
     @Id
     private String id;
-    @NotBlank(message = "fullName is required")
+
     private String fullName;
-    @Email
+
     private String email;
+
     private String phone;
-    @CPF
+
     private String cpf;
+
     private Endereco endereco;
+
+    @Indexed
+    private String academiaId;
+
+    @Indexed
+    private String avaliadorId;
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 
     public ClienteDocument() {
     }
 
-    public ClienteDocument(String id, String fullName, String email, String phone, String cpf, Endereco endereco) {
+    public ClienteDocument(String id, String fullName, String email, String phone,
+                           String cpf, Endereco endereco, String academiaId, String avaliadorId) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
         this.cpf = cpf;
         this.endereco = endereco;
+        this.academiaId = academiaId;
+        this.avaliadorId = avaliadorId;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public String getFullName() {
-        return fullName;
-    }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
 
-    public String getPhone() {
-        return phone;
-    }
+    public Endereco getEndereco() { return endereco; }
+    public void setEndereco(Endereco endereco) { this.endereco = endereco; }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
+    public String getAcademiaId() { return academiaId; }
+    public void setAcademiaId(String academiaId) { this.academiaId = academiaId; }
 
-    public String getCpf() {
-        return cpf;
-    }
+    public String getAvaliadorId() { return avaliadorId; }
+    public void setAvaliadorId(String avaliadorId) { this.avaliadorId = avaliadorId; }
 
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 
-    public Endereco getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(Endereco endereco) {
-        this.endereco = endereco;
-    }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }

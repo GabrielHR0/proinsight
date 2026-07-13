@@ -1,4 +1,4 @@
-package com.prosup.proinsight.api.mapper;
+package com.prosup.proinsight.infrastructure.persistence.mapper;
 
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
@@ -28,13 +28,14 @@ public class AvaliacaoVo2MaxDtoMapper {
                 .map(testeRegistry::toDomain)
                 .collect(Collectors.toList());
 
+        Instant medidoEm = dto.getMedidoEm() != null ? dto.getMedidoEm() : Instant.now();
+
         MedicaoVo2Max medicao = new MedicaoVo2Max(
                 MedicaoTipo.VO2_MAX,
-                Instant.now(),
+                medidoEm,
                 Instant.now(),
                 Instant.now(),
                 dto.getObservacoes(),
-                dto.getTabelaClassificacaoId(),
                 testesDomain
         );
 

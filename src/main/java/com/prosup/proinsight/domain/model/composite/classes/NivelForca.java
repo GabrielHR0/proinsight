@@ -7,6 +7,8 @@ import com.prosup.proinsight.domain.model.teste.Teste;
 
 public class NivelForca extends Leaf {
 
+    private String nome;
+    private Integer nivel;
     private String classificacao;
     private Double min;
     private Double max;
@@ -20,6 +22,16 @@ public class NivelForca extends Leaf {
     }
 
     public NivelForca(String classificacao, Double min, Double max, TipoLimite tipoMin, TipoLimite tipoMax) {
+        this.classificacao = classificacao;
+        this.min = min;
+        this.max = max;
+        this.tipoMin = tipoMin;
+        this.tipoMax = tipoMax;
+    }
+
+    public NivelForca(String nome, Integer nivel, String classificacao, Double min, Double max, TipoLimite tipoMin, TipoLimite tipoMax) {
+        this.nome = nome;
+        this.nivel = nivel;
         this.classificacao = classificacao;
         this.min = min;
         this.max = max;
@@ -50,6 +62,22 @@ public class NivelForca extends Leaf {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Integer nivel) {
+        this.nivel = nivel;
     }
 
     public String getClassificacao() {

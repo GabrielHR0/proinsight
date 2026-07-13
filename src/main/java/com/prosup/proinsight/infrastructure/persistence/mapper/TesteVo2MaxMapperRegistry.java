@@ -35,7 +35,8 @@ public class TesteVo2MaxMapperRegistry {
         ));
 
         mappers.put(ProtocoloVo2Max.ESTEIRA_INCREMENTAL, dto -> new TesteVo2MaxEsteiraIncremental(
-            dto.getResultado()
+            dto.getResultado(),
+            dto.getInclinacaoPercent()
         ));
     }
 

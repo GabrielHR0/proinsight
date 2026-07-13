@@ -14,7 +14,6 @@ public abstract class Medicao<T extends Teste> {
     private Instant createdAt;
     private Instant updatedAt;
     private String observacoes;
-    private String tabelaClassificacaoId;
     private List<T> testes;
 
     protected Medicao() {
@@ -24,22 +23,13 @@ public abstract class Medicao<T extends Teste> {
         this.tipo = tipo;
     }
 
-    public Medicao(MedicaoTipo tipo, Instant medidoEm, Instant createdAt, Instant updatedAt, String observacoes, String tabelaClassificacaoId, List<T> testes) {
+    public Medicao(MedicaoTipo tipo, Instant medidoEm, Instant createdAt, Instant updatedAt, String observacoes, List<T> testes) {
         this.tipo = tipo;
         this.medidoEm = medidoEm;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.observacoes = observacoes;
-        this.tabelaClassificacaoId = tabelaClassificacaoId;
         this.testes = testes;
-    }
-
-    public String getTabelaClassificacaoId() {
-        return tabelaClassificacaoId;
-    }
-
-    public void setTabelaClassificacaoId(String tabelaClassificacaoId) {
-        this.tabelaClassificacaoId = tabelaClassificacaoId;
     }
 
     public List<T> getTestes() {

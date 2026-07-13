@@ -1,8 +1,11 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.Set;
 
 /**
@@ -19,6 +22,12 @@ public class RoleDocument {
     private String descricao;
 
     private Set<String> permissions;
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 
     public RoleDocument() {
     }

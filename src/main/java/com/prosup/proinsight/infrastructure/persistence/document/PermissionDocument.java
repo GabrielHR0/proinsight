@@ -1,7 +1,11 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
 
 /**
  * Permission document. Represents a granular permission that can be granted to users via ids.
@@ -13,6 +17,12 @@ public class PermissionDocument {
     private String resource;
     private String action;
     private String description;
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 
     public PermissionDocument() {}
 

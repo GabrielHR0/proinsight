@@ -1,12 +1,18 @@
 package com.prosup.proinsight.infrastructure.persistence.mapper;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prosup.proinsight.api.dto.response.AvaliacaoListaResponse;
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
+import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
 import com.prosup.proinsight.domain.model.Medicao;
 import com.prosup.proinsight.domain.model.AvaliacaoFisica;
 import com.prosup.proinsight.domain.model.MedicaoImc;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteImc;
+import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
+import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
 import com.prosup.proinsight.infrastructure.persistence.document.AvaliacaoFisicaDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.MedicaoDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.MedicaoImcDocument;
@@ -23,10 +29,12 @@ import java.util.stream.Collectors;
 @Component
 public class AvaliacaoFisicaMapper {
 
+    private final ObjectMapper objectMapper;
     private final Map<MedicaoTipo, Function<MedicaoDocument, Medicao>> documentToDomain;
     private final Map<MedicaoTipo, Function<Medicao, MedicaoDocument>> domainToDocument;
 
-    public AvaliacaoFisicaMapper() {
+    public AvaliacaoFisicaMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
         documentToDomain = new HashMap<>();
         documentToDomain.put(MedicaoTipo.VO2_MAX, this::vo2MaxToDomain);
         documentToDomain.put(MedicaoTipo.IMC, this::imcToDomain);
@@ -45,7 +53,7 @@ public class AvaliacaoFisicaMapper {
         avaliacao.setId(doc.getId());
         avaliacao.setClienteId(doc.getClienteId());
         avaliacao.setAvaliadorId(doc.getAvaliadorId());
-        avaliacao.setStrategyKey(doc.getStrategyKey());
+        avaliacao.setProtocoloId(doc.getProtocoloId());
 
         if (doc.getMedicoes() != null && !doc.getMedicoes().isEmpty()) {
             List<Medicao> medicoesDomain = doc.getMedicoes().stream()
@@ -68,7 +76,7 @@ public class AvaliacaoFisicaMapper {
         doc.setId(domain.getId());
         doc.setClienteId(domain.getClienteId());
         doc.setAvaliadorId(domain.getAvaliadorId());
-        doc.setStrategyKey(domain.getStrategyKey());
+        doc.setProtocoloId(domain.getProtocoloId());
 
         if (domain.getMedicoes() != null && !domain.getMedicoes().isEmpty()) {
             List<MedicaoDocument> medicoesDoc = domain.getMedicoes().stream()
@@ -111,7 +119,7 @@ public class AvaliacaoFisicaMapper {
         MedicaoImc medicao = new MedicaoImc(
             MedicaoTipo.IMC,
             i.getMedidoEm(), i.getCreatedAt(), i.getUpdatedAt(),
-            i.getObservacoes(), i.getTabelaClassificacaoId(),
+            i.getObservacoes(),
             List.of(teste)
         );
 
@@ -122,13 +130,39 @@ public class AvaliacaoFisicaMapper {
     private Medicao vo2MaxToDomain(MedicaoDocument doc) {
         var v = (MedicaoVo2MaxDocument) doc;
 
-        TesteVo2MaxCooper teste = new TesteVo2MaxCooper(v.getDistanciaMetros());
+        var testes = new ArrayList<TesteVo2Max>();
+
+        if (v.getProtocolo() == ProtocoloVo2Max.ROCKPORT) {
+            double tempoMinutos = v.getTempoSegundos() != null
+                ? v.getTempoSegundos() / 60.0
+                : 0;
+            testes.add(new TesteVo2MaxRockport(tempoMinutos, v.getFrequenciaCardiacaBpm(), v.getPesoKg()));
+        } else {
+            testes.add(new TesteVo2MaxCooper(v.getDistanciaMetros()));
+        }
+
+        if (v.getTestesAdicionais() != null) {
+            for (var item : v.getTestesAdicionais()) {
+                if (item instanceof java.util.Map<?, ?> map) {
+                    String protocolo = (String) map.get("protocolo");
+                    if (ProtocoloVo2Max.ROCKPORT.name().equals(protocolo)) {
+                        Double t = (Double) map.get("tempoMinutos");
+                        Integer fc = (Integer) map.get("frequenciaCardiaca");
+                        Double peso = (Double) map.get("pesoKg");
+                        testes.add(new TesteVo2MaxRockport(t != null ? t : 0, fc, peso));
+                    } else {
+                        Integer dist = (Integer) map.get("distanciaMetros");
+                        testes.add(new TesteVo2MaxCooper(dist != null ? dist : 0));
+                    }
+                }
+            }
+        }
 
         MedicaoVo2Max medicao = new MedicaoVo2Max(
             MedicaoTipo.VO2_MAX,
             v.getMedidoEm(), v.getCreatedAt(), v.getUpdatedAt(),
-            v.getObservacoes(), v.getTabelaClassificacaoId(),
-            List.of(teste)
+            v.getObservacoes(),
+            testes
         );
 
         medicao.setResultado(v.getVo2MaxCalculado());
@@ -147,23 +181,137 @@ public class AvaliacaoFisicaMapper {
         doc.setCreatedAt(m.getCreatedAt());
         doc.setUpdatedAt(m.getUpdatedAt());
         doc.setObservacoes(m.getObservacoes());
-        doc.setTabelaClassificacaoId(m.getTabelaClassificacaoId());
         return doc;
     }
 
     private MedicaoDocument vo2MaxToDocument(Medicao domain) {
         var v = (MedicaoVo2Max) domain;
-        var teste = (TesteVo2MaxCooper) v.getTestes().get(0);
+        var testes = v.getTestes();
 
         var doc = new MedicaoVo2MaxDocument();
-        doc.setDistanciaMetros(teste.getDistanciaMetros());
-        doc.setProtocolo(teste.getProtocolo());
         doc.setVo2MaxCalculado(v.getResultado());
         doc.setMedidoEm(v.getMedidoEm());
         doc.setCreatedAt(v.getCreatedAt());
         doc.setUpdatedAt(v.getUpdatedAt());
         doc.setObservacoes(v.getObservacoes());
-        doc.setTabelaClassificacaoId(v.getTabelaClassificacaoId());
+
+        if (testes == null || testes.isEmpty()) return doc;
+
+        var primeiro = testes.get(0);
+        doc.setProtocolo(primeiro.getProtocolo());
+
+        if (primeiro instanceof TesteVo2MaxCooper cooper) {
+            doc.setDistanciaMetros(cooper.getDistanciaMetros());
+        } else if (primeiro instanceof TesteVo2MaxRockport rockport) {
+            doc.setTempoSegundos(rockport.getTempoMinutos() != null
+                ? (int) Math.round(rockport.getTempoMinutos() * 60)
+                : null);
+            doc.setFrequenciaCardiacaBpm(rockport.getFrequenciaCardiaca());
+            doc.setPesoKg(rockport.getPesoKg());
+        }
+
+        if (testes.size() > 1) {
+            doc.setTestesAdicionais(new ArrayList<>());
+            for (int i = 1; i < testes.size(); i++) {
+                var t = testes.get(i);
+                var map = new java.util.HashMap<String, Object>();
+                map.put("protocolo", t.getProtocolo().name());
+                if (t instanceof TesteVo2MaxCooper c) {
+                    map.put("distanciaMetros", c.getDistanciaMetros());
+                } else if (t instanceof TesteVo2MaxRockport r) {
+                    map.put("tempoMinutos", r.getTempoMinutos());
+                    map.put("frequenciaCardiaca", r.getFrequenciaCardiaca());
+                    map.put("pesoKg", r.getPesoKg());
+                }
+                doc.getTestesAdicionais().add(map);
+            }
+        }
+
         return doc;
+    }
+
+    public AvaliacaoListaResponse toListaResponse(AvaliacaoFisicaDocument doc) {
+        if (doc == null) return null;
+
+        var medicao = doc.getMedicoes().isEmpty() ? null : doc.getMedicoes().get(0);
+        var tipo = medicao != null ? medicao.getTipo().name() : null;
+        var detalhes = medicao != null
+            ? objectMapper.convertValue(medicao, new TypeReference<Map<String, Object>>() {})
+            : null;
+
+        return new AvaliacaoListaResponse(
+            doc.getId(),
+            doc.getClienteId(),
+            doc.getProtocoloId(),
+            doc.getCreatedAt() != null ? doc.getCreatedAt().toString() : null,
+            tipo,
+            detalhes
+        );
+    }
+
+    public AvaliacaoFisicaDocument toImcDocument(String clienteId, String avaliadorId, String protocoloId, MedicaoImc medicao, int imcCalculado, String classificacao) {
+        var medicaoDoc = new MedicaoImcDocument();
+        medicaoDoc.setMedidoEm(medicao.getMedidoEm());
+        medicaoDoc.setImcCalculado(imcCalculado);
+        medicaoDoc.setClassificacaoImc(classificacao);
+        var teste = medicao.getTestes().get(0);
+        medicaoDoc.setMassaCorporalGramas(teste.getMassaCorporalGramas());
+        medicaoDoc.setAlturaCm(teste.getAlturaCentimetros());
+
+        var avaliacaoDoc = new AvaliacaoFisicaDocument();
+        avaliacaoDoc.setClienteId(clienteId);
+        avaliacaoDoc.setAvaliadorId(avaliadorId);
+        avaliacaoDoc.setProtocoloId(protocoloId);
+        avaliacaoDoc.setMedicoes(List.of(medicaoDoc));
+
+        return avaliacaoDoc;
+    }
+
+    public AvaliacaoFisicaDocument toVo2MaxDocument(String clienteId, String avaliadorId, String protocoloId, MedicaoVo2Max medicao, String classificacao) {
+        var medicaoDoc = new MedicaoVo2MaxDocument();
+        medicaoDoc.setMedidoEm(medicao.getMedidoEm());
+        medicaoDoc.setObservacoes(medicao.getObservacoes());
+        medicaoDoc.setVo2MaxCalculado(medicao.getResultado());
+
+        var primeiroTeste = medicao.getTestes().get(0);
+        medicaoDoc.setProtocolo(primeiroTeste.getProtocolo());
+        if (primeiroTeste instanceof TesteVo2MaxCooper cooper) {
+            medicaoDoc.setDistanciaMetros(cooper.getDistanciaMetros());
+        } else if (primeiroTeste instanceof TesteVo2MaxRockport rockport) {
+            medicaoDoc.setTempoSegundos(rockport.getTempoMinutos() != null
+                    ? (int) Math.round(rockport.getTempoMinutos() * 60)
+                    : null);
+            medicaoDoc.setFrequenciaCardiacaBpm(rockport.getFrequenciaCardiaca());
+            medicaoDoc.setPesoKg(rockport.getPesoKg());
+        }
+
+        if (classificacao != null) {
+            medicaoDoc.setClassificacaoVo2(classificacao);
+        }
+
+        if (medicao.getTestes().size() > 1) {
+            medicaoDoc.setTestesAdicionais(new ArrayList<>());
+            for (int i = 1; i < medicao.getTestes().size(); i++) {
+                var t = medicao.getTestes().get(i);
+                var map = new HashMap<String, Object>();
+                map.put("protocolo", t.getProtocolo().name());
+                if (t instanceof TesteVo2MaxCooper c) {
+                    map.put("distanciaMetros", c.getDistanciaMetros());
+                } else if (t instanceof TesteVo2MaxRockport r) {
+                    map.put("tempoMinutos", r.getTempoMinutos());
+                    map.put("frequenciaCardiaca", r.getFrequenciaCardiaca());
+                    map.put("pesoKg", r.getPesoKg());
+                }
+                medicaoDoc.getTestesAdicionais().add(map);
+            }
+        }
+
+        var avaliacaoDoc = new AvaliacaoFisicaDocument();
+        avaliacaoDoc.setClienteId(clienteId);
+        avaliacaoDoc.setAvaliadorId(avaliadorId);
+        avaliacaoDoc.setProtocoloId(protocoloId);
+        avaliacaoDoc.setMedicoes(List.of(medicaoDoc));
+
+        return avaliacaoDoc;
     }
 }

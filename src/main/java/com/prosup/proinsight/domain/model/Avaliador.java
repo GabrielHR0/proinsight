@@ -12,14 +12,13 @@ public class Avaliador {
     private String email;
     private String telefone;
     private String cpf;
-    private String userId; // referencia para o User central (identidade)
+    private String userId;
+    private String academiaId;
 
-    // No-arg constructor for frameworks
     public Avaliador() {
         super();
     }
 
-    // Constructor for new entities (id assigned by DB)
     public Avaliador(
             String userId,
             String cref,
@@ -37,7 +36,6 @@ public class Avaliador {
         this.cpf = cpf;
     }
 
-    // Full constructor
     public Avaliador(String id, String userId, String cref, String firstName, String lastName, String email, String telefone, String cpf) {
         this.id = id;
         this.cref = cref;
@@ -49,6 +47,21 @@ public class Avaliador {
         this.cpf = cpf;
     }
 
+    public Avaliador(String id, String userId, String academiaId, String cref, String firstName, String lastName, String email, String telefone, String cpf) {
+        this.id = id;
+        this.userId = userId;
+        this.academiaId = academiaId;
+        this.cref = cref;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.telefone = telefone;
+        this.cpf = cpf;
+    }
+
+    public boolean isAutonomo() {
+        return academiaId == null;
+    }
 
     public String getId() {
         return id;
@@ -112,6 +125,14 @@ public class Avaliador {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getAcademiaId() {
+        return academiaId;
+    }
+
+    public void setAcademiaId(String academiaId) {
+        this.academiaId = academiaId;
     }
 }
 

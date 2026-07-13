@@ -25,12 +25,25 @@ public class TesteVo2MaxRockport extends TesteVo2Max {
     }
 
     @Override
+    public Double calcularVo2Max(DadosAvaliacao dados) {
+        return calcularVo2maxRockport(dados);
+    }
+
+    @Override
+    public String getValorClassificacao() {
+        return valorClassificacao != null ? String.valueOf(valorClassificacao) : null;
+    }
+
+    @Override
     public String getValorClassificacao(DadosAvaliacao dados) {
         Double vo2max = calcularVo2Max(dados);
+        if (vo2max != null) {
+            this.valorClassificacao = vo2max;
+        }
         return vo2max != null ? String.valueOf(vo2max) : null;
     }
 
-    private Double calcularVo2Max(DadosAvaliacao dados) {
+    private Double calcularVo2maxRockport(DadosAvaliacao dados) {
         if (tempoMinutos == null || frequenciaCardiaca == null || pesoKg == null) return null;
         if (dados == null || !dados.temIdade() || !dados.temSexo()) return null;
 
