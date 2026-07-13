@@ -38,3 +38,11 @@ build/
 
 /target
 *.log
+*.log.gz
+logs/
+
+### tooling ###
+.opencode/
+.mimocode/
+.playwright-mcp/
+node_modules/
