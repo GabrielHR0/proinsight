@@ -1,40 +1,52 @@
 package com.prosup.proinsight.api.controller.api.v1;
 
+import com.prosup.proinsight.api.dto.request.UserRequest;
+import com.prosup.proinsight.api.dto.response.UserResponse;
 import com.prosup.proinsight.domain.model.User;
 import com.prosup.proinsight.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.Set;
 
-/**
- * Controller responsible for user-related endpoints.
- * Keep controllers thin — mapping and business rules belong to services.
- */
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserService service;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserService service) {
+        this.service = service;
     }
 
-    public static class RegisterRequest {
-        public String email;
-        public String password;
-        // accept arrays of role ids and permission ids
-        public String[] roleIds;
-        public String[] permissionIds;
-    }
+    @PostMapping
+    public ResponseEntity<UserResponse> create(@RequestBody UserRequest request) {
+        String[] roleIds = request.getRoleIds() != null
+                ? request.getRoleIds().toArray(new String[0])
+                : new String[0];
+        String[] permissionIds = request.getPermissionIds() != null
+                ? request.getPermissionIds().toArray(new String[0])
+                : new String[0];
 
-    @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest req) {
-        User created = userService.register(req.email, req.password, req.roleIds, req.permissionIds);
-        return ResponseEntity.created(URI.create("/users/" + created.getId())).body(created);
+        User user = service.register(request.getEmail(), request.getPassword(), roleIds, permissionIds);
+
+        Set<String> roleIdSet = user.getRoles() != null
+                ? user.getRoles().stream().map(r -> r.getId()).collect(java.util.stream.Collectors.toSet())
+                : Collections.emptySet();
+
+        UserResponse response = new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                roleIdSet,
+                Set.of(permissionIds),
+                user.isActive(),
+                user.getAcademiaIds(),
+                user.getAvaliadorId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
+
+        return ResponseEntity.created(URI.create("/users/" + user.getId())).body(response);
     }
 }
