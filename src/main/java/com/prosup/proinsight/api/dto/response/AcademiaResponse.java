@@ -2,12 +2,9 @@ package com.prosup.proinsight.api.dto.response;
 
 import java.time.Instant;
 
-/**
- * Response DTO for Academia profile.
- */
 public record AcademiaResponse(
         String id,
-        String userId,
+        String ownerId,
         String nomeFantasia,
         String razaoSocial,
         String cnpj,

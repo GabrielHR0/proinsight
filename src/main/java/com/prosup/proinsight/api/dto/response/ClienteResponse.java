@@ -1,10 +1,15 @@
 package com.prosup.proinsight.api.dto.response;
 
-/**
- * Response DTO for Cliente (placeholder).
- */
+import com.prosup.proinsight.domain.model.Endereco;
+
 public record ClienteResponse(
         String id,
-        String name,
-        String contact) {
+        String fullName,
+        String email,
+        String phone,
+        String cpf,
+        Endereco endereco,
+        String academiaId,
+        String avaliadorId
+) {
 }

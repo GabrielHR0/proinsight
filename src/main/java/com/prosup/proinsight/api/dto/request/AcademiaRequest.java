@@ -1,22 +1,18 @@
 package com.prosup.proinsight.api.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import java.util.Objects;
 
-/**
- * Request DTO for Academia profile. Includes an inner EnderecoRequest.
- */
 public class AcademiaRequest {
 
-    @NotBlank(message = "userId is required")
-    private String userId;
+    @NotBlank(message = "ownerId é obrigatório")
+    private String ownerId;
 
-    @NotBlank(message = "nomeFantasia is required")
+    @NotBlank(message = "nomeFantasia é obrigatório")
     private String nomeFantasia;
 
     private String razaoSocial;
 
-    @NotBlank(message = "cnpj is required")
+    @NotBlank(message = "cnpj é obrigatório")
     private String cnpj;
 
     private EnderecoRequest endereco;
@@ -26,8 +22,8 @@ public class AcademiaRequest {
     public AcademiaRequest() {
     }
 
-    public AcademiaRequest(String userId, String nomeFantasia, String razaoSocial, String cnpj, EnderecoRequest endereco, String telefone) {
-        this.userId = userId;
+    public AcademiaRequest(String ownerId, String nomeFantasia, String razaoSocial, String cnpj, EnderecoRequest endereco, String telefone) {
+        this.ownerId = ownerId;
         this.nomeFantasia = nomeFantasia;
         this.razaoSocial = razaoSocial;
         this.cnpj = cnpj;
@@ -35,8 +31,8 @@ public class AcademiaRequest {
         this.telefone = telefone;
     }
 
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    public String getOwnerId() { return ownerId; }
+    public void setOwnerId(String ownerId) { this.ownerId = ownerId; }
     public String getNomeFantasia() { return nomeFantasia; }
     public void setNomeFantasia(String nomeFantasia) { this.nomeFantasia = nomeFantasia; }
     public String getRazaoSocial() { return razaoSocial; }
@@ -57,13 +53,19 @@ public class AcademiaRequest {
 
         public EnderecoRequest() {}
         public EnderecoRequest(String rua, String numero, String cidade, String estado, String cep) {
-            this.rua = rua; this.numero = numero; this.cidade = cidade; this.estado = estado; this.cep = cep;
+            this.rua = rua; this.numero = numero; this.cidade = cidade;
+            this.estado = estado; this.cep = cep;
         }
 
-        public String getRua() { return rua; } public void setRua(String rua) { this.rua = rua; }
-        public String getNumero() { return numero; } public void setNumero(String numero) { this.numero = numero; }
-        public String getCidade() { return cidade; } public void setCidade(String cidade) { this.cidade = cidade; }
-        public String getEstado() { return estado; } public void setEstado(String estado) { this.estado = estado; }
-        public String getCep() { return cep; } public void setCep(String cep) { this.cep = cep; }
+        public String getRua() { return rua; }
+        public void setRua(String rua) { this.rua = rua; }
+        public String getNumero() { return numero; }
+        public void setNumero(String numero) { this.numero = numero; }
+        public String getCidade() { return cidade; }
+        public void setCidade(String cidade) { this.cidade = cidade; }
+        public String getEstado() { return estado; }
+        public void setEstado(String estado) { this.estado = estado; }
+        public String getCep() { return cep; }
+        public void setCep(String cep) { this.cep = cep; }
     }
 }

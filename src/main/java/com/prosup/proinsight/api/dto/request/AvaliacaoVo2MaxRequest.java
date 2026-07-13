@@ -9,14 +9,23 @@ public class AvaliacaoVo2MaxRequest {
     @JsonProperty("cliente_id")
     private String clienteId;
 
-    @JsonProperty("avaliacaoFisicaId")
-    private String avaliacaoFisicaId;
+    @JsonProperty("protocolo_id")
+    private String protocoloId;
 
     @JsonProperty("avaliador_id")
     private String avaliadorId;
 
-    @JsonProperty("medicao")
-    private MedicaoVo2MaxDto medicaoVo2MaxDto;
+    @JsonProperty("resultado")
+    private double resultado;
+
+    @JsonProperty("observacoes")
+    private String observacoes;
+
+    @JsonProperty("frequencia_cardiaca")
+    private Integer frequenciaCardiaca;
+
+    @JsonProperty("peso_kg")
+    private Double pesoKg;
 
     @JsonProperty("idade")
     private Integer idade;
@@ -24,23 +33,7 @@ public class AvaliacaoVo2MaxRequest {
     @JsonProperty("sexo")
     private Sexo sexo;
 
-    public AvaliacaoVo2MaxRequest(String clienteId, String avaliacaoFisicaId, String avaliadorId, MedicaoVo2MaxDto medicaoVo2MaxDto) {
-        this.clienteId = clienteId;
-        this.avaliacaoFisicaId = avaliacaoFisicaId;
-        this.avaliadorId = avaliadorId;
-        this.medicaoVo2MaxDto = medicaoVo2MaxDto;
-    }
-
-    public String getAvaliacaoFisicaId() {
-        return avaliacaoFisicaId;
-    }
-
-    public void setAvaliacaoFisicaId(String avaliacaoFisicaId) {
-        this.avaliacaoFisicaId = avaliacaoFisicaId;
-    }
-
-    public AvaliacaoVo2MaxRequest() {
-    }
+    public AvaliacaoVo2MaxRequest() {}
 
     public String getClienteId() {
         return clienteId;
@@ -48,6 +41,14 @@ public class AvaliacaoVo2MaxRequest {
 
     public void setClienteId(String clienteId) {
         this.clienteId = clienteId;
+    }
+
+    public String getProtocoloId() {
+        return protocoloId;
+    }
+
+    public void setProtocoloId(String protocoloId) {
+        this.protocoloId = protocoloId;
     }
 
     public String getAvaliadorId() {
@@ -58,12 +59,36 @@ public class AvaliacaoVo2MaxRequest {
         this.avaliadorId = avaliadorId;
     }
 
-    public MedicaoVo2MaxDto getMedicaoVo2MaxDto() {
-        return medicaoVo2MaxDto;
+    public double getResultado() {
+        return resultado;
     }
 
-    public void setMedicaoVo2MaxDto(MedicaoVo2MaxDto medicaoVo2MaxDto) {
-        this.medicaoVo2MaxDto = medicaoVo2MaxDto;
+    public void setResultado(double resultado) {
+        this.resultado = resultado;
+    }
+
+    public String getObservacoes() {
+        return observacoes;
+    }
+
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
+    }
+
+    public Integer getFrequenciaCardiaca() {
+        return frequenciaCardiaca;
+    }
+
+    public void setFrequenciaCardiaca(Integer frequenciaCardiaca) {
+        this.frequenciaCardiaca = frequenciaCardiaca;
+    }
+
+    public Double getPesoKg() {
+        return pesoKg;
+    }
+
+    public void setPesoKg(Double pesoKg) {
+        this.pesoKg = pesoKg;
     }
 
     public Integer getIdade() {

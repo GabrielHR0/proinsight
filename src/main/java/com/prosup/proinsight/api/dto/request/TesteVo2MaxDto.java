@@ -17,6 +17,9 @@ public class TesteVo2MaxDto {
     @JsonProperty("peso_kg")
     private Double pesoKg;
 
+    @JsonProperty("inclinacao_percent")
+    private Double inclinacaoPercent;
+
     public TesteVo2MaxDto() {}
 
     public TesteVo2MaxDto(ProtocoloVo2Max protocolo, double resultado) {
@@ -54,5 +57,13 @@ public class TesteVo2MaxDto {
 
     public void setPesoKg(Double pesoKg) {
         this.pesoKg = pesoKg;
+    }
+
+    public Double getInclinacaoPercent() {
+        return inclinacaoPercent;
+    }
+
+    public void setInclinacaoPercent(Double inclinacaoPercent) {
+        this.inclinacaoPercent = inclinacaoPercent;
     }
 }

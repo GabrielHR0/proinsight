@@ -30,20 +30,7 @@ public class AvaliadorRequest {
     @NotBlank(message = "userId is required")
     private String userId;
 
-    public AvaliadorRequest(String firstName,
-                               String lastName,
-                               String email,
-                               String telefone,
-                               String cpf,
-                               String cref) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.telefone = telefone;
-        this.cpf = cpf;
-        this.cref = cref;
-        this.userId = userId;
-    }
+    private String academiaId;
 
     public String getUserId() {
         return userId;
@@ -51,6 +38,14 @@ public class AvaliadorRequest {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getAcademiaId() {
+        return academiaId;
+    }
+
+    public void setAcademiaId(String academiaId) {
+        this.academiaId = academiaId;
     }
 
     public String getCref() {
