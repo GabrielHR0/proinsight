@@ -1,30 +1,29 @@
 package com.prosup.proinsight.domain.strategy;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
-import com.prosup.proinsight.domain.model.MedicaoVo2Max;
+import com.prosup.proinsight.domain.model.MedicaoImc;
 import com.prosup.proinsight.domain.model.composite.Component;
-import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
+import com.prosup.proinsight.domain.model.teste.TesteImc;
 
 import java.util.List;
 import java.util.Objects;
 
-
-public class AvaliacaoVo2MaxContext implements AvaliacaoContext<MedicaoVo2Max, TesteVo2Max> {
+public class AvaliacaoImcContext implements AvaliacaoContext<MedicaoImc, TesteImc> {
 
     private final String clienteId;
     private final String avaliadorId;
     private final String tabelaClassificacaoId;
-    private final MedicaoVo2Max medicao;
-    private final List<TesteVo2Max> testes;
+    private final MedicaoImc medicao;
+    private final List<TesteImc> testes;
     private final DadosAvaliacao dadosAvaliacao;
     private final Component tabela;
 
-    AvaliacaoVo2MaxContext(
+    AvaliacaoImcContext(
         String clienteId,
         String avaliadorId,
         String tabelaClassificacaoId,
-        MedicaoVo2Max medicao,
-        List<TesteVo2Max> testes,
+        MedicaoImc medicao,
+        List<TesteImc> testes,
         DadosAvaliacao dadosAvaliacao,
         Component tabela
     ) {
@@ -38,45 +37,31 @@ public class AvaliacaoVo2MaxContext implements AvaliacaoContext<MedicaoVo2Max, T
     }
 
     @Override
-    public String getClienteId() {
-        return clienteId;
-    }
+    public String getClienteId() { return clienteId; }
 
     @Override
-    public String getAvaliadorId() {
-        return avaliadorId;
-    }
+    public String getAvaliadorId() { return avaliadorId; }
 
     @Override
-    public MedicaoVo2Max getMedicao() {
-        return medicao;
-    }
+    public MedicaoImc getMedicao() { return medicao; }
 
     @Override
-    public List<TesteVo2Max> getTestes() {
-        return testes;
-    }
+    public List<TesteImc> getTestes() { return testes; }
 
     @Override
-    public String getTabelaClassificacaoId() {
-        return tabelaClassificacaoId;
-    }
+    public String getTabelaClassificacaoId() { return tabelaClassificacaoId; }
 
     @Override
-    public DadosAvaliacao getDadosAvaliacao() {
-        return dadosAvaliacao;
-    }
+    public DadosAvaliacao getDadosAvaliacao() { return dadosAvaliacao; }
 
     @Override
-    public Component getTabela() {
-        return tabela;
-    }
+    public Component getTabela() { return tabela; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AvaliacaoVo2MaxContext that = (AvaliacaoVo2MaxContext) o;
+        AvaliacaoImcContext that = (AvaliacaoImcContext) o;
         return Objects.equals(clienteId, that.clienteId) &&
                 Objects.equals(avaliadorId, that.avaliadorId) &&
                 Objects.equals(medicao, that.medicao) &&
@@ -87,16 +72,5 @@ public class AvaliacaoVo2MaxContext implements AvaliacaoContext<MedicaoVo2Max, T
     @Override
     public int hashCode() {
         return Objects.hash(clienteId, avaliadorId, medicao, testes, dadosAvaliacao);
-    }
-
-    @Override
-    public String toString() {
-        return "AvaliacaoVo2MaxContext{" +
-                "clienteId='" + clienteId + '\'' +
-                ", avaliadorId='" + avaliadorId + '\'' +
-                ", tabelaId='" + getTabelaClassificacaoId() + '\'' +
-                ", testes=" + testes.size() +
-                ", dadosAvaliacao=" + dadosAvaliacao +
-                '}';
     }
 }

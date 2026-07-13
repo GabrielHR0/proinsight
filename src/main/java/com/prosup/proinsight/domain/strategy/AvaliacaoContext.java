@@ -2,6 +2,7 @@ package com.prosup.proinsight.domain.strategy;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
 import com.prosup.proinsight.domain.model.Medicao;
+import com.prosup.proinsight.domain.model.composite.Component;
 import com.prosup.proinsight.domain.model.teste.Teste;
 
 
@@ -18,4 +19,6 @@ public interface AvaliacaoContext<M extends Medicao, T extends Teste> {
     String getTabelaClassificacaoId();
 
     DadosAvaliacao getDadosAvaliacao();
+
+    Component getTabela();
 }

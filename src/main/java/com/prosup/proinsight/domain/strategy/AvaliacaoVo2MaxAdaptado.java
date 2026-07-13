@@ -6,10 +6,10 @@ import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import org.springframework.stereotype.Component;
 
 @Component
-@StrategyFor("VO2_MAX")
-public class AvaliacaoVo2Max implements AvaliacaoStrategy<AvaliacaoVo2MaxContext> {
+@StrategyFor("VO2_MAX_ADAPTADO")
+public class AvaliacaoVo2MaxAdaptado implements AvaliacaoStrategy<AvaliacaoVo2MaxContext> {
 
-    public AvaliacaoVo2Max() {}
+    public AvaliacaoVo2MaxAdaptado() {}
 
     @Override
     public Leaf avaliar(AvaliacaoVo2MaxContext contexto) {

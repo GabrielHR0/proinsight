@@ -2,14 +2,16 @@ package com.prosup.proinsight.domain.strategy;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
+import com.prosup.proinsight.domain.model.composite.Component;
 
 public class AvaliacaoVo2MaxContextBuilder {
 
     private String clienteId;
     private String avaliadorId;
+    private String tabelaClassificacaoId;
     private MedicaoVo2Max medicao;
     private DadosAvaliacao dadosAvaliacao;
-
+    private Component tabelaClassificacao;
 
     public AvaliacaoVo2MaxContextBuilder comCliente(String clienteId) {
         this.clienteId = clienteId;
@@ -18,6 +20,11 @@ public class AvaliacaoVo2MaxContextBuilder {
 
     public AvaliacaoVo2MaxContextBuilder comAvaliador(String avaliadorId) {
         this.avaliadorId = avaliadorId;
+        return this;
+    }
+
+    public AvaliacaoVo2MaxContextBuilder comTabelaClassificacaoId(String tabelaClassificacaoId) {
+        this.tabelaClassificacaoId = tabelaClassificacaoId;
         return this;
     }
 
@@ -34,6 +41,11 @@ public class AvaliacaoVo2MaxContextBuilder {
         return this;
     }
 
+    public AvaliacaoVo2MaxContextBuilder comTabelaClassificacao(Component tabelaClassificacao) {
+        this.tabelaClassificacao = tabelaClassificacao;
+        return this;
+    }
+
     public AvaliacaoVo2MaxContext build() {
         if (clienteId == null || clienteId.isBlank()) {
             throw new IllegalArgumentException("ClienteId é obrigatório e não pode ser vazio");
@@ -43,14 +55,14 @@ public class AvaliacaoVo2MaxContextBuilder {
             throw new IllegalArgumentException("AvaliadorId é obrigatório e não pode ser vazio");
         }
 
-        if (medicao == null) {
-            throw new IllegalArgumentException("Medicao VO2Max é obrigatória");
+        if (tabelaClassificacaoId == null || tabelaClassificacaoId.isBlank()) {
+            throw new IllegalArgumentException(
+                "tabelaClassificacaoId é obrigatório e não pode ser vazio"
+            );
         }
 
-        if (medicao.getTabelaClassificacaoId() == null || medicao.getTabelaClassificacaoId().isBlank()) {
-            throw new IllegalArgumentException(
-                "Medicao VO2Max deve ter um ID de tabela de classificação válido"
-            );
+        if (medicao == null) {
+            throw new IllegalArgumentException("Medicao VO2Max é obrigatória");
         }
 
         if (medicao.getTestes() == null || medicao.getTestes().isEmpty()) {
@@ -65,6 +77,10 @@ public class AvaliacaoVo2MaxContextBuilder {
             }
         }
 
-        return new AvaliacaoVo2MaxContext(clienteId, avaliadorId, medicao, medicao.getTestes(), dadosAvaliacao);
+        if (tabelaClassificacao == null) {
+            throw new IllegalArgumentException("tabelaClassificacao é obrigatório e não pode ser vazio");
+        }
+
+        return new AvaliacaoVo2MaxContext(clienteId, avaliadorId, tabelaClassificacaoId, medicao, medicao.getTestes(), dadosAvaliacao, tabelaClassificacao);
     }
 }

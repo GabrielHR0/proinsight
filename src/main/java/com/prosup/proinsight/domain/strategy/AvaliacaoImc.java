@@ -2,26 +2,24 @@ package com.prosup.proinsight.domain.strategy;
 
 import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.composite.classes.NivelVo2Max;
-import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
+import com.prosup.proinsight.domain.model.teste.TesteImc;
 import org.springframework.stereotype.Component;
 
 @Component
-@StrategyFor("VO2_MAX")
-public class AvaliacaoVo2Max implements AvaliacaoStrategy<AvaliacaoVo2MaxContext> {
+@StrategyFor("IMC")
+public class AvaliacaoImc implements AvaliacaoStrategy<AvaliacaoImcContext> {
 
-    public AvaliacaoVo2Max() {}
+    public AvaliacaoImc() {}
 
     @Override
-    public Leaf avaliar(AvaliacaoVo2MaxContext contexto) {
+    public Leaf avaliar(AvaliacaoImcContext contexto) {
         var tabelaClassificacao = contexto.getTabela();
         var dados = contexto.getDadosAvaliacao();
 
-        for (TesteVo2Max teste : contexto.getTestes()) {
+        for (TesteImc teste : contexto.getTestes()) {
             var resultado = tabelaClassificacao.classificarComTeste(teste, dados);
 
             if (resultado instanceof NivelVo2Max n) {
-                Double vo2 = teste.calcularVo2Max(dados);
-                n.setResultadoVo2Max(vo2 != null ? (int) Math.round(vo2) : null);
                 return n;
             }
 
