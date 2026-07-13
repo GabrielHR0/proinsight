@@ -8,6 +8,8 @@ public class TabelaClassificacaoProperties {
     private String cooperId = "classificacao_cooper_12min";
     private String rockportId = "classificacao_rockport_1mile";
     private String ahaId = "classificacao_aha_vo2max";
+    private String esteiraIncrementalId = "classificacao_esteira_incremental";
+    private String imcId = "classificacao_imc_oms";
 
     public String getCooperId() {
         return cooperId;
@@ -31,5 +33,21 @@ public class TabelaClassificacaoProperties {
 
     public void setAhaId(String ahaId) {
         this.ahaId = ahaId;
+    }
+
+    public String getEsteiraIncrementalId() {
+        return esteiraIncrementalId;
+    }
+
+    public void setEsteiraIncrementalId(String esteiraIncrementalId) {
+        this.esteiraIncrementalId = esteiraIncrementalId;
+    }
+
+    public String getImcId() {
+        return imcId;
+    }
+
+    public void setImcId(String imcId) {
+        this.imcId = imcId;
     }
 }
