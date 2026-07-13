@@ -1,129 +1,119 @@
 # Technical Debt — Proinsight
 
-> Status: ❌ Pendente &nbsp;|&nbsp; 🔄 Em andamento &nbsp;|&nbsp; ✅ Concluído
+> Status: ❌ Pendente | ✅ Concluído
+
+Atualizado: 2026-07-12
 
 ---
 
 ## 🔴 Críticos (impedem o funcionamento)
 
 ### 1. `AvaliacaoFisicaDocument.strategy` — tipo não persistível
-- **Arquivo:** `src/main/java/.../infrastructure/persistence/document/AvaliacaoFisicaDocument.java:24`
-- **Problema:** O campo `AvaliacaoStrategy<?> strategy` era uma interface Spring, impossível de serializar no MongoDB.
-- **O que foi feito:** Substituído por `String strategyKey`. Criado `@StrategyFor`, `StrategyRegistry` com injeção automática via `List<AvaliacaoStrategy<?>>`. Handler usa `registry.resolve(strategyKey)`.
 - **Status:** ✅ Concluído
+- **Solução:** `StrategyRegistry` + `@StrategyFor` com resolução por key string.
 
 ### 2. `AvaliacaoFisicaMapper` — TODOs retornam `null`
-- **Arquivo:** `src/main/java/.../infrastructure/persistence/mapper/AvaliacaoFisicaMapper.java`
-- **Problema:** `convertMedicaoDocumentToDomain()` e `convertMedicaoDomainToDocument()` retornavam `null`.
-- **O que foi feito:** Implementado `Map<MedicaoTipo, Function>` para conversão polimórfica. Criados métodos `vo2MaxToDomain`, `imcToDomain`, `vo2MaxToDocument`, `imcToDocument`. Criados domains `MedicaoImc` e `TesteImc`. Refatorados Document e Domain para usar `Integer` como tipo interno com métodos de conversão para apresentação (`getPesoKg()`, `getAlturaMetros()`, `getDistanciaKm()`).
 - **Status:** ✅ Concluído
+- **Solução:** `Map<MedicaoTipo, Function>` com conversores polimórficos.
 
 ### 3. `TabelaVo2Max.classificarComTeste()` — método inexistente
-- **Arquivo:** `src/main/java/.../domain/model/composite/tabelas/TabelaVo2Max.java:23`
-- **Problema:** `teste.getCriterio()` não existia na interface `Teste`. Erro de compilação.
-- **O que foi feito:** Adicionado `String getCriterio()` à interface `Teste`. Implementado em `TesteVo2Max` (retorna `protocolo.name()`) e `TesteImc` (retorna `"IMC"`).
 - **Status:** ✅ Concluído
+- **Solução:** `getCriterio()` adicionado à interface `Teste`.
 
 ### 4. `Role.setId()` é no-op
-- **Arquivo:** `src/main/java/.../domain/model/Role.java:42-43`
-- **Problema:** `setId(String id) {}` não atribui o valor. Ao carregar uma Role do banco, o ID fica `null`.
-- **O que fazer:** Corrigir o setter para `this.id = id;`.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Setter corrigido para `this.id = id;`.
 
 ### 5. `UserController.register()` expõe senha
-- **Arquivo:** `src/main/java/.../api/controller/UserController.java:36-38`
-- **Problema:** Retorna `User` (entidade de domínio) diretamente, incluindo o campo `password` (hash).
-- **O que fazer:** Criar um `UserResponse` DTO (já existe em `api/dto/response/`) sem o campo password e usá-lo no retorno.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Retorna `UserResponse` DTO (sem campo password).
 
 ---
 
 ## 🟠 Altos
 
 ### 6. `AcademiaService.findByUserId()` — scan completo
-- **Arquivo:** `src/main/java/.../service/AcademiaService.java:31`
-- **Problema:** `repo.findAll().stream().filter(...)` carrega toda a coleção em memória.
-- **O que fazer:** Adicionar `findByUserId(String userId)` ao `AcademiaRepository`.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** `AcademiaRepository.findByUserId(String)` — query derivada Spring Data.
 
 ### 7. `UserService.findByEmail()` — scan completo
-- **Arquivo:** `src/main/java/.../service/UserService.java:100-104`
-- **Problema:** Mesmo problema: `findAll().stream().filter(...)` em vez de consulta indexada.
-- **O que fazer:** Adicionar `findByEmail(String email)` ao `UserRepository`.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** `UserRepository.findByEmail(String)` — query derivada Spring Data.
 
 ### 8. `ClienteDocument` sem `responsavelId`/`responsavelType`
-- **Arquivo:** `src/main/java/.../infrastructure/persistence/document/ClienteDocument.java`
-- **Problema:** O domain `Cliente` tem esses campos, mas o Document não. Dados são perdidos na persistência.
-- **O que fazer:** Adicionar campos e ajustar mapeamento.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Campos adicionados com `@Indexed` em `responsavelId`.
 
 ### 9. `TesteVo2MaxMapperRegistry` — só registra COOPER
-- **Arquivo:** `src/main/java/.../api/mapper/TesteVo2MaxMapperRegistry.java:24-27`
-- **Problema:** Apenas `ProtocoloVo2Max.COOPER` está mapeado. ROCKPORT causa `IllegalArgumentException`.
-- **O que fazer:** Registrar `ProtocoloVo2Max.ROCKPORT` com `TesteVo2MaxRockport`.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Registrados COOPER, ROCKPORT e ESTEIRA_INCREMENTAL.
 
 ### 10. `AvaliacaoService.salvarAvaliacao()` não persiste
-- **Arquivo:** `src/main/java/.../service/AvaliacaoService.java:26-37`
-- **Problema:** Valida cliente/avaliador mas não injeta `AvaliacaoFisicaRepository` e não salva a avaliação.
-- **O que fazer:** Adicionar dependência e implementar a persistência.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Service refatorado com `save()` que valida cliente/avaliador/protocolo e persiste via `AvaliacaoFisicaRepository`.
 
 ---
 
 ## 🟡 Médios
 
 ### 11. `AvaliadorService.toDocument()` ignora `cpf`
-- **Arquivo:** `src/main/java/.../service/AvaliadorService.java:42-52`
-- **Problema:** O `cpf` do `AvaliadorRequest` nunca é copiado para o documento.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** `AvaliadorMapper.toDocument()` copia `req.getCpf()` para o documento.
 
 ### 12. `AcademiaController` usa domínio no lugar de DTOs
-- **Arquivo:** `src/main/java/.../api/controller/AcademiaController.java:21,22,28`
-- **Problema:** Recebe `Academia` como `@RequestBody` e retorna `Academia` diretamente. DTOs `AcademiaRequest`/`AcademiaResponse` existem mas não são usados.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Controller já usa `AcademiaRequest`/`AcademiaResponse`.
 
 ### 13. `UserController` usa inner class com campos públicos
-- **Arquivo:** `src/main/java/.../api/controller/UserController.java:27-33`
-- **Problema:** Inconsistente com o padrão de DTOs do projeto. `RegisterRequest` com fields públicos em vez de `UserRequest` que já existe no pacote `api/dto/request/`.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Agora usa `UserRequest` do pacote `api/dto/request/`.
 
 ### 14. `AvaliacaoVo2MaxHandler.avaliar()` sem null-check
-- **Arquivo:** `src/main/java/.../service/handler/AvaliacaoVo2MaxHandler.java:52`
-- **Problema:** `avaliacao.getStrategy()` pode retornar `null`, causando NPE.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** `IllegalStateException` lançado quando `strategy.avaliar()` retorna null.
 
 ### 15. `AvaliacaoVo2MaxHandler.converterParaResponse()` valores fixos
-- **Arquivo:** `src/main/java/.../service/handler/AvaliacaoVo2MaxHandler.java:67-80`
-- **Problema:** Nome genérico `"CLASSIFICACAO_..."` e valor `0.0`. Não extrai dados reais do `NivelForca` (classificação, min, max).
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Extrai dados reais do `NivelVo2Max` (classificação, resultado).
 
 ---
 
 ## 🟢 Baixos
 
 ### 16. `AvaliadorControllerValidationTest` vazio
-- **Arquivo:** `src/test/java/.../controller/AvaliadorControllerValidationTest.java`
-- **Problema:** Classe sem métodos de teste.
 - **Status:** ❌ Pendente
+- **Problema:** Classe sem métodos de teste.
 
 ### 17. `ExampleRepositoryIT` comentado
-- **Arquivo:** `src/test/java/.../ExampleRepositoryIT.java`
-- **Problema:** Teste de integração desativado.
 - **Status:** ❌ Pendente
+- **Problema:** Teste de integração desativado (código todo comentado).
 
 ### 18. `AvaliacaoController` usa `@Autowired`
-- **Arquivo:** `src/main/java/.../api/controller/AvaliacaoController.java:24-25`
-- **Problema:** Inconsistente com os demais controllers que usam construtor explícito.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Agora usa construtor explícito.
 
 ### 19. Plugins duplicados no `pom.xml`
-- **Arquivo:** `pom.xml:93-159`
-- **Problema:** `maven-compiler-plugin` e `spring-boot-maven-plugin` aparecem declarados duas vezes cada.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** POM limpo, cada plugin declarado uma vez.
 
 ### 20. URLs placeholder no `GlobalExceptionHandler`
-- **Arquivo:** `src/main/java/.../api/handler/GlobalExceptionHandler.java`
-- **Problema:** URLs como `https://example.com/problems/*` são placeholders para documentação.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
+- **Solução:** Substituído por `proinsight://problems/*` (URI customizado válido).
+
+---
+
+## Resumo
+
+| Prioridade | Total | Concluído | Pendente |
+|------------|-------|-----------|----------|
+| 🔴 Críticos | 5 | 5 | 0 |
+| 🟠 Altos | 5 | 5 | 0 |
+| 🟡 Médios | 5 | 5 | 0 |
+| 🟢 Baixos | 5 | 3 | 2 |
+| **Total** | **20** | **18** | **2** |
+
+**Progresso: 90% concluído**
+
+### Pendências restantes (Sprint 2)
+- #16 `AvaliadorControllerValidationTest` vazio — será implementado com autenticação
+- #17 `ExampleRepositoryIT` comentado — será removido ou implementado
