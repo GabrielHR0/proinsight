@@ -64,6 +64,14 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- DevTools: restart automático ao salvar -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Logstash Logback Encoder: gera logs em JSON para agregadores -->
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -140,23 +148,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Compiler plugin: use release 21 for proper target/bootclasspath -->
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <release>21</release>
-                </configuration>
-            </plugin>
-
-            <!-- Spring Boot plugin to build executable jar -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>com.prosup.proinsight.ProinsightApplication</mainClass>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
