@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class AvaliacaoVo2MaxHandler {
@@ -57,7 +58,7 @@ public class AvaliacaoVo2MaxHandler {
 
     public AvaliacaoVo2MaxResponse processar(AvaliacaoVo2MaxRequest request) {
         var protocolo = protocoloRepository.findById(request.getProtocoloId())
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new NoSuchElementException(
                         "Protocolo não encontrado: " + request.getProtocoloId()
                 ));
 
@@ -70,6 +71,7 @@ public class AvaliacaoVo2MaxHandler {
         var testeDto = new TesteVo2MaxDto();
         testeDto.setProtocolo(protocolo.getProtocoloVo2Max());
         testeDto.setResultado(request.getResultado());
+        testeDto.setInclinacaoPercent(request.getInclinacaoPercent());
         testeDto.setFrequenciaCardiaca(request.getFrequenciaCardiaca());
         testeDto.setPesoKg(request.getPesoKg());
 
@@ -85,7 +87,7 @@ public class AvaliacaoVo2MaxHandler {
 
         TabelaClassificacao tabela = tabelaClassificacaoRepository.findById(tabelaClassificacaoId)
                 .map(tabelaClassificacaoMapper::toDomain)
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new NoSuchElementException(
                         "Tabela de classificação " + tabelaClassificacaoId + " não encontrada"
                 ));
 

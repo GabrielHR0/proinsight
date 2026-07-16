@@ -2,9 +2,7 @@ package com.prosup.proinsight.api.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-/**
- * Request DTO to create/update a Permission.
- */
+
 public class PermissionRequest {
 
     @NotBlank(message = "resource is required")

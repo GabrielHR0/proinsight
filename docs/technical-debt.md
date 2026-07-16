@@ -102,18 +102,95 @@ Atualizado: 2026-07-12
 
 ---
 
+## 🔴 Críticos (impedem validação de entrada)
+
+### 21. `UserController`, `AcademiaController`, `AvaliacaoController` sem `@Valid`
+- **Arquivos:** `UserController.java:25`, `AcademiaController.java:23/42`, `AvaliacaoController.java:23`
+- **Problema:** `@RequestBody` sem `@Valid` — anotações de validação nos DTOs jamais disparam.
+- **Status:** ❌ Pendente
+- **Solução:** Adicionar `@Valid @RequestBody` nos métodos POST/PUT.
+
+### 22. `AvaliacaoVo2MaxRequest` sem anotações de validação
+- **Arquivo:** `api/dto/request/AvaliacaoVo2MaxRequest.java`
+- **Problema:** Nenhum campo tem `@NotBlank`, `@NotNull`, `@Positive`. Dados nulos/vazios são aceitos.
+- **Status:** ❌ Pendente
+- **Solução:** `@NotBlank` nos IDs, `@Positive`/`@NotNull` nos numéricos.
+
+---
+
+## 🟠 Altos
+
+### 23. `MedicaoVo2MaxDto` e `TesteVo2MaxDto` sem validação cascata
+- **Arquivos:** `MedicaoVo2MaxDto.java`, `TesteVo2MaxDto.java`
+- **Problema:** `medidoEm` sem `@NotNull`; lista `testes` sem `@Valid`; `protocolo` sem `@NotNull`.
+- **Status:** ❌ Pendente
+- **Solução:** `@NotNull/@Valid` nos campos, cascata ativada.
+
+### 24. `AcademiaRequest.EnderecoRequest` sem validação
+- **Arquivo:** `api/dto/request/AcademiaRequest.java` (inner class)
+- **Problema:** rua, cidade, estado, cep sem `@NotBlank`.
+- **Status:** ❌ Pendente
+- **Solução:** Anotações de validação no EnderecoRequest.
+
+### 25. Controllers com `@RequestParam` sem `@Validated`
+- **Arquivo:** `ProtocoloHubController.java`
+- **Problema:** `@RequestParam` não dispara validação sem `@Validated` na classe.
+- **Status:** ❌ Pendente
+- **Solução:** Adicionar `@Validated` na classe + `@NotBlank` nos parâmetros.
+
+---
+
+## 🟡 Médios
+
+### 26. Domínios core sem validação em construtores
+- **Arquivos:** `User.java`, `Cliente.java`, `Academia.java`
+- **Problema:** Construtores aceitam null/blank sem guard clauses.
+- **Status:** ❌ Pendente
+- **Solução:** Guard clauses com `IllegalArgumentException`.
+
+### 27. `AvaliacaoVo2MaxHandler` lança `RuntimeException` genérico
+- **Arquivo:** `service/handler/AvaliacaoVo2MaxHandler.java:60-61`
+- **Problema:** Inconsistente — resto do código usa `NoSuchElementException`.
+- **Status:** ❌ Pendente
+- **Solução:** Trocar por `NoSuchElementException`.
+
+### 28. Validação redundante handlers vs services
+- **Arquivos:** `AvaliacaoVo2MaxHandler`, `AvaliacaoImcHandler`, `AvaliacaoService`
+- **Problema:** Handlers e services validam existência dos mesmos registros.
+- **Status:** ❌ Pendente
+- **Solução:** Manter validação apenas no service; handler confia no service.
+
+---
+
+## 🟢 Baixos
+
+### 29. Mensagens de erro sem padronização
+- **Arquivos:** Todos os DTOs Request
+- **Problema:** Alguns DTOs têm `message` em português, outros não. Faltam mensagens em vários.
+- **Status:** ❌ Pendente
+- **Solução:** `@NotBlank(message = "Campo obrigatório")` em todos os campos.
+
+### 30. Faltam testes de validação
+- **Arquivo:** N/A (novos testes)
+- **Problema:** Nenhum teste envia payload inválido e verifica 400 + RFC 7807.
+- **Status:** ❌ Pendente
+- **Solução:** Testes parametrizados com payloads inválidos.
+
+---
+
 ## Resumo
 
 | Prioridade | Total | Concluído | Pendente |
 |------------|-------|-----------|----------|
-| 🔴 Críticos | 5 | 5 | 0 |
-| 🟠 Altos | 5 | 5 | 0 |
-| 🟡 Médios | 5 | 5 | 0 |
-| 🟢 Baixos | 5 | 3 | 2 |
-| **Total** | **20** | **18** | **2** |
+| 🔴 Críticos | 7 | 5 | 2 |
+| 🟠 Altos | 8 | 5 | 3 |
+| 🟡 Médios | 8 | 5 | 3 |
+| 🟢 Baixos | 7 | 3 | 4 |
+| **Total** | **30** | **18** | **12** |
 
-**Progresso: 90% concluído**
+**Progresso: 60% concluído**
 
-### Pendências restantes (Sprint 2)
-- #16 `AvaliadorControllerValidationTest` vazio — será implementado com autenticação
-- #17 `ExampleRepositoryIT` comentado — será removido ou implementado
+### Pendências restantes
+- #16 `AvaliadorControllerValidationTest` vazio
+- #17 `ExampleRepositoryIT` comentado
+- #21-#30 Validação de campos (Fase 1.6 do Sprint Plan)

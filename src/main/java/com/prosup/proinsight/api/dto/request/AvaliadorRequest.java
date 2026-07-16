@@ -4,30 +4,27 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Request DTO used when creating or updating an Avaliador profile.
- */
 public class AvaliadorRequest {
 
-    @NotBlank(message = "cref is required")
+    @NotBlank(message = "CREF é obrigatório")
     private String cref;
 
-    @NotBlank(message = "firstName is required")
+    @NotBlank(message = "Nome é obrigatório")
     private String firstName;
 
-    @NotBlank(message = "lastName is required")
+    @NotBlank(message = "Sobrenome é obrigatório")
     private String lastName;
 
-    @Email(message = "must be a well-formed email address")
+    @Email(message = "E-mail inválido")
     private String email;
 
-    @NotBlank(message = "telefone is required")
-    @Size(min = 8, max = 20, message = "telefone length must be between 8 and 20")
+    @NotBlank(message = "Telefone é obrigatório")
+    @Size(min = 8, max = 20, message = "Telefone deve ter entre 8 e 20 caracteres")
     private String telefone;
 
     private String cpf;
 
-    @NotBlank(message = "userId is required")
+    @NotBlank(message = "Usuário é obrigatório")
     private String userId;
 
     private String academiaId;

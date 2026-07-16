@@ -2,33 +2,48 @@ package com.prosup.proinsight.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.prosup.proinsight.domain.enums.Sexo;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 
 public class AvaliacaoVo2MaxRequest {
 
+    @NotBlank(message = "cliente_id é obrigatório")
     @JsonProperty("cliente_id")
     private String clienteId;
 
+    @NotBlank(message = "protocolo_id é obrigatório")
     @JsonProperty("protocolo_id")
     private String protocoloId;
 
+    @NotBlank(message = "avaliador_id é obrigatório")
     @JsonProperty("avaliador_id")
     private String avaliadorId;
 
+    @PositiveOrZero(message = "resultado deve ser maior ou igual a zero")
     @JsonProperty("resultado")
     private double resultado;
 
     @JsonProperty("observacoes")
     private String observacoes;
 
+    @Positive(message = "frequencia_cardiaca deve ser positiva")
     @JsonProperty("frequencia_cardiaca")
     private Integer frequenciaCardiaca;
 
+    @Positive(message = "peso_kg deve ser positivo")
     @JsonProperty("peso_kg")
     private Double pesoKg;
 
+    @Positive(message = "idade deve ser positiva")
     @JsonProperty("idade")
     private Integer idade;
+
+    @Positive(message = "inclinacao_percent deve ser positiva")
+    @JsonProperty("inclinacao_percent")
+    private Double inclinacaoPercent;
 
     @JsonProperty("sexo")
     private Sexo sexo;
@@ -97,6 +112,14 @@ public class AvaliacaoVo2MaxRequest {
 
     public void setIdade(Integer idade) {
         this.idade = idade;
+    }
+
+    public Double getInclinacaoPercent() {
+        return inclinacaoPercent;
+    }
+
+    public void setInclinacaoPercent(Double inclinacaoPercent) {
+        this.inclinacaoPercent = inclinacaoPercent;
     }
 
     public Sexo getSexo() {

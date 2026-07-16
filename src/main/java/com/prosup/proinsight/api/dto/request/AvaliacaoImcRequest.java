@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record AvaliacaoImcRequest(
-    @NotBlank String clienteId,
-    @NotBlank String protocoloId,
-    @NotBlank String avaliadorId,
-    @NotNull @Positive Integer pesoGramas,
-    @NotNull @Positive Integer alturaCm
+    @NotBlank(message = "clienteId é obrigatório") String clienteId,
+    @NotBlank(message = "protocoloId é obrigatório") String protocoloId,
+    @NotBlank(message = "avaliadorId é obrigatório") String avaliadorId,
+    @NotNull(message = "pesoGramas é obrigatório") @Positive(message = "pesoGramas deve ser positivo") Integer pesoGramas,
+    @NotNull(message = "alturaCm é obrigatório") @Positive(message = "alturaCm deve ser positivo") Integer alturaCm
 ) {}

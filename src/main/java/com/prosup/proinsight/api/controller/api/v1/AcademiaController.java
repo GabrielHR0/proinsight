@@ -3,6 +3,7 @@ package com.prosup.proinsight.api.controller.api.v1;
 import com.prosup.proinsight.api.dto.request.AcademiaRequest;
 import com.prosup.proinsight.api.dto.response.AcademiaResponse;
 import com.prosup.proinsight.service.AcademiaService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class AcademiaController {
     }
 
     @PostMapping
-    public ResponseEntity<AcademiaResponse> create(@RequestBody AcademiaRequest request) {
+    public ResponseEntity<AcademiaResponse> create(@Valid @RequestBody AcademiaRequest request) {
         AcademiaResponse created = service.create(request);
         return ResponseEntity.created(URI.create("/academias/" + created.id())).body(created);
     }
@@ -39,7 +40,7 @@ public class AcademiaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AcademiaResponse> update(@PathVariable String id,
-                                                   @RequestBody AcademiaRequest request) {
+                                                   @Valid @RequestBody AcademiaRequest request) {
         var response = service.update(id, request);
         return ResponseEntity.ok(response);
     }

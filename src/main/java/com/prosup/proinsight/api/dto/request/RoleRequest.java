@@ -3,9 +3,6 @@ package com.prosup.proinsight.api.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Set;
 
-/**
- * Request DTO to create/update a Role. Accepts permission ids to reference existing Permission documents.
- */
 public class RoleRequest {
 
     @NotBlank(message = "name is required")

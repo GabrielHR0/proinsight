@@ -115,6 +115,27 @@
 
 ---
 
+### Fase 1.6: Validação de Campos da API
+
+> Garantir que toda entrada da API é validada antes de chegar ao domínio. Dados inválidos devem ser rejeitados com erro claro e estruturado (RFC 7807).
+>
+> **Problema identificado:** Vários controllers não usam `@Valid` nos `@RequestBody`, e DTOs críticos como `AvaliacaoVo2MaxRequest` não têm anotações de validação. Isso significa que dados nulos, vazios ou mal formatados são aceitos silenciosamente.
+
+| # | Task | Onde | Descrição | Critério de Aceite |
+|---|------|------|-----------|-------------------|
+| ❌ 1.6.1 | **Adicionar `@Valid` nos controllers** | `UserController`, `AcademiaController` (POST/PUT), `AvaliacaoController` | `@Valid @RequestBody` ativa o Jakarta Bean Validation | Request inválido retorna 400 com violations no corpo |
+| ❌ 1.6.2 | **Validar `AvaliacaoVo2MaxRequest`** | `api/dto/request/AvaliacaoVo2MaxRequest.java` | Adicionar `@NotBlank` em IDs, `@NotNull`/`@Positive` em campos numéricos | DTO rejeita campos nulos/mal formatados |
+| ❌ 1.6.3 | **Validar `MedicaoVo2MaxDto` e `TesteVo2MaxDto`** | `api/dto/request/MedicaoVo2MaxDto.java`, `TesteVo2MaxDto.java` | `@NotNull` em `medidoEm`, `@Valid` na lista de testes, `@NotNull` em `protocolo` | Nested DTOs validados em cascata |
+| ❌ 1.6.4 | **Validar `AcademiaRequest.EnderecoRequest`** | `api/dto/request/AcademiaRequest.java` | `@NotBlank` em rua, cidade, estado, cep | Endereço inválido rejeitado |
+| ❌ 1.6.5 | **Adicionar `@Validated` em controllers com `@RequestParam`** | `ProtocoloHubController` | `@Validated` na classe + `@NotBlank` em `userId` | Parâmetro vazio retorna 400 |
+| ❌ 1.6.6 | **Adicionar validação em construtores de domínios core** | `User`, `Cliente`, `Academia` | Guard clauses: null check, blank check, tamanho mínimo | Domínio rejeita estado inválido mesmo construído diretamente |
+| ❌ 1.6.7 | **Corrigir `RuntimeException` no `AvaliacaoVo2MaxHandler`** | `service/handler/AvaliacaoVo2MaxHandler.java` | Trocar por `NoSuchElementException` para consistência | Exceção consistente com o resto do código |
+| ❌ 1.6.8 | **Remover validação redundante handlers vs services** | `AvaliacaoVo2MaxHandler`, `AvaliacaoImcHandler` | Handlers validam existência, services validam de novo. Manter só no service. | Validação em camada única (service) |
+| ❌ 1.6.9 | **Padronizar mensagens de erro em português** | Todos os DTOs Request | `@NotBlank(message = "Campo obrigatório")`, `@Email(message = "E-mail inválido")` | Mensagens consistentes e em português |
+| ❌ 1.6.10 | **Testes de validação** | `src/test/.../controller/` ou `handler/` | Testes que enviam payloads inválidos e assertem 400 com RFC 7807 | Cobertura de validação testada |
+
+---
+
 ### Checklist de Entrega — Sprint 1
 
 - [x] Todos os bugs críticos resolvidos (1.1.x)
@@ -122,14 +143,15 @@
 - [x] Pipeline de avaliação VO2Max (Cooper + Rockport + Esteira Incremental) funcionando
 - [x] Pipeline de avaliação IMC funcionando
 - [x] **Usuário pode ter múltiplas academias** (modelo + endpoints)
-- [x] Testes unitários passando (`./mvnw test`) — 79 testes OK
-- [x] Testes de integração passando (`./mvnw verify`) — 8 testes OK
+- [x] Testes unitários passando (`./mvnw test`)
+- [x] Testes de integração passando (`./mvnw verify`)
 - [x] Código padronizado (DTOs, construtores, sem plugins duplicados, mappers consistentes)
 - [x] Validações apenas nos DTOs Request (removidas dos Documents)
 - [x] URLs do GlobalExceptionHandler corrigidas (`proinsight://problems/*`)
 - [x] Protocolos de avaliação com campos descritivos completos
+- [ ] **Validação de campos da API implementada (Fase 1.6)**
 
-**Progresso Sprint 1: 90%** (pendente: Roles/Permissions endpoint — será na Sprint 2 com autenticação)
+**Progresso Sprint 1: 90%** (pendente: validação de campos + Roles/Permissions — parte vai para Sprint 2)
 
 ---
 

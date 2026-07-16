@@ -6,18 +6,14 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
-/**
- * Request DTO for creating or updating a User.
- * Does not contain id or timestamps.
- */
 public class UserRequest {
 
-    @Email(message = "must be a well-formed email address")
-    @NotBlank(message = "email is required")
+    @Email(message = "E-mail inválido")
+    @NotBlank(message = "E-mail é obrigatório")
     private String email;
 
-    @NotBlank(message = "password is required")
-    @Size(min = 8, message = "password must be at least 8 characters long")
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")
     private String password;
 
     // Accept role ids to associate the user with existing roles

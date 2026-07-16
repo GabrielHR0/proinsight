@@ -16,6 +16,8 @@ public class Cliente {
 
     public Cliente(String id, String fullName, String email, String phone,
                    String cpf, Endereco endereco, String academiaId, String avaliadorId) {
+        if (fullName == null || fullName.isBlank()) throw new IllegalArgumentException("fullName não pode ser vazio");
+        if (email == null || email.isBlank()) throw new IllegalArgumentException("email não pode ser vazio");
         this.id = id;
         this.fullName = fullName;
         this.email = email;

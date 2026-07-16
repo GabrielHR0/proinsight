@@ -2,12 +2,16 @@ package com.prosup.proinsight.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 public class TesteVo2MaxDto {
 
+    @NotNull(message = "protocolo é obrigatório")
     @JsonProperty("protocolo")
     private ProtocoloVo2Max protocolo;
 
+    @PositiveOrZero(message = "resultado deve ser maior ou igual a zero")
     @JsonProperty("resultado")
     private double resultado;
 

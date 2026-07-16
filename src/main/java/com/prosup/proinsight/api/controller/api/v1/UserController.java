@@ -4,6 +4,7 @@ import com.prosup.proinsight.api.dto.request.UserRequest;
 import com.prosup.proinsight.api.dto.response.UserResponse;
 import com.prosup.proinsight.domain.model.User;
 import com.prosup.proinsight.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> create(@RequestBody UserRequest request) {
+    public ResponseEntity<UserResponse> create(@Valid @RequestBody UserRequest request) {
         String[] roleIds = request.getRoleIds() != null
                 ? request.getRoleIds().toArray(new String[0])
                 : new String[0];

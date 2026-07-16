@@ -18,6 +18,8 @@ public class Academia {
     }
 
     public Academia(String id, String userId, String nomeFantasia, String razaoSocial, String cnpj, Endereco endereco, String telefone, Instant createdAt, Instant updatedAt) {
+        if (nomeFantasia == null || nomeFantasia.isBlank()) throw new IllegalArgumentException("nomeFantasia não pode ser vazio");
+        if (cnpj == null || cnpj.isBlank()) throw new IllegalArgumentException("cnpj não pode ser vazio");
         this.id = id;
         this.userId = userId;
         this.nomeFantasia = nomeFantasia;

@@ -45,10 +45,14 @@ public class AcademiaRequest {
     public void setTelefone(String telefone) { this.telefone = telefone; }
 
     public static class EnderecoRequest {
+        @NotBlank(message = "rua é obrigatório")
         private String rua;
         private String numero;
+        @NotBlank(message = "cidade é obrigatório")
         private String cidade;
+        @NotBlank(message = "estado é obrigatório")
         private String estado;
+        @NotBlank(message = "cep é obrigatório")
         private String cep;
 
         public EnderecoRequest() {}

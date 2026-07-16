@@ -7,18 +7,18 @@ import org.hibernate.validator.constraints.br.CPF;
 
 public class ClienteRequest {
 
-    @NotBlank
+    @NotBlank(message = "Nome é obrigatório")
     private String fullName;
 
-    @NotBlank
-    @Email
+    @NotBlank(message = "E-mail é obrigatório")
+    @Email(message = "E-mail inválido")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Telefone é obrigatório")
     private String phone;
 
-    @NotBlank
-    @CPF
+    @NotBlank(message = "CPF é obrigatório")
+    @CPF(message = "CPF inválido")
     private String cpf;
 
     private String rua;

@@ -3,14 +3,17 @@ package com.prosup.proinsight.api.controller.api.v1;
 import com.prosup.proinsight.api.dto.response.ProtocoloDetalheResponse;
 import com.prosup.proinsight.api.dto.response.ProtocoloResumoResponse;
 import com.prosup.proinsight.service.ProtocoloHubService;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
+@Validated
 @RestController
-@RequestMapping("/api/v1/avaliacoes")
+@RequestMapping("/avaliacoes")
 public class ProtocoloHubController {
 
     private final ProtocoloHubService hubService;
@@ -20,7 +23,7 @@ public class ProtocoloHubController {
     }
 
     @GetMapping("/hub")
-    public ResponseEntity<Map<String, Object>> getHub(@RequestParam String userId) {
+    public ResponseEntity<Map<String, Object>> getHub(@NotBlank @RequestParam String userId) {
         var hub = hubService.getHub(userId);
         return ResponseEntity.ok(hub);
     }
@@ -38,25 +41,25 @@ public class ProtocoloHubController {
     }
 
     @PostMapping("/favoritos")
-    public ResponseEntity<Void> favoritar(@RequestParam String userId, @RequestParam String protocoloId) {
+    public ResponseEntity<Void> favoritar(@NotBlank @RequestParam String userId, @NotBlank @RequestParam String protocoloId) {
         hubService.favoritar(userId, protocoloId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/favoritos")
-    public ResponseEntity<Void> desfavoritar(@RequestParam String userId, @RequestParam String protocoloId) {
+    public ResponseEntity<Void> desfavoritar(@NotBlank @RequestParam String userId, @NotBlank @RequestParam String protocoloId) {
         hubService.desfavoritar(userId, protocoloId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/favoritos")
-    public ResponseEntity<List<ProtocoloResumoResponse>> listarFavoritos(@RequestParam String userId) {
+    public ResponseEntity<List<ProtocoloResumoResponse>> listarFavoritos(@NotBlank @RequestParam String userId) {
         var favoritos = hubService.listarFavoritos(userId);
         return ResponseEntity.ok(favoritos);
     }
 
     @GetMapping("/favoritos/verificar")
-    public ResponseEntity<Map<String, Boolean>> verificarFavorito(@RequestParam String userId, @RequestParam String protocoloId) {
+    public ResponseEntity<Map<String, Boolean>> verificarFavorito(@NotBlank @RequestParam String userId, @NotBlank @RequestParam String protocoloId) {
         boolean isFavorito = hubService.isFavorito(userId, protocoloId);
         return ResponseEntity.ok(Map.of("isFavorito", isFavorito));
     }

@@ -23,6 +23,8 @@ public class User {
     public User(String id, String email, String password, Set<Role> roles,
                 boolean active, List<String> academiaIds, String avaliadorId,
                 Instant createdAt, Instant updatedAt) {
+        if (email == null || email.isBlank()) throw new IllegalArgumentException("email não pode ser vazio");
+        if (password == null || password.isBlank()) throw new IllegalArgumentException("password não pode ser vazia");
         this.id = id;
         this.email = email;
         this.password = password;
