@@ -77,8 +77,12 @@ class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("registro SEM academia: nao deve criar AcademiaDocument")
-    void registroSemAcademia_naoCriaAcademia() {
+    @DisplayName("registro SEM academia: deve criar AcademiaDocument pessoal")
+    void registroSemAcademia_criaAcademiaPessoal() {
+        var academiaDoc = new com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument();
+        academiaDoc.setId("personal-academia-xyz");
+        when(academiaRepository.save(any())).thenReturn(academiaDoc);
+
         var request = new RegisterRequest();
         request.setUserName("personaluser");
         request.setEmail("personal@test.com");
@@ -88,12 +92,16 @@ class RegistrationServiceTest {
 
         registrationService.register(request);
 
-        verify(academiaRepository, never()).save(any());
+        verify(academiaRepository).save(any());
     }
 
     @Test
-    @DisplayName("registro SEM academia: deve usar userId como chave em academiaRoles")
-    void registroSemAcademia_usaUserIdComoChave() {
+    @DisplayName("registro SEM academia: deve usar academiaId como chave em academiaRoles")
+    void registroSemAcademia_usaAcademiaIdComoChave() {
+        var academiaDoc = new com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument();
+        academiaDoc.setId("personal-academia-xyz");
+        when(academiaRepository.save(any())).thenReturn(academiaDoc);
+
         var request = new RegisterRequest();
         request.setUserName("personaluser");
         request.setEmail("personal@test.com");
@@ -107,14 +115,19 @@ class RegistrationServiceTest {
         verify(userRepository, times(2)).save(userCaptor.capture());
 
         var secondSave = userCaptor.getAllValues().get(1);
-        assertThat(secondSave.getAcademiaRoles()).containsKey("user-abc-123");
-        assertThat(secondSave.getAcademiaRoles().get("user-abc-123"))
+        assertThat(secondSave.getAcademiaRoles()).containsKey("personal-academia-xyz");
+        assertThat(secondSave.getAcademiaRoles().get("personal-academia-xyz"))
                 .contains(RoleInitializer.ROLE_ADMIN_ID);
+        assertThat(secondSave.getAcademiaIds()).contains("personal-academia-xyz");
     }
 
     @Test
-    @DisplayName("registro SEM academia: academiaPermissoes deve ter userId como chave")
-    void registroSemAcademia_permissoesComUserId() {
+    @DisplayName("registro SEM academia: academiaPermissoes deve ter academiaId como chave")
+    void registroSemAcademia_permissoesComAcademiaId() {
+        var academiaDoc = new com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument();
+        academiaDoc.setId("personal-academia-xyz");
+        when(academiaRepository.save(any())).thenReturn(academiaDoc);
+
         var request = new RegisterRequest();
         request.setUserName("personaluser");
         request.setEmail("personal@test.com");
@@ -124,8 +137,8 @@ class RegistrationServiceTest {
 
         var response = registrationService.register(request);
 
-        assertThat(response.academiaPermissoes()).containsKey("user-abc-123");
-        assertThat(response.academiaPermissoes().get("user-abc-123")).isNotEmpty();
+        assertThat(response.academiaPermissoes()).containsKey("personal-academia-xyz");
+        assertThat(response.academiaPermissoes().get("personal-academia-xyz")).isNotEmpty();
     }
 
     @Test
@@ -180,6 +193,10 @@ class RegistrationServiceTest {
     @Test
     @DisplayName("registro: cref e cpf devem ser persistidos no UserDocument")
     void registro_persisteCrefECpf() {
+        var academiaDoc = new com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument();
+        academiaDoc.setId("personal-academia-xyz");
+        when(academiaRepository.save(any())).thenReturn(academiaDoc);
+
         var request = new RegisterRequest();
         request.setUserName("avaliadoruser");
         request.setEmail("avaliador@test.com");
