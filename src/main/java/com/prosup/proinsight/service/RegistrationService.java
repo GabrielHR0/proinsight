@@ -80,10 +80,12 @@ public class RegistrationService {
             userRepository.save(savedUser);
             academiaPermissoes.put(academiaId, getPermissoes(RoleInitializer.ROLE_ADMIN_ID));
         } else {
-            // Usuário sem academia (personal autônomo): userId vira o tenant pessoal
-            savedUser.putAcademiaRole(savedUser.getId(), Set.of(RoleInitializer.ROLE_ADMIN_ID));
+            // Usuário sem academia (personal autônomo): cria academia pessoal
+            academiaId = createPersonalAcademia(savedUser.getId(), request.getUserName());
+            savedUser.putAcademiaRole(academiaId, Set.of(RoleInitializer.ROLE_ADMIN_ID));
+            savedUser.addAcademiaId(academiaId);
             userRepository.save(savedUser);
-            academiaPermissoes.put(savedUser.getId(), getPermissoes(RoleInitializer.ROLE_ADMIN_ID));
+            academiaPermissoes.put(academiaId, getPermissoes(RoleInitializer.ROLE_ADMIN_ID));
         }
 
         User domainUser = UserMapper.toDomain(savedUser);
@@ -125,6 +127,13 @@ public class RegistrationService {
             academiaDoc.setEndereco(endereco);
         }
 
+        return academiaRepository.save(academiaDoc).getId();
+    }
+
+    private String createPersonalAcademia(String ownerId, String userName) {
+        var academiaDoc = new AcademiaDocument();
+        academiaDoc.setOwnerId(ownerId);
+        academiaDoc.setNomeFantasia("Personal - " + userName);
         return academiaRepository.save(academiaDoc).getId();
     }
 
