@@ -18,19 +18,17 @@
         </encoder>
     </appender>
 
-    <!-- Rolling file appender (JSON) -->
+    <!-- Rolling file appender (JSON) - só local -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${LOG_FILE}</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- rotaciona diariamente e por tamanho -->
             <fileNamePattern>${LOG_PATH}/archived/%d{yyyy-MM-dd}.%i.${LOG_FILE}.gz</fileNamePattern>
             <maxFileSize>10MB</maxFileSize>
             <maxHistory>30</maxHistory>
             <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
 
-        <!-- JSON encoder para agregadores -->
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>{"app":"${appName:-proinsight}"}</customFields>
         </encoder>
@@ -44,10 +42,19 @@
     <logger name="com.prosup.proinsight.config.JwtAuthenticationFilter" level="DEBUG"/>
     <logger name="com.prosup.proinsight.service.UserPermissionService" level="DEBUG"/>
 
-    <!-- root logger: console (realtime) + file (json rotativo) -->
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </root>
+    <!-- Local: console + arquivo JSON -->
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- Produção (Heroku etc): apenas console (Heroku captura stdout) -->
+    <springProfile name="!local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
 
 </configuration>
