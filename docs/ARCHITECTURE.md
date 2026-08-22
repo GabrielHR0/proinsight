@@ -155,7 +155,7 @@ domain/
 │
 └── enums/
     ├── Sexo.java                 → MASCULINO, FEMININO
-    ├── ProtocoloVo2Max.java      → COOPER, ROCKPORT, ESTEIRA, ESTEIRA_INCREMENTAL
+    ├── Protocolo.java      → COOPER, ROCKPORT, ESTEIRA, ESTEIRA_INCREMENTAL
     ├── TipoLimite.java           → INCLUSIVO, EXCLUSIVO
     ├── MedicaoTipo.java          → IMC, VO2_MAX, BIOIMPEDANCIA
     ├── ResponsavelType.java      → ACADEMIA, AVALIADOR
@@ -169,7 +169,7 @@ domain/
 
 2. **Value Objects imutáveis**: `Endereco`, `DadosAvaliacao` são imutáveis (sem setters). Garante thread-safety e facilita testes.
 
-3. **Enums para domínios finitos**: `Sexo`, `ProtocoloVo2Max`, `MedicaoTipo` são enums porque o conjunto de valores é fixo e conhecido.
+3. **Enums para domínios finitos**: `Sexo`, `Protocolo`, `MedicaoTipo` são enums porque o conjunto de valores é fixo e conhecido.
 
 4. **`DadosAvaliacao` como Map**: Flexibilidade para dados variáveis (idade, sexo, peso) sem criar classes específicas para cada combinação. Trade-off: perde type-safety, ganha flexibilidade.
 
@@ -735,13 +735,13 @@ public class AvaliacaoVo2MaxHandler {
 ```java
 @Component
 public class TesteVo2MaxMapperRegistry {
-    private final Map<ProtocoloVo2Max, Function<MedicaoVo2MaxDto, TesteVo2Max>> registry = Map.of(
-        ProtocoloVo2Max.COOPER, this::mapearCooper,
-        ProtocoloVo2Max.ROCKPORT, this::mapearRockport,
-        ProtocoloVo2Max.ESTEIRA_INCREMENTAL, this::mapearEsteiraIncremental
+    private final Map<Protocolo, Function<MedicaoVo2MaxDto, TesteVo2Max>> registry = Map.of(
+        Protocolo.COOPER, this::mapearCooper,
+        Protocolo.ROCKPORT, this::mapearRockport,
+        Protocolo.ESTEIRA_INCREMENTAL, this::mapearEsteiraIncremental
     );
     
-    public Function<MedicaoVo2MaxDto, TesteVo2Max> resolve(ProtocoloVo2Max protocolo) {
+    public Function<MedicaoVo2MaxDto, TesteVo2Max> resolve(Protocolo protocolo) {
         return registry.get(protocolo);
     }
 }

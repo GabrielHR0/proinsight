@@ -107,13 +107,13 @@ Atualizado: 2026-07-12
 ### 21. `UserController`, `AcademiaController`, `AvaliacaoController` sem `@Valid`
 - **Arquivos:** `UserController.java:25`, `AcademiaController.java:23/42`, `AvaliacaoController.java:23`
 - **Problema:** `@RequestBody` sem `@Valid` — anotações de validação nos DTOs jamais disparam.
-- **Status:** ❌ Pendente
-- **Solução:** Adicionar `@Valid @RequestBody` nos métodos POST/PUT.
+- **Status:** ✅ Concluído
+- **Solução:** `@Valid @RequestBody` adicionado nos métodos POST/PUT.
 
 ### 22. `AvaliacaoVo2MaxRequest` sem anotações de validação
 - **Arquivo:** `api/dto/request/AvaliacaoVo2MaxRequest.java`
 - **Problema:** Nenhum campo tem `@NotBlank`, `@NotNull`, `@Positive`. Dados nulos/vazios são aceitos.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
 - **Solução:** `@NotBlank` nos IDs, `@Positive`/`@NotNull` nos numéricos.
 
 ---
@@ -123,30 +123,30 @@ Atualizado: 2026-07-12
 ### 23. `MedicaoVo2MaxDto` e `TesteVo2MaxDto` sem validação cascata
 - **Arquivos:** `MedicaoVo2MaxDto.java`, `TesteVo2MaxDto.java`
 - **Problema:** `medidoEm` sem `@NotNull`; lista `testes` sem `@Valid`; `protocolo` sem `@NotNull`.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
 - **Solução:** `@NotNull/@Valid` nos campos, cascata ativada.
 
 ### 24. `AcademiaRequest.EnderecoRequest` sem validação
 - **Arquivo:** `api/dto/request/AcademiaRequest.java` (inner class)
 - **Problema:** rua, cidade, estado, cep sem `@NotBlank`.
-- **Status:** ❌ Pendente
+- **Status:** ✅ Concluído
 - **Solução:** Anotações de validação no EnderecoRequest.
 
 ### 25. Controllers com `@RequestParam` sem `@Validated`
 - **Arquivo:** `ProtocoloHubController.java`
 - **Problema:** `@RequestParam` não dispara validação sem `@Validated` na classe.
-- **Status:** ❌ Pendente
-- **Solução:** Adicionar `@Validated` na classe + `@NotBlank` nos parâmetros.
+- **Status:** ✅ Concluído
+- **Solução:** `@Validated` + `@NotBlank` nos parâmetros.
 
 ---
 
 ## 🟡 Médios
 
-### 26. Domínios core sem validação em construtores
+### 26. Domínios core sem validação em construtores/setters
 - **Arquivos:** `User.java`, `Cliente.java`, `Academia.java`
-- **Problema:** Construtores aceitam null/blank sem guard clauses.
-- **Status:** ❌ Pendente
-- **Solução:** Guard clauses com `IllegalArgumentException`.
+- **Problema:** Construtores aceitam null/blank sem guard clauses; setters permitem sobrescrever com inválidos.
+- **Status:** ✅ Concluído
+- **Solução:** Guard clauses com `IllegalArgumentException` em construtores e setters.
 
 ### 27. `AvaliacaoVo2MaxHandler` lança `RuntimeException` genérico
 - **Arquivo:** `service/handler/AvaliacaoVo2MaxHandler.java:60-61`
@@ -182,15 +182,18 @@ Atualizado: 2026-07-12
 
 | Prioridade | Total | Concluído | Pendente |
 |------------|-------|-----------|----------|
-| 🔴 Críticos | 7 | 5 | 2 |
-| 🟠 Altos | 8 | 5 | 3 |
-| 🟡 Médios | 8 | 5 | 3 |
+| 🔴 Críticos | 7 | 7 | 0 |
+| 🟠 Altos | 8 | 8 | 0 |
+| 🟡 Médios | 8 | 6 | 2 |
 | 🟢 Baixos | 7 | 3 | 4 |
-| **Total** | **30** | **18** | **12** |
+| **Total** | **30** | **24** | **6** |
 
-**Progresso: 60% concluído**
+**Progresso: 80% concluído**
 
 ### Pendências restantes
 - #16 `AvaliadorControllerValidationTest` vazio
 - #17 `ExampleRepositoryIT` comentado
-- #21-#30 Validação de campos (Fase 1.6 do Sprint Plan)
+- #27 `AvaliacaoVo2MaxHandler` lança `RuntimeException` genérico
+- #28 Validação redundante handlers vs services
+- #29 Mensagens de erro sem padronização
+- #30 Faltam testes de validação

@@ -291,7 +291,7 @@ repository.save(documento)
 void setUp() {
     mongoTemplate.dropCollection(TabelaClassificacaoDocument.class);
 
-    PersistedTabelaVo2Max raiz = new PersistedTabelaVo2Max(ProtocoloVo2Max.COOPER);
+    PersistedTabelaVo2Max raiz = new PersistedTabelaVo2Max(Protocolo.COOPER);
     PersistedTabelaSexo filho = new PersistedTabelaSexo(Sexo.MASCULINO);
     raiz.addComponente(filho);
 

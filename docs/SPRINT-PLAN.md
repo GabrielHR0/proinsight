@@ -5,7 +5,7 @@
 >
 > **Status:** ✅ Concluído | ❌ Pendente | 🔄 Em andamento
 >
-> Atualizado: 2026-07-12
+> Atualizado: 2026-07-17
 
 ---
 
@@ -123,16 +123,16 @@
 
 | # | Task | Onde | Descrição | Critério de Aceite |
 |---|------|------|-----------|-------------------|
-| ❌ 1.6.1 | **Adicionar `@Valid` nos controllers** | `UserController`, `AcademiaController` (POST/PUT), `AvaliacaoController` | `@Valid @RequestBody` ativa o Jakarta Bean Validation | Request inválido retorna 400 com violations no corpo |
-| ❌ 1.6.2 | **Validar `AvaliacaoVo2MaxRequest`** | `api/dto/request/AvaliacaoVo2MaxRequest.java` | Adicionar `@NotBlank` em IDs, `@NotNull`/`@Positive` em campos numéricos | DTO rejeita campos nulos/mal formatados |
-| ❌ 1.6.3 | **Validar `MedicaoVo2MaxDto` e `TesteVo2MaxDto`** | `api/dto/request/MedicaoVo2MaxDto.java`, `TesteVo2MaxDto.java` | `@NotNull` em `medidoEm`, `@Valid` na lista de testes, `@NotNull` em `protocolo` | Nested DTOs validados em cascata |
-| ❌ 1.6.4 | **Validar `AcademiaRequest.EnderecoRequest`** | `api/dto/request/AcademiaRequest.java` | `@NotBlank` em rua, cidade, estado, cep | Endereço inválido rejeitado |
-| ❌ 1.6.5 | **Adicionar `@Validated` em controllers com `@RequestParam`** | `ProtocoloHubController` | `@Validated` na classe + `@NotBlank` em `userId` | Parâmetro vazio retorna 400 |
-| ❌ 1.6.6 | **Adicionar validação em construtores de domínios core** | `User`, `Cliente`, `Academia` | Guard clauses: null check, blank check, tamanho mínimo | Domínio rejeita estado inválido mesmo construído diretamente |
-| ❌ 1.6.7 | **Corrigir `RuntimeException` no `AvaliacaoVo2MaxHandler`** | `service/handler/AvaliacaoVo2MaxHandler.java` | Trocar por `NoSuchElementException` para consistência | Exceção consistente com o resto do código |
-| ❌ 1.6.8 | **Remover validação redundante handlers vs services** | `AvaliacaoVo2MaxHandler`, `AvaliacaoImcHandler` | Handlers validam existência, services validam de novo. Manter só no service. | Validação em camada única (service) |
-| ❌ 1.6.9 | **Padronizar mensagens de erro em português** | Todos os DTOs Request | `@NotBlank(message = "Campo obrigatório")`, `@Email(message = "E-mail inválido")` | Mensagens consistentes e em português |
-| ❌ 1.6.10 | **Testes de validação** | `src/test/.../controller/` ou `handler/` | Testes que enviam payloads inválidos e assertem 400 com RFC 7807 | Cobertura de validação testada |
+| ✅ 1.6.1 | **Adicionar `@Valid` nos controllers** | `UserController`, `AcademiaController` (POST/PUT), `AvaliacaoController` | `@Valid @RequestBody` ativa o Jakarta Bean Validation | Request inválido retorna 400 com violations no corpo |
+| ✅ 1.6.2 | **Validar `AvaliacaoVo2MaxRequest`** | `api/dto/request/AvaliacaoVo2MaxRequest.java` | Adicionar `@NotBlank` em IDs, `@NotNull`/`@Positive` em campos numéricos | DTO rejeita campos nulos/mal formatados |
+| ✅ 1.6.3 | **Validar `MedicaoVo2MaxDto` e `TesteVo2MaxDto`** | `api/dto/request/MedicaoVo2MaxDto.java`, `TesteVo2MaxDto.java` | `@NotNull` em `medidoEm`, `@Valid` na lista de testes, `@NotNull` em `protocolo` | Nested DTOs validados em cascata |
+| ✅ 1.6.4 | **Validar `AcademiaRequest.EnderecoRequest`** | `api/dto/request/AcademiaRequest.java` | `@NotBlank` em rua, cidade, estado, cep | Endereço inválido rejeitado |
+| ✅ 1.6.5 | **Adicionar `@Validated` em controllers com `@RequestParam`** | `ProtocoloHubController` | `@Validated` na classe + `@NotBlank` em `userId` | Parâmetro vazio retorna 400 |
+| ✅ 1.6.6 | **Adicionar validação em construtores de domínios core** | `User`, `Cliente`, `Academia` | Guard clauses: null check, blank check, tamanho mínimo | Domínio rejeita estado inválido mesmo construído diretamente |
+| ✅ 1.6.7 | **Corrigir `RuntimeException` no `AvaliacaoVo2MaxHandler`** | `service/handler/AvaliacaoVo2MaxHandler.java` | Trocar por `NoSuchElementException` para consistência | Exceção consistente com o resto do código |
+| ✅ 1.6.8 | **Remover validação redundante handlers vs services** | `AvaliacaoVo2MaxHandler`, `AvaliacaoImcHandler` | Handlers validam existência, services validam de novo. Manter só no service. | Validação em camada única (service) |
+| ✅ 1.6.9 | **Padronizar mensagens de erro em português** | Todos os DTOs Request | `@NotBlank(message = "Campo obrigatório")`, `@Email(message = "E-mail inválido")` | Mensagens consistentes e em português |
+| ✅ 1.6.10 | **Testes de validação** | `src/test/.../controller/AvaliacaoControllerValidationTest.java` | Testes que enviam payloads inválidos e assertem 400 com RFC 7807 | 6 testes: campos obrigatórios, negativo, múltiplos erros |
 
 ---
 
@@ -149,9 +149,12 @@
 - [x] Validações apenas nos DTOs Request (removidas dos Documents)
 - [x] URLs do GlobalExceptionHandler corrigidas (`proinsight://problems/*`)
 - [x] Protocolos de avaliação com campos descritivos completos
-- [ ] **Validação de campos da API implementada (Fase 1.6)**
+- [x] **Validação de campos da API implementada (Fase 1.6)** — 10/10 tarefas concluídas
+- [x] **Ativo field** adicionado ao Cliente (domain + document + DTO + frontend)
+- [x] **Corrigido `ClienteController @RequestMapping`** (removido `/api/v1` duplicado com WebConfig)
+- [x] **ProtocoloVo2Max renomeado para `Protocolo`** — enum geral para todos os tipos de avaliação
 
-**Progresso Sprint 1: 90%** (pendente: validação de campos + Roles/Permissions — parte vai para Sprint 2)
+**Progresso Sprint 1: 100%** (1.2.5 Roles/Permissions movido para Sprint 2)
 
 ---
 
@@ -171,11 +174,11 @@
 
 | # | Task | O que Estudar | Por que Importa | Recursos Sugeridos |
 |---|------|---------------|-----------------|-------------------|
-| 2.1.1 | **Autenticação vs Autorização** | Diferença entre "quem é você" e "o que você pode fazer" | São problemas diferentes com soluções diferentes | Livro: "Bulletproof TLS" cap. 1-3 |
-| 2.1.2 | **HTTP Statelessness** | Por que HTTP é stateless e como state é mantido (cookies, tokens, sessions) | Base para entender JWT, OAuth, sessions | MDN: HTTP Cookies, HTTP Authentication |
-| 2.1.3 | **OWASP Top 10** | As 10 vulnerabilidades mais comuns (Injection, Broken Auth, XSS, etc.) | Saber O QUE proteger antes de como | owasp.org/www-project-top-ten |
-| 2.1.4 | **HTTPS e TLS** | Como TLS funciona, certificados, por que HTTP é inseguro | Proteção em trânsito é obrigatória | Let's Encrypt docs, Cloudflare Learning Center |
-| 2.1.5 | **Password Hashing** | BCrypt, scrypt, Argon2 — por que NUNCA guardar senhas em texto plano | Já usamos BCrypt, mas precisamos entender POR QUÊ | OWASP Password Storage Cheat Sheet |
+| 2.1.1 | **Autenticação vs Autorização** | Diferença entre "quem é você" e "o que você pode fazer" | São problemas diferentes com soluções diferentes | [Spring Security Architecture (ref. docs)](https://docs.spring.io/spring-security/reference/7.0/servlet/architecture.html) — entenda a arquitetura primeiro |
+| 2.1.2 | **HTTP Statelessness** | Por que HTTP é stateless e como state é mantido (cookies, tokens, sessions) | Base para entender JWT, OAuth, sessions | [MDN: HTTP Authentication](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication) + [MDN: Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie) |
+| 2.1.3 | **OWASP Top 10** | As 10 vulnerabilidades mais comuns (Injection, Broken Auth, XSS, etc.) | Saber O QUE proteger antes de como | [OWASP Top 10](https://owasp.org/www-project-top-ten/) — leia as descrições de cada item |
+| 2.1.4 | **HTTPS e TLS** | Como TLS funciona, certificados, por que HTTP é inseguro | Proteção em trânsito é obrigatória | [Cloudflare Learning Center: TLS](https://www.cloudflare.com/learning/ssl/transport-layer-security-tls/) + [Let's Encrypt](https://letsencrypt.org/pt-br/how-it-works/) |
+| 2.1.5 | **Password Hashing** | BCrypt, scrypt, Argon2 — por que NUNCA guardar senhas em texto plano | Já usamos BCrypt, mas precisamos entender POR QUÊ | [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) |
 
 ---
 
@@ -185,11 +188,11 @@
 
 | # | Task | O que Estudar | Implementação | Critério de Aceite |
 |---|------|---------------|---------------|-------------------|
-| 2.2.1 | **SecurityFilterChain** | Como filtros são encadeados. Ordem de execução. `OncePerRequestFilter` | Criar `SecurityConfig` com filter chain | Request passa pelo filtro |
-| 2.2.2 | **AuthenticationManager** | Como autenticação é processada. `AuthenticationProvider`, `Authentication` object | Configurar `AuthenticationManager` bean | Autenticação funciona |
-| 2.2.3 | **UserDetailsService** | Como carregar usuários do banco. `loadUserByUsername()` | Implementar `CustomUserDetailsService` | Usuário carregado do MongoDB |
-| 2.2.4 | **PasswordEncoder** | BCrypt strength, por que 12 é bom, performance vs segurança | Já existe `SecurityConfig` — verificar se está correto | Senhas codificadas/verificadas |
-| 2.2.5 | **@PreAuthorize / @Secured** | Method-level security. SpEL expressions | Habilitar `@EnableMethodSecurity` | Roles funcionam em métodos |
+| 2.2.1 | **SecurityFilterChain** | Como filtros são encadeados. Ordem de execução. `OncePerRequestFilter` | Criar `SecurityConfig` com filter chain | [Spring Security Architecture](https://docs.spring.io/spring-security/reference/7.0/servlet/architecture.html) + [SecurityFilterChain](https://docs.spring.io/spring-security/reference/7.0/servlet/configuration/java.html) |
+| 2.2.2 | **AuthenticationManager** | Como autenticação é processada. `AuthenticationProvider`, `Authentication` object | Configurar `AuthenticationManager` bean | [Authentication Architecture](https://docs.spring.io/spring-security/reference/7.0/servlet/authentication/architecture.html) |
+| 2.2.3 | **UserDetailsService** | Como carregar usuários do banco. `loadUserByUsername()` | Implementar `CustomUserDetailsService` | [UserDetailsService docs](https://docs.spring.io/spring-security/reference/7.0/servlet/authentication/passwords/user-details-service.html) |
+| 2.2.4 | **PasswordEncoder** | BCrypt strength, por que 12 é bom, performance vs segurança | Já existe `SecurityConfig` — verificar se está correto | [PasswordEncoder docs](https://docs.spring.io/spring-security/reference/7.0/features/authentication/password-storage.html) |
+| 2.2.5 | **@PreAuthorize / @Secured** | Method-level security. SpEL expressions | Habilitar `@EnableMethodSecurity` | [Method Security](https://docs.spring.io/spring-security/reference/7.0/servlet/authorization/method-security.html) |
 
 ---
 
@@ -198,10 +201,10 @@
 > JWT é o padrão mais comum para APIs REST. Entender deeply.
 
 | # | Task | O que Estudar | Implementação | Critério de Aceite |
-| 2.3.1 | **O que é JWT** | Header.Payload.Signature. Por que é stateless. Formato Base64URL | Nenhum (estudo puro) | Consegue decodificar um JWT manualmente |
+| 2.3.1 | **O que é JWT** | Header.Payload.Signature. Por que é stateless. Formato Base64URL. Use [jwt.io](https://jwt.io) para decodificar/verificar tokens manualmente | Nenhum (estudo puro) | Consegue decodificar um JWT manualmente |
 | 2.3.2 | **Fluxo de Login** | Client envia credenciais → Server valida → Gera JWT → Client armazena → Client envia em cada request | Criar `POST /auth/login` | Login retorna JWT |
-| 2.3.3 | **JwtAuthenticationFilter** | `OncePerRequestFilter` que lê `Authorization: Bearer <token>` e valida | Criar `JwtAuthenticationFilter` | Request com token é autenticado |
-| 2.3.4 | **Geração e Validação de Token** | `io.jsonwebtoken:jjwt` ou `nimbus-jose-jwt`. Claims (sub, exp, roles) | Criar `JwtTokenProvider` | Token gerado e validado |
+| 2.3.3 | **JwtAuthenticationFilter** | `OncePerRequestFilter` que lê `Authorization: Bearer <token>` e valida. [Exemplo BearerTokenResolver](https://docs.spring.io/spring-security/reference/7.0/api/java/org/springframework/security/oauth2/server/resource/web/BearerTokenResolver.html) | Criar `JwtAuthenticationFilter` | Request com token é autenticado |
+| 2.3.4 | **Geração e Validação de Token** | [`nimbus-jose-jwt`](https://connect2id.com/products/nimbus-jose-jwt) já incluso via `spring-boot-starter-oauth2-resource-server`. [Spring Security JWT docs](https://docs.spring.io/spring-security/reference/7.0/servlet/oauth2/resource-server/jwt.html) | Criar `JwtTokenProvider` | Token gerado e validado |
 | 2.3.5 | **Refresh Tokens** | Por que access tokens curtos + refresh tokens longos são necessários | Implementar `POST /auth/refresh` | Refresh token gera novo access token |
 | 2.3.6 | **Token Revocation** | Blacklist, Redis, ou curto expiry. Trade-offs | Decidir abordagem e implementar | Token invalidado funciona |
 | 2.3.7 | **JWT com múltiplas academias** | Claims customizadas: `academiaIds: [...]` no payload do JWT | Incluir lista de academias no token | Token contém todas as academias do user |
@@ -215,10 +218,10 @@
 
 | # | Task | O que Estudar | Implementação | Critério de Aceite |
 |---|------|---------------|---------------|-------------------|
-| 2.4.1 | **O que é um Filter no Spring** | `javax.servlet.Filter` vs `OncePerRequestFilter`. Ordem. `@Order` | Criar filtro de logging de requests | Request logado antes de chegar ao controller |
-| 2.4.2 | **CORS Filter** | Cross-Origin Resource Sharing. Por que browsers bloqueiam requests cross-origin | Configurar CORS no `WebConfig` ou filter | Frontend consegue chamar API |
-| 2.4.3 | **Rate Limiting Filter** | Throttling. Algoritmos: Token Bucket, Sliding Window | Criar `RateLimitFilter` com bucket simples | Request excedente retorna 429 |
-| 2.4.4 | **Security Headers Filter** | `X-Content-Type-Options`, `X-Frame-Options`, `Strict-Transport-Security`, `Content-Security-Policy` | Criar `SecurityHeadersFilter` | Headers presentes em toda response |
+| 2.4.1 | **O que é um Filter no Spring** | `jakarta.servlet.Filter` vs `OncePerRequestFilter`. Ordem. `@Order`. [Spring Security Filter Chain](https://docs.spring.io/spring-security/reference/7.0/servlet/architecture.html#servlet-securityarchitecture) | Criar filtro de logging de requests | Request logado antes de chegar ao controller |
+| 2.4.2 | **CORS Filter** | Cross-Origin Resource Sharing. Por que browsers bloqueiam requests cross-origin. [MDN: CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) | Configurar CORS no `WebConfig` ou filter | Frontend consegue chamar API |
+| 2.4.3 | **Rate Limiting Filter** | Throttling. Algoritmos: Token Bucket, Sliding Window. [Cloudflare: Rate Limiting](https://www.cloudflare.com/learning/bots/what-is-rate-limiting/) | Criar `RateLimitFilter` com bucket simples | Request excedente retorna 429 |
+| 2.4.4 | **Security Headers Filter** | `X-Content-Type-Options`, `X-Frame-Options`, `Strict-Transport-Security`, `Content-Security-Policy`. [OWASP Headers](https://owasp.org/www-project-secure-headers/) | Criar `SecurityHeadersFilter` | Headers presentes em toda response |
 | 2.4.5 | **Request Validation Filter** | Validar Content-Type, tamanho do body, encoding | Criar `RequestValidationFilter` | Request inválida rejeitada antes do controller |
 | 2.4.6 | **Audit Log Filter** | Logar quem acessou o quê, quando. IP, user-agent | Criar `AuditLogFilter` | Logs de auditoria presentes |
 
@@ -529,5 +532,33 @@ Request → JwtAuthenticationFilter
 
 ---
 
+## Recomendações de Conteúdo para Segurança (Sprint 2)
+
+Além dos links nas tasks acima, estes recursos são excelentes para aprendizado profundo:
+
+### Cursos (vídeo)
+
+| Recurso | Por que é bom | Link |
+|---------|---------------|------|
+| **Master Spring Security In One Shot 2026** (CodeSnippet) | Cobre arquitetura, Basic Auth, JWT, OAuth2, tudo em 4.5h com timestamps | [YouTube](https://www.youtube.com/watch?v=eYCOzPx3ht8) |
+| **Spring Security 7 + OAuth2 + JWT** (Code Decode, Udemy) | Curso completo (13h) com Auth0, Keycloak, RBAC, microservices | [Udemy](https://www.udemy.com/course/code-decode-sprint-security-7/) |
+
+### Tutoriais escritos
+
+| Recurso | Por que é bom | Link |
+|---------|---------------|------|
+| **Spring Boot OAuth2 + JWT: End-to-End Zero-Trust API Security** | Guia prático para Spring Security 7 cobrindo JWT, RSA, roles, CSRF, CORS, method security | [Devops Monk Blog](https://blog.devops-monk.com/2026/05/spring-boot-oauth2-jwt-security/) |
+| **Spring Boot 4 Authentication Tutorial** | Tutorial passo a passo com registro/login, BCrypt, JPA, Thymeleaf | [Qadr Labs](https://qadrlabs.com/post/spring-boot-4-authentication-tutorial-add-login-and-registration-with-spring-security-7-and-jpa) |
+| **Spring Security Reference Docs (7.0)** | A fonte oficial — completa, precisa, sempre atualizada | [docs.spring.io](https://docs.spring.io/spring-security/reference/7.0/) |
+
+### Ferramentas
+
+| Ferramenta | Para que serve | Link |
+|------------|----------------|------|
+| **jwt.io** | Decodificar, verificar e depurar JWTs manualmente | [jwt.io](https://jwt.io) |
+| **OWASP ZAP** | Scanner de vulnerabilidades para testar sua API | [ZAP](https://www.zaproxy.org/) |
+
+---
+
 *Planejamento criado: 2026-07-10*
-*Versão: 1.0*
+*Versão: 1.1*
