@@ -8,7 +8,7 @@ public class MedicaoImcDocument extends MedicaoDocument {
 
     private Integer massaCorporalGramas;
     private Integer alturaCm;
-    private Integer imcCalculado;
+    private Double imcCalculado;
     private String classificacaoImc;
 
     public MedicaoImcDocument() {
@@ -31,11 +31,11 @@ public class MedicaoImcDocument extends MedicaoDocument {
         this.alturaCm = alturaCm;
     }
 
-    public Integer getImcCalculado() {
+    public Double getImcCalculado() {
         return imcCalculado;
     }
 
-    public void setImcCalculado(Integer imcCalculado) {
+    public void setImcCalculado(Double imcCalculado) {
         this.imcCalculado = imcCalculado;
     }
 

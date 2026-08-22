@@ -1,48 +1,47 @@
 package com.prosup.proinsight.infrastructure.persistence.mapper;
 
-import com.prosup.proinsight.domain.model.Role;
 import com.prosup.proinsight.domain.model.User;
 import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-@Component
 public class UserMapper {
 
-    public User toDomain(UserDocument d) {
+    public static User toDomain(UserDocument d) {
         if (d == null) return null;
 
-        Set<Role> domainRoles = Collections.emptySet();
-        if (d.getRoles() != null && !d.getRoles().isEmpty()) {
-            domainRoles = new HashSet<>();
-            for (String rid : d.getRoles()) {
-                domainRoles.add(new Role(rid, null, null, Collections.emptySet()));
-            }
-        }
+        Map<String, Set<String>> academiaRoles = d.getAcademiaRoles() != null
+                ? new HashMap<>(d.getAcademiaRoles())
+                : new HashMap<>();
 
         return new User(
                 d.getId(),
+                d.getUserName(),
                 d.getEmail(),
                 d.getPassword(),
-                domainRoles,
+                academiaRoles,
                 d.isActive(),
-                d.getAcademiaIds() != null ? new ArrayList<>(d.getAcademiaIds()) : new ArrayList<>(),
-                d.getAvaliadorId(),
+                d.getFailedLoginAttempts() != null ? d.getFailedLoginAttempts() : 0,
+                d.getLockedUntil(),
+                d.getAcademiaIds() != null ? new HashSet<>(d.getAcademiaIds()) : new HashSet<>(),
+                d.getCref(),
+                d.getCpf(),
                 d.getCreatedAt(),
                 d.getUpdatedAt());
     }
 
-    public UserDocument toDocument(String email, String passwordHash, Set<String> roleIds) {
+    public static UserDocument toDocument(String userName, String email, String passwordHash,
+                                          Map<String, Set<String>> academiaRoles) {
         UserDocument doc = new UserDocument();
+        doc.setUserName(userName);
         doc.setEmail(email);
         doc.setPassword(passwordHash);
         doc.setActive(true);
-        if (roleIds != null) {
-            doc.setRoles(new HashSet<>(roleIds));
+        if (academiaRoles != null) {
+            doc.setAcademiaRoles(new HashMap<>(academiaRoles));
         }
         return doc;
     }

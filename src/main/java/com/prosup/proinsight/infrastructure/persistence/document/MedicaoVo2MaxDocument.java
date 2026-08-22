@@ -1,7 +1,7 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import org.springframework.data.annotation.TypeAlias;
 
 import java.util.List;
@@ -9,11 +9,13 @@ import java.util.List;
 @TypeAlias("medicaoVo2Max")
 public class MedicaoVo2MaxDocument extends MedicaoDocument {
 
-    private ProtocoloVo2Max protocolo;
+    private Protocolo protocolo;
     private Integer distanciaMetros;
     private Integer tempoSegundos;
     private Integer frequenciaCardiacaBpm;
     private Double pesoKg;
+    private Double velocidadeKmh;
+    private Double inclinacaoPercent;
     private Integer vo2MaxCalculado;
     private String classificacaoVo2;
     private List<Object> testesAdicionais;
@@ -24,11 +26,11 @@ public class MedicaoVo2MaxDocument extends MedicaoDocument {
         super(MedicaoTipo.VO2_MAX);
     }
 
-    public ProtocoloVo2Max getProtocolo() {
+    public Protocolo getProtocolo() {
         return protocolo;
     }
 
-    public void setProtocolo(ProtocoloVo2Max protocolo) {
+    public void setProtocolo(Protocolo protocolo) {
         this.protocolo = protocolo;
     }
 
@@ -62,6 +64,22 @@ public class MedicaoVo2MaxDocument extends MedicaoDocument {
 
     public void setPesoKg(Double pesoKg) {
         this.pesoKg = pesoKg;
+    }
+
+    public Double getVelocidadeKmh() {
+        return velocidadeKmh;
+    }
+
+    public void setVelocidadeKmh(Double velocidadeKmh) {
+        this.velocidadeKmh = velocidadeKmh;
+    }
+
+    public Double getInclinacaoPercent() {
+        return inclinacaoPercent;
+    }
+
+    public void setInclinacaoPercent(Double inclinacaoPercent) {
+        this.inclinacaoPercent = inclinacaoPercent;
     }
 
     public List<Object> getTestesAdicionais() {

@@ -1,8 +1,11 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
+import com.prosup.proinsight.config.ScopedByAcademia;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,6 +15,12 @@ import java.util.List;
 import java.util.Map;
 
 @Document(collection = "avaliacoesFisicas")
+@ScopedByAcademia
+@CompoundIndexes({
+        @CompoundIndex(name = "academia_cliente_idx", def = "{'academiaId': 1, 'clienteId': 1}"),
+        @CompoundIndex(name = "academia_avaliador_idx", def = "{'academiaId': 1, 'avaliadorId': 1}"),
+        @CompoundIndex(name = "academia_cliente_data_idx", def = "{'academiaId': 1, 'clienteId': 1, 'createdAt': -1}")
+})
 public class AvaliacaoFisicaDocument {
 
     @Id
@@ -22,6 +31,9 @@ public class AvaliacaoFisicaDocument {
 
     @Indexed
     private String avaliadorId;
+
+    @Indexed
+    private String academiaId;
 
     private String protocoloId;
     private List<MedicaoDocument> medicoes = new ArrayList<>();
@@ -73,6 +85,14 @@ public class AvaliacaoFisicaDocument {
 
     public void setProtocoloId(String protocoloId) {
         this.protocoloId = protocoloId;
+    }
+
+    public String getAcademiaId() {
+        return academiaId;
+    }
+
+    public void setAcademiaId(String academiaId) {
+        this.academiaId = academiaId;
     }
 
     public Instant getCreatedAt() {

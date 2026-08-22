@@ -1,10 +1,7 @@
 package com.prosup.proinsight.infrastructure.persistence.mapper;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.prosup.proinsight.api.dto.response.AvaliacaoListaResponse;
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.Medicao;
 import com.prosup.proinsight.domain.model.AvaliacaoFisica;
 import com.prosup.proinsight.domain.model.MedicaoImc;
@@ -12,6 +9,7 @@ import com.prosup.proinsight.domain.model.MedicaoVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteImc;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
+import com.prosup.proinsight.domain.model.teste.TesteVo2MaxEsteiraIncremental;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
 import com.prosup.proinsight.infrastructure.persistence.document.AvaliacaoFisicaDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.MedicaoDocument;
@@ -29,12 +27,10 @@ import java.util.stream.Collectors;
 @Component
 public class AvaliacaoFisicaMapper {
 
-    private final ObjectMapper objectMapper;
     private final Map<MedicaoTipo, Function<MedicaoDocument, Medicao>> documentToDomain;
     private final Map<MedicaoTipo, Function<Medicao, MedicaoDocument>> domainToDocument;
 
-    public AvaliacaoFisicaMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public AvaliacaoFisicaMapper() {
         documentToDomain = new HashMap<>();
         documentToDomain.put(MedicaoTipo.VO2_MAX, this::vo2MaxToDomain);
         documentToDomain.put(MedicaoTipo.IMC, this::imcToDomain);
@@ -132,11 +128,13 @@ public class AvaliacaoFisicaMapper {
 
         var testes = new ArrayList<TesteVo2Max>();
 
-        if (v.getProtocolo() == ProtocoloVo2Max.ROCKPORT) {
+        if (v.getProtocolo() == Protocolo.ROCKPORT) {
             double tempoMinutos = v.getTempoSegundos() != null
                 ? v.getTempoSegundos() / 60.0
                 : 0;
             testes.add(new TesteVo2MaxRockport(tempoMinutos, v.getFrequenciaCardiacaBpm(), v.getPesoKg()));
+        } else if (v.getProtocolo() == Protocolo.ESTEIRA_INCREMENTAL) {
+            testes.add(new TesteVo2MaxEsteiraIncremental(v.getVelocidadeKmh(), v.getInclinacaoPercent()));
         } else {
             testes.add(new TesteVo2MaxCooper(v.getDistanciaMetros()));
         }
@@ -145,11 +143,15 @@ public class AvaliacaoFisicaMapper {
             for (var item : v.getTestesAdicionais()) {
                 if (item instanceof java.util.Map<?, ?> map) {
                     String protocolo = (String) map.get("protocolo");
-                    if (ProtocoloVo2Max.ROCKPORT.name().equals(protocolo)) {
+                    if (Protocolo.ROCKPORT.name().equals(protocolo)) {
                         Double t = (Double) map.get("tempoMinutos");
                         Integer fc = (Integer) map.get("frequenciaCardiaca");
                         Double peso = (Double) map.get("pesoKg");
                         testes.add(new TesteVo2MaxRockport(t != null ? t : 0, fc, peso));
+                    } else if (Protocolo.ESTEIRA_INCREMENTAL.name().equals(protocolo)) {
+                        Double vel = (Double) map.get("velocidadeKmh");
+                        Double inc = (Double) map.get("inclinacaoPercent");
+                        testes.add(new TesteVo2MaxEsteiraIncremental(vel, inc));
                     } else {
                         Integer dist = (Integer) map.get("distanciaMetros");
                         testes.add(new TesteVo2MaxCooper(dist != null ? dist : 0));
@@ -202,6 +204,9 @@ public class AvaliacaoFisicaMapper {
 
         if (primeiro instanceof TesteVo2MaxCooper cooper) {
             doc.setDistanciaMetros(cooper.getDistanciaMetros());
+        } else if (primeiro instanceof TesteVo2MaxEsteiraIncremental esteira) {
+            doc.setVelocidadeKmh(esteira.getVelocidadeKmh());
+            doc.setInclinacaoPercent(esteira.getInclinacaoPercent());
         } else if (primeiro instanceof TesteVo2MaxRockport rockport) {
             doc.setTempoSegundos(rockport.getTempoMinutos() != null
                 ? (int) Math.round(rockport.getTempoMinutos() * 60)
@@ -218,6 +223,9 @@ public class AvaliacaoFisicaMapper {
                 map.put("protocolo", t.getProtocolo().name());
                 if (t instanceof TesteVo2MaxCooper c) {
                     map.put("distanciaMetros", c.getDistanciaMetros());
+                } else if (t instanceof TesteVo2MaxEsteiraIncremental e) {
+                    map.put("velocidadeKmh", e.getVelocidadeKmh());
+                    map.put("inclinacaoPercent", e.getInclinacaoPercent());
                 } else if (t instanceof TesteVo2MaxRockport r) {
                     map.put("tempoMinutos", r.getTempoMinutos());
                     map.put("frequenciaCardiaca", r.getFrequenciaCardiaca());
@@ -230,26 +238,7 @@ public class AvaliacaoFisicaMapper {
         return doc;
     }
 
-    public AvaliacaoListaResponse toListaResponse(AvaliacaoFisicaDocument doc) {
-        if (doc == null) return null;
-
-        var medicao = doc.getMedicoes().isEmpty() ? null : doc.getMedicoes().get(0);
-        var tipo = medicao != null ? medicao.getTipo().name() : null;
-        var detalhes = medicao != null
-            ? objectMapper.convertValue(medicao, new TypeReference<Map<String, Object>>() {})
-            : null;
-
-        return new AvaliacaoListaResponse(
-            doc.getId(),
-            doc.getClienteId(),
-            doc.getProtocoloId(),
-            doc.getCreatedAt() != null ? doc.getCreatedAt().toString() : null,
-            tipo,
-            detalhes
-        );
-    }
-
-    public AvaliacaoFisicaDocument toImcDocument(String clienteId, String avaliadorId, String protocoloId, MedicaoImc medicao, int imcCalculado, String classificacao) {
+    public AvaliacaoFisicaDocument toImcDocument(String clienteId, String avaliadorId, String protocoloId, MedicaoImc medicao, double imcCalculado, String classificacao) {
         var medicaoDoc = new MedicaoImcDocument();
         medicaoDoc.setMedidoEm(medicao.getMedidoEm());
         medicaoDoc.setImcCalculado(imcCalculado);
@@ -277,6 +266,9 @@ public class AvaliacaoFisicaMapper {
         medicaoDoc.setProtocolo(primeiroTeste.getProtocolo());
         if (primeiroTeste instanceof TesteVo2MaxCooper cooper) {
             medicaoDoc.setDistanciaMetros(cooper.getDistanciaMetros());
+        } else if (primeiroTeste instanceof TesteVo2MaxEsteiraIncremental esteira) {
+            medicaoDoc.setVelocidadeKmh(esteira.getVelocidadeKmh());
+            medicaoDoc.setInclinacaoPercent(esteira.getInclinacaoPercent());
         } else if (primeiroTeste instanceof TesteVo2MaxRockport rockport) {
             medicaoDoc.setTempoSegundos(rockport.getTempoMinutos() != null
                     ? (int) Math.round(rockport.getTempoMinutos() * 60)
@@ -297,6 +289,9 @@ public class AvaliacaoFisicaMapper {
                 map.put("protocolo", t.getProtocolo().name());
                 if (t instanceof TesteVo2MaxCooper c) {
                     map.put("distanciaMetros", c.getDistanciaMetros());
+                } else if (t instanceof TesteVo2MaxEsteiraIncremental e) {
+                    map.put("velocidadeKmh", e.getVelocidadeKmh());
+                    map.put("inclinacaoPercent", e.getInclinacaoPercent());
                 } else if (t instanceof TesteVo2MaxRockport r) {
                     map.put("tempoMinutos", r.getTempoMinutos());
                     map.put("frequenciaCardiaca", r.getFrequenciaCardiaca());

@@ -3,6 +3,7 @@ package com.prosup.proinsight.infrastructure.persistence.mapper;
 import com.prosup.proinsight.api.dto.response.AvaliacaoImcResponse;
 import com.prosup.proinsight.api.dto.response.AvaliacaoVo2MaxResponse;
 import com.prosup.proinsight.api.dto.response.ClassificacaoVo2Max;
+import com.prosup.proinsight.domain.model.ClassificacaoLegivel;
 import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.composite.classes.NivelImc;
 import com.prosup.proinsight.domain.model.composite.classes.NivelVo2Max;
@@ -23,6 +24,10 @@ public class AvaliacaoResponseMapper {
             return n.getClassificacao();
         }
         return resultado.getClass().getSimpleName();
+    }
+
+    public String obterNomeClassificacaoLegivel(Leaf resultado) {
+        return ClassificacaoLegivel.humanizar(obterNomeClassificacao(resultado));
     }
 
     public Double extrairValorClassificado(AvaliacaoVo2MaxContext context) {
@@ -53,6 +58,7 @@ public class AvaliacaoResponseMapper {
             "Classificação obtida para o teste VO2Max",
             valor
         );
+        classificacao.setNomeLegivel(ClassificacaoLegivel.humanizar(nome));
 
         return new AvaliacaoVo2MaxResponse(
             context.getClienteId(),
@@ -77,6 +83,7 @@ public class AvaliacaoResponseMapper {
 
         return new AvaliacaoImcResponse(
             nomeClassificacao,
+            ClassificacaoLegivel.humanizar(nomeClassificacao),
             protocoloNome,
             protocoloId,
             avaliadorId,

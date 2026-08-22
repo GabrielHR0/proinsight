@@ -19,9 +19,12 @@ public class ClienteMapper {
                 doc.getEmail(),
                 doc.getPhone(),
                 doc.getCpf(),
+                doc.getDataNascimento(),
+                doc.getSexo(),
                 doc.getEndereco(),
                 doc.getAcademiaId(),
-                doc.getAvaliadorId()
+                doc.getAvaliadorId(),
+                doc.isActive()
         );
     }
 
@@ -34,9 +37,12 @@ public class ClienteMapper {
                 domain.getEmail(),
                 domain.getPhone(),
                 domain.getCpf(),
+                domain.getDataNascimento(),
+                domain.getSexo(),
                 domain.getEndereco(),
                 domain.getAcademiaId(),
-                domain.getAvaliadorId()
+                domain.getAvaliadorId(),
+                domain.isActive()
         );
     }
 
@@ -57,9 +63,12 @@ public class ClienteMapper {
                 req.getEmail(),
                 req.getPhone(),
                 req.getCpf(),
+                req.getDataNascimento(),
+                req.getSexo(),
                 endereco,
                 req.getAcademiaId(),
-                req.getAvaliadorId()
+                req.getAvaliadorId(),
+                req.getActive() != null ? req.getActive() : true
         );
     }
 
@@ -72,9 +81,12 @@ public class ClienteMapper {
                 doc.getEmail(),
                 doc.getPhone(),
                 doc.getCpf(),
+                doc.getDataNascimento(),
+                doc.getSexo(),
                 doc.getEndereco(),
                 doc.getAcademiaId(),
-                doc.getAvaliadorId()
+                doc.getAvaliadorId(),
+                doc.isActive()
         );
     }
 }

@@ -50,6 +50,7 @@ public class AquecimentoMapper {
                 a.setObservacoes(doc.getObservacoes());
                 yield a;
             }
+            case IMC -> null;
         };
     }
 }

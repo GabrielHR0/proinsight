@@ -1,6 +1,6 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -22,7 +22,7 @@ public class ProtocoloAvaliacaoDocument {
 
     private Boolean padrao;
 
-    private ProtocoloVo2Max protocoloVo2Max;
+    private Protocolo protocolo;
     private String strategyKey;
     private String tabelaClassificacaoId;
 
@@ -47,13 +47,13 @@ public class ProtocoloAvaliacaoDocument {
     }
 
     public ProtocoloAvaliacaoDocument(String id, String nome, String categoria, Boolean padrao,
-                                      ProtocoloVo2Max protocoloVo2Max, String strategyKey,
+                                      Protocolo protocolo, String strategyKey,
                                       String tabelaClassificacaoId) {
         this.id = id;
         this.nome = nome;
         this.categoria = categoria;
         this.padrao = padrao;
-        this.protocoloVo2Max = protocoloVo2Max;
+        this.protocolo = protocolo;
         this.strategyKey = strategyKey;
         this.tabelaClassificacaoId = tabelaClassificacaoId;
     }
@@ -70,8 +70,8 @@ public class ProtocoloAvaliacaoDocument {
     public Boolean getPadrao() { return padrao; }
     public void setPadrao(Boolean padrao) { this.padrao = padrao; }
 
-    public ProtocoloVo2Max getProtocoloVo2Max() { return protocoloVo2Max; }
-    public void setProtocoloVo2Max(ProtocoloVo2Max protocoloVo2Max) { this.protocoloVo2Max = protocoloVo2Max; }
+    public Protocolo getProtocolo() { return protocolo; }
+    public void setProtocolo(Protocolo protocolo) { this.protocolo = protocolo; }
 
     public String getStrategyKey() { return strategyKey; }
     public void setStrategyKey(String strategyKey) { this.strategyKey = strategyKey; }

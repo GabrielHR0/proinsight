@@ -4,9 +4,9 @@ import com.prosup.proinsight.infrastructure.persistence.document.AvaliacaoFisica
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AvaliacaoFisicaRepository extends MongoRepository<AvaliacaoFisicaDocument, String> {
-    List<AvaliacaoFisicaDocument> findByClienteId(String clienteId);
+    Optional<AvaliacaoFisicaDocument> findFirstByClienteIdAndProtocoloIdOrderByCreatedAtDesc(String clienteId, String protocoloId);
 }

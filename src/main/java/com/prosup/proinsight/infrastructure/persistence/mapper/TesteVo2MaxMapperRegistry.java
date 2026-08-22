@@ -1,6 +1,6 @@
 package com.prosup.proinsight.infrastructure.persistence.mapper;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxEsteiraIncremental;
@@ -15,7 +15,7 @@ import java.util.function.Function;
 @Component
 public class TesteVo2MaxMapperRegistry {
 
-    private final Map<ProtocoloVo2Max, Function<TesteVo2MaxDto, TesteVo2Max>>
+    private final Map<Protocolo, Function<TesteVo2MaxDto, TesteVo2Max>>
             mappers = new HashMap<>();
 
     public TesteVo2MaxMapperRegistry(){
@@ -23,18 +23,23 @@ public class TesteVo2MaxMapperRegistry {
     }
 
     private void registrarMapeadores(){
-        mappers.put(ProtocoloVo2Max.COOPER, dto -> {
+        mappers.put(Protocolo.COOPER, dto -> {
             int distanciaMetros = (int) dto.getResultado();
             return new TesteVo2MaxCooper(distanciaMetros);
         });
 
-        mappers.put(ProtocoloVo2Max.ROCKPORT, dto -> new TesteVo2MaxRockport(
+        mappers.put(Protocolo.ROCKPORT, dto -> new TesteVo2MaxRockport(
             dto.getResultado(),
             dto.getFrequenciaCardiaca(),
             dto.getPesoKg()
         ));
 
-        mappers.put(ProtocoloVo2Max.ESTEIRA_INCREMENTAL, dto -> new TesteVo2MaxEsteiraIncremental(
+        mappers.put(Protocolo.ESTEIRA_INCREMENTAL, dto -> new TesteVo2MaxEsteiraIncremental(
+            dto.getResultado(),
+            dto.getInclinacaoPercent()
+        ));
+
+        mappers.put(Protocolo.ESTEIRA, dto -> new TesteVo2MaxEsteiraIncremental(
             dto.getResultado(),
             dto.getInclinacaoPercent()
         ));
@@ -45,7 +50,7 @@ public class TesteVo2MaxMapperRegistry {
             throw  new IllegalArgumentException("Teste Vo2 Max: DTO ou protocolo não pode ser nulos");
         }
 
-        ProtocoloVo2Max protocolo = dto.getProtocolo();
+        Protocolo protocolo = dto.getProtocolo();
         Function<TesteVo2MaxDto, TesteVo2Max> mapeador =
                 mappers.get(protocolo);
 

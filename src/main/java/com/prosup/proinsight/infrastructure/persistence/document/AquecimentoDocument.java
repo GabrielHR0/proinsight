@@ -1,6 +1,6 @@
 package com.prosup.proinsight.infrastructure.persistence.document;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 /**
  * Document para persistir dados de aquecimento.
@@ -8,7 +8,7 @@ import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
  */
 public class AquecimentoDocument {
 
-    private ProtocoloVo2Max protocolo;
+    private Protocolo protocolo;
     private String descricao;
     private String observacoes;
 
@@ -21,13 +21,13 @@ public class AquecimentoDocument {
     public AquecimentoDocument() {
     }
 
-    public AquecimentoDocument(ProtocoloVo2Max protocolo, String descricao) {
+    public AquecimentoDocument(Protocolo protocolo, String descricao) {
         this.protocolo = protocolo;
         this.descricao = descricao;
     }
 
-    public ProtocoloVo2Max getProtocolo() { return protocolo; }
-    public void setProtocolo(ProtocoloVo2Max protocolo) { this.protocolo = protocolo; }
+    public Protocolo getProtocolo() { return protocolo; }
+    public void setProtocolo(Protocolo protocolo) { this.protocolo = protocolo; }
 
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }

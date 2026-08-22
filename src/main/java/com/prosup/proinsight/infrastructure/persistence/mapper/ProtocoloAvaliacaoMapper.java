@@ -13,7 +13,7 @@ public class ProtocoloAvaliacaoMapper {
         if (req == null) return null;
         var doc = new ProtocoloAvaliacaoDocument();
         doc.setNome(req.getNome());
-        doc.setProtocoloVo2Max(req.getProtocoloVo2Max());
+        doc.setProtocolo(req.getProtocolo());
         doc.setStrategyKey(req.getStrategyKey());
         doc.setTabelaClassificacaoId(req.getTabelaClassificacaoId());
         doc.setDescricao(req.getDescricao());
@@ -32,7 +32,7 @@ public class ProtocoloAvaliacaoMapper {
     public ProtocoloAvaliacao toDomain(ProtocoloAvaliacaoDocument doc) {
         if (doc == null) return null;
         var domain = new ProtocoloAvaliacao(
-            doc.getId(), doc.getNome(), doc.getProtocoloVo2Max(),
+            doc.getId(), doc.getNome(), doc.getProtocolo(),
             doc.getStrategyKey(), doc.getTabelaClassificacaoId()
         );
         domain.setDescricao(doc.getDescricao());
@@ -55,7 +55,7 @@ public class ProtocoloAvaliacaoMapper {
         return new ProtocoloAvaliacaoResponse(
             domain.getId(),
             domain.getNome(),
-            domain.getProtocoloVo2Max(),
+            domain.getProtocolo(),
             domain.getStrategyKey(),
             domain.getTabelaClassificacaoId(),
             domain.getDescricao(),
