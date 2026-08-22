@@ -2,9 +2,6 @@ package com.prosup.proinsight.domain.model;
 
 import java.time.Instant;
 
-/**
- * Domain model for Academia profile. Does not extend Responsavel; kept as a separate profile type.
- */
 public class Academia {
 
     private String id;
@@ -21,6 +18,8 @@ public class Academia {
     }
 
     public Academia(String id, String userId, String nomeFantasia, String razaoSocial, String cnpj, Endereco endereco, String telefone, Instant createdAt, Instant updatedAt) {
+        if (nomeFantasia == null || nomeFantasia.isBlank()) throw new IllegalArgumentException("nomeFantasia não pode ser vazio");
+        if (cnpj == null || cnpj.isBlank()) throw new IllegalArgumentException("cnpj não pode ser vazio");
         this.id = id;
         this.userId = userId;
         this.nomeFantasia = nomeFantasia;
@@ -31,6 +30,7 @@ public class Academia {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
 
     // getters / setters
     public String getId() {
@@ -54,6 +54,7 @@ public class Academia {
     }
 
     public void setNomeFantasia(String nomeFantasia) {
+        if (nomeFantasia == null || nomeFantasia.isBlank()) throw new IllegalArgumentException("nomeFantasia não pode ser vazio");
         this.nomeFantasia = nomeFantasia;
     }
 
@@ -70,6 +71,7 @@ public class Academia {
     }
 
     public void setCnpj(String cnpj) {
+        if (cnpj == null || cnpj.isBlank()) throw new IllegalArgumentException("cnpj não pode ser vazio");
         this.cnpj = cnpj;
     }
 

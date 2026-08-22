@@ -19,6 +19,7 @@ target/
 *.iml
 *.ipr
 .env
+src/main/resources/application-local.properties
 
 ### NetBeans ###
 /nbproject/private/
@@ -38,3 +39,12 @@ build/
 
 /target
 *.log
+*.log.gz
+logs/
+
+### tooling ###
+.opencode/
+.mimocode/
+.playwright-mcp/
+node_modules/*.png
+opencode.json

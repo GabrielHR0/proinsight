@@ -1,110 +1,156 @@
 package com.prosup.proinsight.service.handler;
 
-import com.prosup.proinsight.adapter.out.persistence.MongoAvaliacaoFisicaDataRepository;
-import com.prosup.proinsight.domain.avalicao_strategy.AvaliacaoStrategy;
-import com.prosup.proinsight.dto.request.AvaliacaoVo2MaxRequest;
-import com.prosup.proinsight.dto.response.AvaliacaoVo2MaxResponse;
-import com.prosup.proinsight.dto.response.ClassificacaoVO2Max;
-import com.prosup.proinsight.domain.avalicao_strategy.AvaliacaoVo2MaxContext;
-import com.prosup.proinsight.domain.avalicao_strategy.AvaliacaoVo2MaxContextBuilder;
-import com.prosup.proinsight.domain.avalicao_strategy.AvaliacaoVo2Max;
+import com.prosup.proinsight.domain.DadosAvaliacao;
+import com.prosup.proinsight.domain.enums.MedicaoTipo;
+import com.prosup.proinsight.domain.enums.Sexo;
+import com.prosup.proinsight.domain.model.MedicaoVo2Max;
+import com.prosup.proinsight.domain.model.TabelaClassificacao;
 import com.prosup.proinsight.domain.model.composite.Leaf;
-import com.prosup.proinsight.exception.AvaliacaoException;
-import com.prosup.proinsight.exception.RecursoNaoEncontradoException;
-import com.prosup.proinsight.mapper.AvaliacaoVo2MaxDtoMapper;
-import com.prosup.proinsight.validator.AvaliacaoVo2MaxValidator;
-import com.prosup.proinsight.validator.RequestValidator;
+import com.prosup.proinsight.domain.strategy.AvaliacaoVo2MaxContext;
+import com.prosup.proinsight.domain.strategy.AvaliacaoVo2MaxContextBuilder;
+import com.prosup.proinsight.domain.strategy.StrategyRegistry;
+import com.prosup.proinsight.infrastructure.persistence.mapper.AvaliacaoFisicaMapper;
+import com.prosup.proinsight.infrastructure.persistence.mapper.AvaliacaoResponseMapper;
+import com.prosup.proinsight.infrastructure.persistence.mapper.TabelaClassificacaoMapper;
+import com.prosup.proinsight.infrastructure.persistence.mapper.TesteVo2MaxMapperRegistry;
+import com.prosup.proinsight.infrastructure.persistence.document.ClienteDocument;
+import com.prosup.proinsight.infrastructure.persistence.repository.ClienteRepository;
+import com.prosup.proinsight.infrastructure.persistence.repository.ProtocoloAvaliacaoRepository;
+import com.prosup.proinsight.infrastructure.persistence.repository.TabelaClassificacaoRepository;
+import com.prosup.proinsight.api.dto.request.AvaliacaoVo2MaxRequest;
+import com.prosup.proinsight.api.dto.request.TesteVo2MaxDto;
+import com.prosup.proinsight.api.dto.response.AvaliacaoVo2MaxResponse;
+import com.prosup.proinsight.service.AvaliacaoService;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class AvaliacaoVo2MaxHandler {
-    
-    private final RequestValidator requestValidator;
-    private final AvaliacaoVo2MaxValidator avaliacaoValidator;
 
-    private final AvaliacaoVo2MaxDtoMapper vo2Mapper;
-
-    private final MongoAvaliacaoFisicaDataRepository avaliacaoFisicaRepository;
-    
+    private final TesteVo2MaxMapperRegistry testeRegistry;
+    private final ProtocoloAvaliacaoRepository protocoloRepository;
+    private final TabelaClassificacaoRepository tabelaClassificacaoRepository;
+    private final TabelaClassificacaoMapper tabelaClassificacaoMapper;
+    private final AvaliacaoFisicaMapper avaliacaoMapper;
+    private final AvaliacaoResponseMapper responseMapper;
+    private final StrategyRegistry registry;
+    private final AvaliacaoService avaliacaoService;
+    private final ClienteRepository clienteRepository;
 
     public AvaliacaoVo2MaxHandler(
-        RequestValidator requestValidator,
-        AvaliacaoVo2MaxValidator avaliacaoValidator,
-        AvaliacaoVo2Max estrategiaAvaliacaoVo2Max,
-        AvaliacaoVo2MaxDtoMapper vo2Mapper,
-        MongoAvaliacaoFisicaDataRepository avaliacaoFisicaRepository
+        TesteVo2MaxMapperRegistry testeRegistry,
+        ProtocoloAvaliacaoRepository protocoloRepository,
+        TabelaClassificacaoRepository tabelaClassificacaoRepository,
+        TabelaClassificacaoMapper tabelaClassificacaoMapper,
+        AvaliacaoFisicaMapper avaliacaoMapper,
+        AvaliacaoResponseMapper responseMapper,
+        StrategyRegistry registry,
+        AvaliacaoService avaliacaoService,
+        ClienteRepository clienteRepository
     ) {
-        this.requestValidator = requestValidator;
-        this.avaliacaoValidator = avaliacaoValidator;
-        this.vo2Mapper = vo2Mapper;
-        this.avaliacaoFisicaRepository = avaliacaoFisicaRepository;
+        this.testeRegistry = testeRegistry;
+        this.protocoloRepository = protocoloRepository;
+        this.tabelaClassificacaoRepository = tabelaClassificacaoRepository;
+        this.tabelaClassificacaoMapper = tabelaClassificacaoMapper;
+        this.avaliacaoMapper = avaliacaoMapper;
+        this.responseMapper = responseMapper;
+        this.registry = registry;
+        this.avaliacaoService = avaliacaoService;
+        this.clienteRepository = clienteRepository;
     }
 
     public AvaliacaoVo2MaxResponse processar(AvaliacaoVo2MaxRequest request) {
-        try {
-            avaliacaoValidator.validarRequisicao(request);
-
-            AvaliacaoVo2MaxContext context = new AvaliacaoVo2MaxContextBuilder()
-                .comCliente(request.getClienteId())
-                .comAvaliador(request.getAvaliadorId())
-                .comMedicao(
-                        vo2Mapper.toMedicaoDomain(request.getMedicaoVo2Dto())
-                )
-                .build();
-
-
-            
-            Leaf resultado = avaliar(context, request);
-            
-            if (resultado == null) {
-                throw new AvaliacaoException("Estratégia de avaliação retornou resultado nulo");
-            }
-            
-            return converterParaResponse(resultado, context);
-            
-        } catch (AvaliacaoException | RecursoNaoEncontradoException e) {
-            throw e;
-        } catch (IllegalArgumentException e) {
-            throw new com.prosup.proinsight.exception.RegraNeggocioException(
-                "Erro ao construir contexto: " + e.getMessage()
-            );
-        } catch (Exception e) {
-            throw new AvaliacaoException(
-                "Erro inesperado ao processar avaliação VO2Max: " + e.getMessage(), 
-                e
-            );
-        }
-    }
-
-    private Leaf avaliar(AvaliacaoVo2MaxContext context, AvaliacaoVo2MaxRequest request) {
-        var avaliacao = avaliacaoFisicaRepository.findById(request.getAvaliacaoFisicaId())
-                .orElseThrow(() -> new RecursoNaoEncontradoException(
-                        "Avaliação física não encontrada com ID: " + request.getAvaliacaoFisicaId()
+        var protocolo = protocoloRepository.findById(request.getProtocoloId())
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Protocolo não encontrado: " + request.getProtocoloId()
                 ));
 
-        var strategy = avaliacao.getStrategy();
+        DadosAvaliacao dados = new DadosAvaliacao();
 
-        return strategy.avaliar(context);
-    }
+        // Sexo e idade são resolvidos a partir do cliente cadastrado.
+        // O frontend não envia sexo (sempre null); a idade pode vir no request
+        // ou ser calculada a partir da data de nascimento do cliente.
+        var clienteOpt = request.getClienteId() != null
+                ? clienteRepository.findById(request.getClienteId())
+                : Optional.<ClienteDocument>empty();
 
-    private AvaliacaoVo2MaxResponse converterParaResponse(
-        Leaf resultado, 
-        AvaliacaoVo2MaxContext context
-    ) {
-        String nome = "CLASSIFICACAO_" + resultado.getClass().getSimpleName();
-        String descricao = "Resultado da avaliação VO2Max";
-        
-        ClassificacaoVO2Max classificacao = new ClassificacaoVO2Max(
-            nome,
-            descricao,
-            0.0
+        Integer idade = request.getIdade();
+        if (idade == null && clienteOpt.isPresent() && clienteOpt.get().getDataNascimento() != null) {
+            idade = Period.between(clienteOpt.get().getDataNascimento(), LocalDate.now()).getYears();
+        }
+        if (idade != null) dados.adicionar("idade", idade);
+
+        Sexo sexo = clienteOpt.map(ClienteDocument::getSexo).orElse(null);
+        if (sexo != null) dados.adicionar("sexo", sexo);
+
+        String tabelaClassificacaoId = protocolo.getTabelaClassificacaoId();
+
+        var testeDto = new TesteVo2MaxDto();
+        testeDto.setProtocolo(protocolo.getProtocolo());
+        testeDto.setResultado(request.getResultado());
+        testeDto.setInclinacaoPercent(request.getInclinacaoPercent());
+        testeDto.setFrequenciaCardiaca(request.getFrequenciaCardiaca());
+        testeDto.setPesoKg(request.getPesoKg());
+
+        var testeDomain = testeRegistry.toDomain(testeDto);
+        var medicao = new MedicaoVo2Max(
+                MedicaoTipo.VO2_MAX,
+                Instant.now(),
+                Instant.now(),
+                Instant.now(),
+                request.getObservacoes(),
+                List.of(testeDomain)
         );
-        
-        return new AvaliacaoVo2MaxResponse(
-            context.getClienteId(),
-            context.getAvaliadorId(),
+
+        TabelaClassificacao tabela = tabelaClassificacaoRepository.findById(tabelaClassificacaoId)
+                .map(tabelaClassificacaoMapper::toDomain)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Tabela de classificação " + tabelaClassificacaoId + " não encontrada"
+                ));
+
+        AvaliacaoVo2MaxContext context = new AvaliacaoVo2MaxContextBuilder()
+            .comCliente(request.getClienteId())
+            .comAvaliador(request.getAvaliadorId())
+            .comTabelaClassificacaoId(tabelaClassificacaoId)
+            .comMedicao(medicao)
+            .comDadosAvaliacao(dados)
+            .comTabelaClassificacao(tabela.getRaiz())
+            .build();
+
+        var strategy = registry.resolve(protocolo.getStrategyKey(), AvaliacaoVo2MaxContext.class);
+
+        Leaf resultado = strategy.avaliar(context);
+
+        if (resultado == null) {
+            throw new IllegalStateException(
+                "Nenhum nível de classificação encontrado para o protocolo '" + protocolo.getStrategyKey() +
+                "' com idade=" + idade + ", sexo=" + sexo +
+                ". Verifique se a tabela '" + protocolo.getTabelaClassificacaoId() +
+                "' possui faixas compatíveis com os dados fornecidos."
+            );
+        }
+
+        Double vo2Calculado = testeDomain.calcularVo2Max(dados);
+        medicao.setResultado(vo2Calculado != null ? vo2Calculado.intValue() : null);
+
+        String classificacao = responseMapper.obterNomeClassificacao(resultado);
+
+        var avaliacaoDoc = avaliacaoMapper.toVo2MaxDocument(
+            request.getClienteId(),
+            request.getAvaliadorId(),
+            request.getProtocoloId(),
+            medicao,
             classificacao
         );
+
+        var saved = avaliacaoService.save(avaliacaoDoc);
+
+        return responseMapper.toVo2MaxResponse(resultado, context, saved.getId());
     }
 }
