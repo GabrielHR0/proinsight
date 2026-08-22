@@ -1,9 +1,8 @@
 package com.prosup.proinsight.api.dto.response;
 
+import com.prosup.proinsight.domain.enums.Permissao;
 
 public record PermissionResponse(
-        String id,
-        String resource,
-        String action,
-        String description) {
+        Permissao permissao,
+        String descricao) {
 }

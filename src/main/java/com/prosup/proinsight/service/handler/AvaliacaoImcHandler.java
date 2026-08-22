@@ -57,7 +57,6 @@ public class AvaliacaoImcHandler {
         this.avaliacaoService = avaliacaoService;
     }
 
-    @SuppressWarnings("unchecked")
     public AvaliacaoImcResponse processar(AvaliacaoImcRequest request) {
         var protocolo = protocoloRepository.findById(request.protocoloId())
             .orElseThrow(() -> new NoSuchElementException("Protocolo não encontrado: " + request.protocoloId()));
@@ -91,7 +90,8 @@ public class AvaliacaoImcHandler {
             .comTabelaClassificacao(tabela.getRaiz())
             .build();
 
-        AvaliacaoStrategy<AvaliacaoImcContext> strategy = strategyRegistry.resolve(protocolo.getStrategyKey());
+        AvaliacaoStrategy<AvaliacaoImcContext> strategy =
+                strategyRegistry.resolve(protocolo.getStrategyKey(), AvaliacaoImcContext.class);
         Leaf resultado = strategy.avaliar(context);
 
         double imcValor = calcularImc(request.pesoGramas(), request.alturaCm());
@@ -101,7 +101,7 @@ public class AvaliacaoImcHandler {
             request.avaliadorId(),
             request.protocoloId(),
             medicao,
-            (int) Math.round(imcValor),
+            imcValor,
             responseMapper.obterNomeClassificacao(resultado)
         );
 

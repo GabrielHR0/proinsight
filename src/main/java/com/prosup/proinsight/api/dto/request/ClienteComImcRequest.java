@@ -6,11 +6,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Positive;
 import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDate;
 
-public class ClienteRequest {
+public class ClienteComImcRequest {
 
     @NotBlank(message = "Nome é obrigatório")
     private String fullName;
@@ -43,6 +44,14 @@ public class ClienteRequest {
     private String avaliadorId;
     private Boolean active;
 
+    private String protocoloId;
+
+    @Positive(message = "pesoGramas deve ser positivo")
+    private Integer pesoGramas;
+
+    @Positive(message = "alturaCm deve ser positivo")
+    private Integer alturaCm;
+
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     public String getEmail() { return email; }
@@ -51,7 +60,6 @@ public class ClienteRequest {
     public void setPhone(String phone) { this.phone = phone; }
     public String getCpf() { return cpf; }
     public void setCpf(String cpf) { this.cpf = cpf; }
-
     public LocalDate getDataNascimento() { return dataNascimento; }
     public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
     public Sexo getSexo() { return sexo; }
@@ -70,9 +78,18 @@ public class ClienteRequest {
     public void setAcademiaId(String academiaId) { this.academiaId = academiaId; }
     public String getAvaliadorId() { return avaliadorId; }
     public void setAvaliadorId(String avaliadorId) { this.avaliadorId = avaliadorId; }
-
     public Boolean getActive() { return active; }
     public void setActive(Boolean active) { this.active = active; }
+    public String getProtocoloId() { return protocoloId; }
+    public void setProtocoloId(String protocoloId) { this.protocoloId = protocoloId; }
+    public Integer getPesoGramas() { return pesoGramas; }
+    public void setPesoGramas(Integer pesoGramas) { this.pesoGramas = pesoGramas; }
+    public Integer getAlturaCm() { return alturaCm; }
+    public void setAlturaCm(Integer alturaCm) { this.alturaCm = alturaCm; }
+
+    public boolean temImc() {
+        return pesoGramas != null && alturaCm != null;
+    }
 
     public Endereco toEndereco() {
         return new Endereco(rua, numero, cidade, estado, cep);

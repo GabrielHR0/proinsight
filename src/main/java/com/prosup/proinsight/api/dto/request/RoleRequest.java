@@ -1,6 +1,8 @@
 package com.prosup.proinsight.api.dto.request;
 
+import com.prosup.proinsight.domain.enums.Permissao;
 import jakarta.validation.constraints.NotBlank;
+
 import java.util.Set;
 
 public class RoleRequest {
@@ -10,16 +12,15 @@ public class RoleRequest {
 
     private String description;
 
-    // Permission ids attached to this role
-    private Set<String> permissionIds;
+    private Set<Permissao> permissoes;
 
     public RoleRequest() {
     }
 
-    public RoleRequest(String name, String description, Set<String> permissionIds) {
+    public RoleRequest(String name, String description, Set<Permissao> permissoes) {
         this.name = name;
         this.description = description;
-        this.permissionIds = permissionIds;
+        this.permissoes = permissoes;
     }
 
     public String getName() {
@@ -38,11 +39,11 @@ public class RoleRequest {
         this.description = description;
     }
 
-    public Set<String> getPermissionIds() {
-        return permissionIds;
+    public Set<Permissao> getPermissoes() {
+        return permissoes;
     }
 
-    public void setPermissionIds(Set<String> permissionIds) {
-        this.permissionIds = permissionIds;
+    public void setPermissoes(Set<Permissao> permissoes) {
+        this.permissoes = permissoes;
     }
 }

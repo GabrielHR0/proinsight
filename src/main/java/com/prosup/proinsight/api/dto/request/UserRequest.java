@@ -4,9 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.Map;
 import java.util.Set;
 
 public class UserRequest {
+
+    @NotBlank(message = "Username é obrigatório")
+    private String userName;
 
     @Email(message = "E-mail inválido")
     @NotBlank(message = "E-mail é obrigatório")
@@ -16,20 +20,25 @@ public class UserRequest {
     @Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")
     private String password;
 
-    // Accept role ids to associate the user with existing roles
-    private Set<String> roleIds;
-
-    // Accept permission ids to associate directly (optional)
-    private Set<String> permissionIds;
+    private Map<String, Set<String>> academiaRoles;
 
     public UserRequest() {
     }
 
-    public UserRequest(String email, String password, Set<String> roleIds, Set<String> permissionIds) {
+    public UserRequest(String userName, String email, String password,
+                       Map<String, Set<String>> academiaRoles) {
+        this.userName = userName;
         this.email = email;
         this.password = password;
-        this.roleIds = roleIds;
-        this.permissionIds = permissionIds;
+        this.academiaRoles = academiaRoles;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getEmail() {
@@ -48,19 +57,11 @@ public class UserRequest {
         this.password = password;
     }
 
-    public Set<String> getRoleIds() {
-        return roleIds;
+    public Map<String, Set<String>> getAcademiaRoles() {
+        return academiaRoles;
     }
 
-    public void setRoleIds(Set<String> roleIds) {
-        this.roleIds = roleIds;
-    }
-
-    public Set<String> getPermissionIds() {
-        return permissionIds;
-    }
-
-    public void setPermissionIds(Set<String> permissionIds) {
-        this.permissionIds = permissionIds;
+    public void setAcademiaRoles(Map<String, Set<String>> academiaRoles) {
+        this.academiaRoles = academiaRoles;
     }
 }

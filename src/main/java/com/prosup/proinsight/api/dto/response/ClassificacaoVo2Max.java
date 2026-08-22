@@ -7,6 +7,9 @@ public class ClassificacaoVo2Max {
     @JsonProperty("nome")
     private String nome;
     
+    @JsonProperty("nome_legivel")
+    private String nomeLegivel;
+    
     @JsonProperty("descricao")
     private String descricao;
     
@@ -28,6 +31,14 @@ public class ClassificacaoVo2Max {
     
     public void setNome(String nome) {
         this.nome = nome;
+    }
+    
+    public String getNomeLegivel() {
+        return nomeLegivel;
+    }
+    
+    public void setNomeLegivel(String nomeLegivel) {
+        this.nomeLegivel = nomeLegivel;
     }
     
     public String getDescricao() {

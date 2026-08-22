@@ -2,6 +2,7 @@ package com.prosup.proinsight.service.handler;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
+import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
 import com.prosup.proinsight.domain.model.TabelaClassificacao;
 import com.prosup.proinsight.domain.model.composite.Leaf;
@@ -12,17 +13,22 @@ import com.prosup.proinsight.infrastructure.persistence.mapper.AvaliacaoFisicaMa
 import com.prosup.proinsight.infrastructure.persistence.mapper.AvaliacaoResponseMapper;
 import com.prosup.proinsight.infrastructure.persistence.mapper.TabelaClassificacaoMapper;
 import com.prosup.proinsight.infrastructure.persistence.mapper.TesteVo2MaxMapperRegistry;
-import com.prosup.proinsight.infrastructure.persistence.repository.AvaliacaoFisicaRepository;
+import com.prosup.proinsight.infrastructure.persistence.document.ClienteDocument;
+import com.prosup.proinsight.infrastructure.persistence.repository.ClienteRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.ProtocoloAvaliacaoRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.TabelaClassificacaoRepository;
 import com.prosup.proinsight.api.dto.request.AvaliacaoVo2MaxRequest;
 import com.prosup.proinsight.api.dto.request.TesteVo2MaxDto;
 import com.prosup.proinsight.api.dto.response.AvaliacaoVo2MaxResponse;
+import com.prosup.proinsight.service.AvaliacaoService;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class AvaliacaoVo2MaxHandler {
@@ -31,29 +37,32 @@ public class AvaliacaoVo2MaxHandler {
     private final ProtocoloAvaliacaoRepository protocoloRepository;
     private final TabelaClassificacaoRepository tabelaClassificacaoRepository;
     private final TabelaClassificacaoMapper tabelaClassificacaoMapper;
-    private final AvaliacaoFisicaRepository avaliacaoFisicaRepository;
     private final AvaliacaoFisicaMapper avaliacaoMapper;
     private final AvaliacaoResponseMapper responseMapper;
     private final StrategyRegistry registry;
+    private final AvaliacaoService avaliacaoService;
+    private final ClienteRepository clienteRepository;
 
     public AvaliacaoVo2MaxHandler(
         TesteVo2MaxMapperRegistry testeRegistry,
         ProtocoloAvaliacaoRepository protocoloRepository,
         TabelaClassificacaoRepository tabelaClassificacaoRepository,
         TabelaClassificacaoMapper tabelaClassificacaoMapper,
-        AvaliacaoFisicaRepository avaliacaoFisicaRepository,
         AvaliacaoFisicaMapper avaliacaoMapper,
         AvaliacaoResponseMapper responseMapper,
-        StrategyRegistry registry
+        StrategyRegistry registry,
+        AvaliacaoService avaliacaoService,
+        ClienteRepository clienteRepository
     ) {
         this.testeRegistry = testeRegistry;
         this.protocoloRepository = protocoloRepository;
         this.tabelaClassificacaoRepository = tabelaClassificacaoRepository;
         this.tabelaClassificacaoMapper = tabelaClassificacaoMapper;
-        this.avaliacaoFisicaRepository = avaliacaoFisicaRepository;
         this.avaliacaoMapper = avaliacaoMapper;
         this.responseMapper = responseMapper;
         this.registry = registry;
+        this.avaliacaoService = avaliacaoService;
+        this.clienteRepository = clienteRepository;
     }
 
     public AvaliacaoVo2MaxResponse processar(AvaliacaoVo2MaxRequest request) {
@@ -63,13 +72,27 @@ public class AvaliacaoVo2MaxHandler {
                 ));
 
         DadosAvaliacao dados = new DadosAvaliacao();
-        if (request.getIdade() != null) dados.adicionar("idade", request.getIdade());
-        if (request.getSexo() != null) dados.adicionar("sexo", request.getSexo());
+
+        // Sexo e idade são resolvidos a partir do cliente cadastrado.
+        // O frontend não envia sexo (sempre null); a idade pode vir no request
+        // ou ser calculada a partir da data de nascimento do cliente.
+        var clienteOpt = request.getClienteId() != null
+                ? clienteRepository.findById(request.getClienteId())
+                : Optional.<ClienteDocument>empty();
+
+        Integer idade = request.getIdade();
+        if (idade == null && clienteOpt.isPresent() && clienteOpt.get().getDataNascimento() != null) {
+            idade = Period.between(clienteOpt.get().getDataNascimento(), LocalDate.now()).getYears();
+        }
+        if (idade != null) dados.adicionar("idade", idade);
+
+        Sexo sexo = clienteOpt.map(ClienteDocument::getSexo).orElse(null);
+        if (sexo != null) dados.adicionar("sexo", sexo);
 
         String tabelaClassificacaoId = protocolo.getTabelaClassificacaoId();
 
         var testeDto = new TesteVo2MaxDto();
-        testeDto.setProtocolo(protocolo.getProtocoloVo2Max());
+        testeDto.setProtocolo(protocolo.getProtocolo());
         testeDto.setResultado(request.getResultado());
         testeDto.setInclinacaoPercent(request.getInclinacaoPercent());
         testeDto.setFrequenciaCardiaca(request.getFrequenciaCardiaca());
@@ -100,14 +123,14 @@ public class AvaliacaoVo2MaxHandler {
             .comTabelaClassificacao(tabela.getRaiz())
             .build();
 
-        var strategy = registry.resolve(protocolo.getStrategyKey());
+        var strategy = registry.resolve(protocolo.getStrategyKey(), AvaliacaoVo2MaxContext.class);
 
         Leaf resultado = strategy.avaliar(context);
 
         if (resultado == null) {
             throw new IllegalStateException(
                 "Nenhum nível de classificação encontrado para o protocolo '" + protocolo.getStrategyKey() +
-                "' com idade=" + request.getIdade() + ", sexo=" + request.getSexo() +
+                "' com idade=" + idade + ", sexo=" + sexo +
                 ". Verifique se a tabela '" + protocolo.getTabelaClassificacaoId() +
                 "' possui faixas compatíveis com os dados fornecidos."
             );
@@ -126,7 +149,7 @@ public class AvaliacaoVo2MaxHandler {
             classificacao
         );
 
-        var saved = avaliacaoFisicaRepository.save(avaliacaoDoc);
+        var saved = avaliacaoService.save(avaliacaoDoc);
 
         return responseMapper.toVo2MaxResponse(resultado, context, saved.getId());
     }

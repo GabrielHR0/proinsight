@@ -22,9 +22,10 @@ public class AvaliacaoVo2MaxRequest {
     @JsonProperty("avaliador_id")
     private String avaliadorId;
 
+    @NotNull(message = "resultado é obrigatório")
     @PositiveOrZero(message = "resultado deve ser maior ou igual a zero")
     @JsonProperty("resultado")
-    private double resultado;
+    private Double resultado;
 
     @JsonProperty("observacoes")
     private String observacoes;
@@ -74,11 +75,11 @@ public class AvaliacaoVo2MaxRequest {
         this.avaliadorId = avaliadorId;
     }
 
-    public double getResultado() {
+    public Double getResultado() {
         return resultado;
     }
 
-    public void setResultado(double resultado) {
+    public void setResultado(Double resultado) {
         this.resultado = resultado;
     }
 

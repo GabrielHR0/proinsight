@@ -1,11 +1,11 @@
 package com.prosup.proinsight.api.dto.response;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 public record ProtocoloAvaliacaoResponse(
     String id,
     String nome,
-    ProtocoloVo2Max protocoloVo2Max,
+    Protocolo protocolo,
     String strategyKey,
     String tabelaClassificacaoId,
     String descricao,

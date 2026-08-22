@@ -2,10 +2,6 @@ package com.prosup.proinsight.api.dto.response;
 
 import java.time.Instant;
 
-/**
- * DTO completo para visualização de todas as informações do protocolo.
- * Usado quando o avaliador seleciona uma avaliação para ver detalhes.
- */
 public record ProtocoloDetalheResponse(
         String id,
         String nome,

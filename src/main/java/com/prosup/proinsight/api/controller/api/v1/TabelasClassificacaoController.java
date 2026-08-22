@@ -5,6 +5,7 @@ import com.prosup.proinsight.api.dto.response.TabelaClassificacaoResponse;
 import com.prosup.proinsight.infrastructure.persistence.mapper.TabelaClassificacaoMapper;
 import com.prosup.proinsight.service.TabelasClassificacaoService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class TabelasClassificacaoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('PROTOCOLOS_LER')")
     public ResponseEntity<TabelaClassificacaoResponse> getById(@PathVariable String id) {
         return tabelasClassificacaoService.find(id)
                 .map(doc -> ResponseEntity.ok(tabelaClassificacaoMapper.toResponse(doc)))
@@ -31,6 +33,7 @@ public class TabelasClassificacaoController {
     }
 
     @GetMapping("")
+    @PreAuthorize("hasAuthority('PROTOCOLOS_LER')")
     public ResponseEntity<List<TabelaClassificacaoResponse>> index() {
         return ResponseEntity.ok(
                 tabelasClassificacaoService.findAll()

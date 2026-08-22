@@ -26,16 +26,17 @@ public class ProtocoloHubService {
     }
 
     public Map<String, Object> getHub(String userId) {
-        var todosProtocolos = protocoloRepository.findAll();
         var favoritos = favoritoRepository.findByUserId(userId);
         var favoritoIds = favoritos.stream()
                 .map(UsuarioProtocoloFavoritoDocument::getProtocoloId)
                 .toList();
 
-        var protocolosFavoritos = todosProtocolos.stream()
-                .filter(p -> favoritoIds.contains(p.getId()))
-                .map(this::toResumo)
-                .toList();
+        var todosProtocolos = protocoloRepository.findAll();
+        var protocolosFavoritos = favoritoIds.isEmpty()
+                ? List.of()
+                : protocoloRepository.findAllById(favoritoIds).stream()
+                    .map(this::toResumo)
+                    .toList();
 
         Map<String, List<ProtocoloResumoResponse>> porCategoria = new LinkedHashMap<>();
         for (var protocolo : todosProtocolos) {

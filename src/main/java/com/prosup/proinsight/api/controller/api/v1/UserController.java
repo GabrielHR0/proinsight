@@ -1,16 +1,18 @@
 package com.prosup.proinsight.api.controller.api.v1;
 
+import com.prosup.proinsight.api.annotation.Audited;
 import com.prosup.proinsight.api.dto.request.UserRequest;
 import com.prosup.proinsight.api.dto.response.UserResponse;
 import com.prosup.proinsight.domain.model.User;
 import com.prosup.proinsight.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.HashSet;
 
 @RestController
 @RequestMapping("/users")
@@ -23,28 +25,28 @@ public class UserController {
     }
 
     @PostMapping
+    @Audited
+    @PreAuthorize("hasAuthority('USUARIOS_CRIAR') and @auth.hasAnyAcademiaAccess(#request.academiaRoles?.keySet())")
     public ResponseEntity<UserResponse> create(@Valid @RequestBody UserRequest request) {
-        String[] roleIds = request.getRoleIds() != null
-                ? request.getRoleIds().toArray(new String[0])
-                : new String[0];
-        String[] permissionIds = request.getPermissionIds() != null
-                ? request.getPermissionIds().toArray(new String[0])
-                : new String[0];
+        var academiaRoles = request.getAcademiaRoles() != null
+                ? request.getAcademiaRoles()
+                : new HashMap<String, java.util.Set<String>>();
 
-        User user = service.register(request.getEmail(), request.getPassword(), roleIds, permissionIds);
-
-        Set<String> roleIdSet = user.getRoles() != null
-                ? user.getRoles().stream().map(r -> r.getId()).collect(java.util.stream.Collectors.toSet())
-                : Collections.emptySet();
+        User user = service.register(
+                request.getUserName(),
+                request.getEmail(),
+                request.getPassword(),
+                academiaRoles);
 
         UserResponse response = new UserResponse(
                 user.getId(),
+                user.getUserName(),
                 user.getEmail(),
-                roleIdSet,
-                Set.of(permissionIds),
+                user.getAcademiaRoles() != null ? user.getAcademiaRoles() : new HashMap<>(),
                 user.isActive(),
-                user.getAcademiaIds(),
-                user.getAvaliadorId(),
+                user.getAcademiaIds() != null ? user.getAcademiaIds() : new HashSet<>(),
+                user.getCref(),
+                user.getCpf(),
                 user.getCreatedAt(),
                 user.getUpdatedAt());
 

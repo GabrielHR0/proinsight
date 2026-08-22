@@ -1,7 +1,9 @@
 package com.prosup.proinsight.service;
 
 import com.prosup.proinsight.api.dto.request.AcademiaRequest;
+import com.prosup.proinsight.api.dto.request.MinhaAcademiaRequest;
 import com.prosup.proinsight.api.dto.response.AcademiaResponse;
+import com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument;
 import com.prosup.proinsight.infrastructure.persistence.mapper.AcademiaMapper;
 import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
@@ -61,6 +63,35 @@ public class AcademiaService {
         return mapper.toResponse(
                 repo.save(newDocument)
         );
+    }
+
+    public AcademiaResponse findFirstByOwnerId(String ownerId) {
+        return repo.findByOwnerId(ownerId).stream()
+                .findFirst()
+                .map(mapper::toResponse)
+                .orElse(null);
+    }
+
+    public AcademiaResponse updateFromSelf(String academiaId, MinhaAcademiaRequest request) {
+        var doc = repo.findById(academiaId)
+                .orElseThrow(() -> new NoSuchElementException("Academia não encontrada"));
+
+        doc.setNomeFantasia(request.getNomeFantasia());
+        if (request.getCnpj() != null) doc.setCnpj(request.getCnpj());
+        if (request.getRazaoSocial() != null) doc.setRazaoSocial(request.getRazaoSocial());
+        if (request.getTelefone() != null) doc.setTelefone(request.getTelefone());
+
+        if (request.getEndereco() != null) {
+            var endereco = new AcademiaDocument.Endereco();
+            endereco.setRua(request.getEndereco().getRua());
+            endereco.setNumero(request.getEndereco().getNumero());
+            endereco.setCidade(request.getEndereco().getCidade());
+            endereco.setEstado(request.getEndereco().getEstado());
+            endereco.setCep(request.getEndereco().getCep());
+            doc.setEndereco(endereco);
+        }
+
+        return mapper.toResponse(repo.save(doc));
     }
 
     public void delete(String id) {

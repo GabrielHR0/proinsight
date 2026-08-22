@@ -1,6 +1,6 @@
 package com.prosup.proinsight.api.dto.request;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import jakarta.validation.constraints.NotBlank;
 
 public class ProtocoloAvaliacaoRequest {
@@ -8,7 +8,7 @@ public class ProtocoloAvaliacaoRequest {
     @NotBlank(message = "nome é obrigatório")
     private String nome;
 
-    private ProtocoloVo2Max protocoloVo2Max;
+    private Protocolo protocolo;
 
     @NotBlank(message = "strategyKey é obrigatório")
     private String strategyKey;
@@ -32,8 +32,8 @@ public class ProtocoloAvaliacaoRequest {
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 
-    public ProtocoloVo2Max getProtocoloVo2Max() { return protocoloVo2Max; }
-    public void setProtocoloVo2Max(ProtocoloVo2Max protocoloVo2Max) { this.protocoloVo2Max = protocoloVo2Max; }
+    public Protocolo getProtocolo() { return protocolo; }
+    public void setProtocolo(Protocolo protocolo) { this.protocolo = protocolo; }
 
     public String getStrategyKey() { return strategyKey; }
     public void setStrategyKey(String strategyKey) { this.strategyKey = strategyKey; }

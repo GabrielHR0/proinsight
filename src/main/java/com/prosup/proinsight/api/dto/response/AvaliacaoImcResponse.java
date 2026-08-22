@@ -8,6 +8,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record AvaliacaoImcResponse(
     @JsonProperty("classificacao") String classificacao,
+    @JsonProperty("classificacao_legivel") String classificacaoLegivel,
     @JsonProperty("protocolo_nome") String protocoloNome,
     @JsonProperty("protocolo_id") String protocoloId,
     @JsonProperty("avaliador_id") String avaliadorId,
