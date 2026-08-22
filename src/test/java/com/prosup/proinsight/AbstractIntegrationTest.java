@@ -1,8 +1,10 @@
 package com.prosup.proinsight;
 
+import com.prosup.proinsight.config.LoginRateLimiterFilter;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
 /**
  * Base para testes de integração.
@@ -18,9 +20,14 @@ import org.springframework.test.context.TestPropertySource;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-@TestPropertySource(properties = {
-        "spring.data.mongodb.uri=${MONGO_URI:mongodb://localhost:27017/proinsight}"
-})
 public abstract class AbstractIntegrationTest {
+
+    @Autowired
+    private LoginRateLimiterFilter rateLimiter;
+
+    @BeforeEach
+    void resetRateLimiter() {
+        rateLimiter.reset();
+    }
 
 }

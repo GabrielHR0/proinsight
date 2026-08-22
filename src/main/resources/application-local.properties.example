@@ -1,0 +1,17 @@
+# Copie para application-local.properties e preencha com seus próprios valores.
+# NUNCA versione este arquivo com segredos reais.
+spring.data.mongodb.uri=mongodb://<user>:<password>@localhost:27017/proinsight_dev?authSource=admin
+
+server.port=8080
+management.server.port=8081
+
+# Gere com: openssl rand -base64 64
+jwt.secret=<CHANGE_ME>
+jwt.expiration=86400000
+jwt.refresh-expiration=604800000
+jwt.issuer=proinsight-api
+jwt.audience=proinsight-app
+
+default-user.email=admin@proinsight.com
+default-user.username=admin
+default-user.password=<CHANGE_ME>

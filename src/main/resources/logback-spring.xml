@@ -40,6 +40,10 @@
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.hibernate" level="WARN"/>
 
+    <!-- Diagnóstico de autenticação e permissões -->
+    <logger name="com.prosup.proinsight.config.JwtAuthenticationFilter" level="DEBUG"/>
+    <logger name="com.prosup.proinsight.service.UserPermissionService" level="DEBUG"/>
+
     <!-- root logger: console (realtime) + file (json rotativo) -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
