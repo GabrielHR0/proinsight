@@ -1,6 +1,6 @@
 package com.prosup.proinsight.domain.model.aquecimento;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 /**
  * Aquecimento para teste Rockport (1 milha).
@@ -12,11 +12,11 @@ public class AquecimentoVo2MaxRockport extends AquecimentoVo2Max {
     private Integer distanciaMetros;
 
     public AquecimentoVo2MaxRockport() {
-        super(ProtocoloVo2Max.ROCKPORT);
+        super(Protocolo.ROCKPORT);
     }
 
     public AquecimentoVo2MaxRockport(Double tempoMinutos, Integer distanciaMetros) {
-        super(ProtocoloVo2Max.ROCKPORT);
+        super(Protocolo.ROCKPORT);
         this.tempoMinutos = tempoMinutos;
         this.distanciaMetros = distanciaMetros;
     }

@@ -1,6 +1,6 @@
 package com.prosup.proinsight.domain.model.aquecimento;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 /**
  * Classe abstrata para aquecimentos de VO2Max.
@@ -11,13 +11,13 @@ public abstract class AquecimentoVo2Max implements Aquecimento {
 
     private final String codigo = gerarCodigo();
 
-    protected ProtocoloVo2Max protocolo;
+    protected Protocolo protocolo;
     protected Double tempoMinutos;
     protected String observacoes;
 
     public AquecimentoVo2Max() {}
 
-    public AquecimentoVo2Max(ProtocoloVo2Max protocolo) {
+    public AquecimentoVo2Max(Protocolo protocolo) {
         this.protocolo = protocolo;
     }
 
@@ -26,11 +26,11 @@ public abstract class AquecimentoVo2Max implements Aquecimento {
         return protocolo != null ? protocolo.name() : null;
     }
 
-    public ProtocoloVo2Max getProtocolo() {
+    public Protocolo getProtocolo() {
         return protocolo;
     }
 
-    public void setProtocolo(ProtocoloVo2Max protocolo) {
+    public void setProtocolo(Protocolo protocolo) {
         this.protocolo = protocolo;
     }
 

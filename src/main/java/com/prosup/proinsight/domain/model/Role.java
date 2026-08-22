@@ -1,5 +1,7 @@
 package com.prosup.proinsight.domain.model;
 
+import com.prosup.proinsight.domain.enums.Permissao;
+
 import java.util.Set;
 
 public class Role {
@@ -7,24 +9,24 @@ public class Role {
     private String id;
     private String nome;
     private String descricao;
-    private Set<Permission> permissions;
+    private Set<Permissao> permissoes;
 
     public Role() {
     }
 
-    public Role(String id, String nome, String descricao, Set<Permission> permissions) {
+    public Role(String id, String nome, String descricao, Set<Permissao> permissoes) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
-        this.permissions = permissions;
+        this.permissoes = permissoes;
     }
 
-    public Set<Permission> getPermissions() {
-        return permissions;
+    public Set<Permissao> getPermissoes() {
+        return permissoes;
     }
 
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions;
+    public void setPermissoes(Set<Permissao> permissoes) {
+        this.permissoes = permissoes;
     }
 
     public String getId() {

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class MedicaoImc extends Medicao<TesteImc>{
 
-    private Integer resultado;
+    private Double resultado;
 
     public MedicaoImc() {
     }
@@ -21,22 +21,22 @@ public class MedicaoImc extends Medicao<TesteImc>{
         super(tipo, medidoEm, createdAt, updatedAt, observacoes, testes);
     }
 
-    public Integer getResultado() {
+    public Double getResultado() {
         return resultado;
     }
 
-    public void setResultado(Integer resultado) {
+    public void setResultado(Double resultado) {
         this.resultado = resultado;
     }
 
     @Override
     public void setTestes(List<TesteImc> testes) {
-
+        super.setTestes(testes);
     }
 
     @Override
     public void addTestes(TesteImc teste) {
-        this.getTestes().set(0, teste);
+        super.addTestes(teste);
     }
 
     public TesteImc getTeste(){

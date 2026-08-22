@@ -1,37 +1,49 @@
 package com.prosup.proinsight.domain.model;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class User {
 
     private String id;
+    private String userName;
     private String email;
     private String password;
-    private Set<Role> roles;
+    private Map<String, Set<String>> academiaRoles;
     private boolean active = true;
-    private List<String> academiaIds = new ArrayList<>();
-    private String avaliadorId;
+    private Integer failedLoginAttempts = 0;
+    private Instant lockedUntil;
+    private Set<String> academiaIds = new HashSet<>();
+    private String cref;
+    private String cpf;
     private Instant createdAt;
     private Instant updatedAt;
 
     public User() {
     }
 
-    public User(String id, String email, String password, Set<Role> roles,
-                boolean active, List<String> academiaIds, String avaliadorId,
+    public User(String id, String userName, String email, String password,
+                Map<String, Set<String>> academiaRoles,
+                boolean active, Integer failedLoginAttempts, Instant lockedUntil,
+                Set<String> academiaIds, String cref, String cpf,
                 Instant createdAt, Instant updatedAt) {
+        if (userName == null || userName.isBlank()) throw new IllegalArgumentException("userName não pode ser vazio");
         if (email == null || email.isBlank()) throw new IllegalArgumentException("email não pode ser vazio");
         if (password == null || password.isBlank()) throw new IllegalArgumentException("password não pode ser vazia");
         this.id = id;
+        this.userName = userName;
         this.email = email;
         this.password = password;
-        this.roles = roles;
+        this.academiaRoles = academiaRoles;
         this.active = active;
+        this.failedLoginAttempts = failedLoginAttempts;
+        this.lockedUntil = lockedUntil;
         this.academiaIds = academiaIds;
-        this.avaliadorId = avaliadorId;
+        this.cref = cref;
+        this.cpf = cpf;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -39,23 +51,57 @@ public class User {
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) {
+        if (userName == null || userName.isBlank()) throw new IllegalArgumentException("userName não pode ser vazio");
+        this.userName = userName;
+    }
+
     public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setEmail(String email) {
+        if (email == null || email.isBlank()) throw new IllegalArgumentException("email não pode ser vazio");
+        this.email = email;
+    }
 
     public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setPassword(String password) {
+        if (password == null || password.isBlank()) throw new IllegalArgumentException("password não pode ser vazia");
+        this.password = password;
+    }
 
-    public Set<Role> getRoles() { return roles; }
-    public void setRoles(Set<Role> roles) { this.roles = roles; }
+    public Map<String, Set<String>> getAcademiaRoles() { return academiaRoles; }
+    public void setAcademiaRoles(Map<String, Set<String>> academiaRoles) { this.academiaRoles = academiaRoles; }
+
+    public void putAcademiaRole(String academiaId, Set<String> roleIds) {
+        if (this.academiaRoles == null) this.academiaRoles = new HashMap<>();
+        this.academiaRoles.put(academiaId, roleIds);
+    }
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
 
-    public List<String> getAcademiaIds() { return academiaIds; }
-    public void setAcademiaIds(List<String> academiaIds) { this.academiaIds = academiaIds; }
+    public Integer getFailedLoginAttempts() { return failedLoginAttempts; }
+    public void setFailedLoginAttempts(Integer failedLoginAttempts) { this.failedLoginAttempts = failedLoginAttempts; }
 
-    public String getAvaliadorId() { return avaliadorId; }
-    public void setAvaliadorId(String avaliadorId) { this.avaliadorId = avaliadorId; }
+    public Instant getLockedUntil() { return lockedUntil; }
+    public void setLockedUntil(Instant lockedUntil) { this.lockedUntil = lockedUntil; }
+
+    public boolean isLocked() {
+        return lockedUntil != null && lockedUntil.isAfter(Instant.now());
+    }
+
+    public Set<String> getAcademiaIds() { return academiaIds; }
+    public void setAcademiaIds(Set<String> academiaIds) { this.academiaIds = academiaIds; }
+
+    public String getCref() { return cref; }
+    public void setCref(String cref) { this.cref = cref; }
+
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
+
+    public boolean isAvaliador() {
+        return cref != null && !cref.isBlank();
+    }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

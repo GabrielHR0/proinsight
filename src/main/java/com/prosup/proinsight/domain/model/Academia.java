@@ -54,6 +54,7 @@ public class Academia {
     }
 
     public void setNomeFantasia(String nomeFantasia) {
+        if (nomeFantasia == null || nomeFantasia.isBlank()) throw new IllegalArgumentException("nomeFantasia não pode ser vazio");
         this.nomeFantasia = nomeFantasia;
     }
 
@@ -70,6 +71,7 @@ public class Academia {
     }
 
     public void setCnpj(String cnpj) {
+        if (cnpj == null || cnpj.isBlank()) throw new IllegalArgumentException("cnpj não pode ser vazio");
         this.cnpj = cnpj;
     }
 

@@ -1,6 +1,6 @@
 package com.prosup.proinsight.domain.model;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 import java.time.Instant;
 
@@ -8,7 +8,7 @@ public class ProtocoloAvaliacao {
 
     private String id;
     private String nome;
-    private ProtocoloVo2Max protocoloVo2Max;
+    private Protocolo protocolo;
     private String strategyKey;
     private String tabelaClassificacaoId;
 
@@ -28,11 +28,11 @@ public class ProtocoloAvaliacao {
 
     public ProtocoloAvaliacao() {}
 
-    public ProtocoloAvaliacao(String id, String nome, ProtocoloVo2Max protocoloVo2Max,
+    public ProtocoloAvaliacao(String id, String nome, Protocolo protocolo,
                               String strategyKey, String tabelaClassificacaoId) {
         this.id = id;
         this.nome = nome;
-        this.protocoloVo2Max = protocoloVo2Max;
+        this.protocolo = protocolo;
         this.strategyKey = strategyKey;
         this.tabelaClassificacaoId = tabelaClassificacaoId;
     }
@@ -43,8 +43,8 @@ public class ProtocoloAvaliacao {
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 
-    public ProtocoloVo2Max getProtocoloVo2Max() { return protocoloVo2Max; }
-    public void setProtocoloVo2Max(ProtocoloVo2Max protocoloVo2Max) { this.protocoloVo2Max = protocoloVo2Max; }
+    public Protocolo getProtocolo() { return protocolo; }
+    public void setProtocolo(Protocolo protocolo) { this.protocolo = protocolo; }
 
     public String getStrategyKey() { return strategyKey; }
     public void setStrategyKey(String strategyKey) { this.strategyKey = strategyKey; }

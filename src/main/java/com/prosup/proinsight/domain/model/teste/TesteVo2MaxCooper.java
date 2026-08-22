@@ -1,7 +1,7 @@
 package com.prosup.proinsight.domain.model.teste;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 public class TesteVo2MaxCooper extends TesteVo2Max {
 
@@ -11,7 +11,7 @@ public class TesteVo2MaxCooper extends TesteVo2Max {
     }
 
     public TesteVo2MaxCooper(Integer distanciaMetros) {
-        super(ProtocoloVo2Max.COOPER, distanciaMetros != null ? distanciaMetros.doubleValue() : null);
+        super(Protocolo.COOPER, distanciaMetros != null ? distanciaMetros.doubleValue() : null);
         this.distanciaMetros = distanciaMetros;
     }
 

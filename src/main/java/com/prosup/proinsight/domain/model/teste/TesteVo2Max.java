@@ -1,18 +1,18 @@
 package com.prosup.proinsight.domain.model.teste;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 public abstract class TesteVo2Max implements Teste {
 
     private final String codigo = gerarCodigo();
 
-    protected ProtocoloVo2Max protocolo;
+    protected Protocolo protocolo;
     protected Double valorClassificacao;
 
     public TesteVo2Max() {}
 
-    public TesteVo2Max(ProtocoloVo2Max protocolo, Double valorClassificacao) {
+    public TesteVo2Max(Protocolo protocolo, Double valorClassificacao) {
         this.protocolo = protocolo;
         this.valorClassificacao = valorClassificacao;
     }
@@ -29,7 +29,7 @@ public abstract class TesteVo2Max implements Teste {
         return valorClassificacao != null ? String.valueOf(valorClassificacao) : null;
     }
 
-    public ProtocoloVo2Max getProtocolo() {
+    public Protocolo getProtocolo() {
         return protocolo;
     }
 
@@ -37,7 +37,7 @@ public abstract class TesteVo2Max implements Teste {
         return codigo;
     }
 
-    public void setProtocolo(ProtocoloVo2Max protocolo) {
+    public void setProtocolo(Protocolo protocolo) {
         this.protocolo = protocolo;
     }
 

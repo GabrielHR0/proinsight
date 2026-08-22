@@ -1,6 +1,6 @@
 package com.prosup.proinsight.domain.model.aquecimento;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 /**
  * Aquecimento para teste de esteira incremental.
@@ -13,11 +13,11 @@ public class AquecimentoVo2MaxEsteiraIncremental extends AquecimentoVo2Max {
     private Double inclinacaoPercent;
 
     public AquecimentoVo2MaxEsteiraIncremental() {
-        super(ProtocoloVo2Max.ESTEIRA_INCREMENTAL);
+        super(Protocolo.ESTEIRA_INCREMENTAL);
     }
 
     public AquecimentoVo2MaxEsteiraIncremental(Double velocidadeKmh, Double inclinacaoPercent, Double tempoMinutos) {
-        super(ProtocoloVo2Max.ESTEIRA_INCREMENTAL);
+        super(Protocolo.ESTEIRA_INCREMENTAL);
         this.velocidadeKmh = velocidadeKmh;
         this.inclinacaoPercent = inclinacaoPercent;
         this.tempoMinutos = tempoMinutos;

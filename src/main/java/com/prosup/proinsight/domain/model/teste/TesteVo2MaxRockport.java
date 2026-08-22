@@ -1,7 +1,7 @@
 package com.prosup.proinsight.domain.model.teste;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.enums.Sexo;
 
 public class TesteVo2MaxRockport extends TesteVo2Max {
@@ -13,7 +13,7 @@ public class TesteVo2MaxRockport extends TesteVo2Max {
     public TesteVo2MaxRockport() {}
 
     public TesteVo2MaxRockport(Double tempoMinutos, Integer frequenciaCardiaca, Double pesoKg) {
-        super(ProtocoloVo2Max.ROCKPORT, null);
+        super(Protocolo.ROCKPORT, null);
         this.tempoMinutos = tempoMinutos;
         this.frequenciaCardiaca = frequenciaCardiaca;
         this.pesoKg = pesoKg;

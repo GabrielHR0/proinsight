@@ -1,7 +1,7 @@
 package com.prosup.proinsight.domain.model.composite.tabelas;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.composite.Component;
 import com.prosup.proinsight.domain.model.composite.Composite;
 import com.prosup.proinsight.domain.model.composite.Leaf;
@@ -9,13 +9,13 @@ import com.prosup.proinsight.domain.model.teste.Teste;
 
 public class TabelaVo2Max extends Composite {
 
-    private ProtocoloVo2Max protocolo;
+    private Protocolo protocolo;
 
-    public ProtocoloVo2Max getProtocolo() {
+    public Protocolo getProtocolo() {
         return protocolo;
     }
 
-    public void setProtocolo(ProtocoloVo2Max protocolo) {
+    public void setProtocolo(Protocolo protocolo) {
         this.protocolo = protocolo;
     }
 

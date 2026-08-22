@@ -1,6 +1,6 @@
 package com.prosup.proinsight.domain.model.aquecimento;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 /**
  * Aquecimento para teste Cooper (12 minutos).
@@ -12,16 +12,16 @@ public class AquecimentoVo2MaxCooper extends AquecimentoVo2Max {
     private Integer distanciaMetros;
 
     public AquecimentoVo2MaxCooper() {
-        super(ProtocoloVo2Max.COOPER);
+        super(Protocolo.COOPER);
     }
 
     public AquecimentoVo2MaxCooper(Integer distanciaMetros) {
-        super(ProtocoloVo2Max.COOPER);
+        super(Protocolo.COOPER);
         this.distanciaMetros = distanciaMetros;
     }
 
     public AquecimentoVo2MaxCooper(Integer distanciaMetros, Double tempoMinutos) {
-        super(ProtocoloVo2Max.COOPER);
+        super(Protocolo.COOPER);
         this.distanciaMetros = distanciaMetros;
         this.tempoMinutos = tempoMinutos;
     }

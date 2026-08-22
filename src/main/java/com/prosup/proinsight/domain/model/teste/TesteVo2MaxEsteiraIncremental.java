@@ -1,7 +1,7 @@
 package com.prosup.proinsight.domain.model.teste;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 
 public class TesteVo2MaxEsteiraIncremental extends TesteVo2Max {
 
@@ -15,7 +15,7 @@ public class TesteVo2MaxEsteiraIncremental extends TesteVo2Max {
     }
 
     public TesteVo2MaxEsteiraIncremental(Double velocidadeKmh, Double inclinacaoPercent) {
-        super(ProtocoloVo2Max.ESTEIRA_INCREMENTAL, null);
+        super(Protocolo.ESTEIRA_INCREMENTAL, null);
         this.velocidadeKmh = velocidadeKmh;
         this.inclinacaoPercent = inclinacaoPercent != null ? inclinacaoPercent : 0.0;
     }
