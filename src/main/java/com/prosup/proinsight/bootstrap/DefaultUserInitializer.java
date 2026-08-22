@@ -73,6 +73,7 @@ public class DefaultUserInitializer implements CommandLineRunner {
         doc.setPassword(passwordEncoder.encode(defaultPassword));
         doc.setActive(true);
         doc.setAcademiaRoles(Map.of(DEFAULT_ACADEMIA_ID, Set.of(SUPER_ROLE_ID)));
+        doc.addAcademiaId(DEFAULT_ACADEMIA_ID);
         userRepository.save(doc);
 
         log.info("Default admin user created: email={}", defaultEmail);
