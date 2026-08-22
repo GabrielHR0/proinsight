@@ -1,6 +1,6 @@
 package com.prosup.proinsight.infrastructure.persistence.mapper;
 
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.domain.enums.TipoLimite;
 import com.prosup.proinsight.domain.model.composite.Component;
@@ -63,7 +63,7 @@ class PersistedComponentMapperTest {
     @Test
     void shouldRoundTripTabelaVo2MaxWithChildren() {
         var original = new TabelaVo2Max();
-        original.setProtocolo(ProtocoloVo2Max.COOPER);
+        original.setProtocolo(Protocolo.COOPER);
         original.add(new NivelVo2Max("Ruim", 0.0, 25.0));
         original.add(new NivelVo2Max("Bom", 25.0, 40.0));
         original.add(new NivelVo2Max("Excelente", 40.0, 100.0));
@@ -73,7 +73,7 @@ class PersistedComponentMapperTest {
 
         assertThat(result).isInstanceOf(TabelaVo2Max.class);
         var tabela = (TabelaVo2Max) result;
-        assertThat(tabela.getProtocolo()).isEqualTo(ProtocoloVo2Max.COOPER);
+        assertThat(tabela.getProtocolo()).isEqualTo(Protocolo.COOPER);
         assertThat(tabela.getChildren()).hasSize(3);
         assertThat(tabela.getChildren().get(0)).isInstanceOf(NivelVo2Max.class);
         assertThat(((NivelVo2Max) tabela.getChildren().get(0)).getClassificacao()).isEqualTo("Ruim");
@@ -171,7 +171,7 @@ class PersistedComponentMapperTest {
         feminino.add(new NivelForca("Alto", 25.0, 100.0));
 
         var raiz = new TabelaVo2Max();
-        raiz.setProtocolo(ProtocoloVo2Max.COOPER);
+        raiz.setProtocolo(Protocolo.COOPER);
         raiz.add(masculino);
         raiz.add(feminino);
 

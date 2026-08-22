@@ -3,7 +3,7 @@ package com.prosup.proinsight.infrastructure.persistence.mapper;
 import com.prosup.proinsight.api.dto.request.MedicaoVo2MaxDto;
 import com.prosup.proinsight.api.dto.request.TesteVo2MaxDto;
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
@@ -21,7 +21,7 @@ class AvaliacaoVo2MaxDtoMapperTest {
 
     @Test
     void shouldConvertMedicaoDtoWithCooperTest() {
-        var testeDto = new TesteVo2MaxDto(ProtocoloVo2Max.COOPER, 3000.0);
+        var testeDto = new TesteVo2MaxDto(Protocolo.COOPER, 3000.0);
         var medicaoDto = new MedicaoVo2MaxDto(
                 null, "observacao",
                 List.of(testeDto)
@@ -39,7 +39,7 @@ class AvaliacaoVo2MaxDtoMapperTest {
 
     @Test
     void shouldConvertMedicaoDtoWithRockportTest() {
-        var testeDto = new TesteVo2MaxDto(ProtocoloVo2Max.ROCKPORT, 12.5);
+        var testeDto = new TesteVo2MaxDto(Protocolo.ROCKPORT, 12.5);
         testeDto.setFrequenciaCardiaca(145);
         testeDto.setPesoKg(70.0);
         var medicaoDto = new MedicaoVo2MaxDto(
@@ -59,8 +59,8 @@ class AvaliacaoVo2MaxDtoMapperTest {
 
     @Test
     void shouldConvertMedicaoDtoWithMultipleTests() {
-        var cooper = new TesteVo2MaxDto(ProtocoloVo2Max.COOPER, 3000.0);
-        var rockport = new TesteVo2MaxDto(ProtocoloVo2Max.ROCKPORT, 15.0);
+        var cooper = new TesteVo2MaxDto(Protocolo.COOPER, 3000.0);
+        var rockport = new TesteVo2MaxDto(Protocolo.ROCKPORT, 15.0);
         rockport.setFrequenciaCardiaca(140);
         rockport.setPesoKg(75.0);
         var medicaoDto = new MedicaoVo2MaxDto(
@@ -78,7 +78,7 @@ class AvaliacaoVo2MaxDtoMapperTest {
     @Test
     void shouldUseMedidoEmWhenProvided() {
         var medidoEm = Instant.parse("2025-06-15T10:30:00Z");
-        var testeDto = new TesteVo2MaxDto(ProtocoloVo2Max.COOPER, 3000.0);
+        var testeDto = new TesteVo2MaxDto(Protocolo.COOPER, 3000.0);
         var medicaoDto = new MedicaoVo2MaxDto(
                 medidoEm, null,
                 List.of(testeDto)
@@ -91,7 +91,7 @@ class AvaliacaoVo2MaxDtoMapperTest {
 
     @Test
     void shouldUseNowWhenMedidoEmIsNull() {
-        var testeDto = new TesteVo2MaxDto(ProtocoloVo2Max.COOPER, 3000.0);
+        var testeDto = new TesteVo2MaxDto(Protocolo.COOPER, 3000.0);
         var medicaoDto = new MedicaoVo2MaxDto(
                 null, null,
                 List.of(testeDto)

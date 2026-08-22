@@ -1,7 +1,7 @@
 package com.prosup.proinsight.infrastructure.persistence;
 
 import com.prosup.proinsight.AbstractIntegrationTest;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.domain.enums.TipoLimite;
 import com.prosup.proinsight.domain.model.composite.Component;
@@ -37,7 +37,7 @@ class TabelaClassificacaoIntegrationTest extends AbstractIntegrationTest {
         feminino.add(new NivelForca("Alto", 25.0, 100.0));
 
         var raiz = new TabelaVo2Max();
-        raiz.setProtocolo(ProtocoloVo2Max.COOPER);
+        raiz.setProtocolo(Protocolo.COOPER);
         raiz.add(masculino);
         raiz.add(feminino);
 
@@ -85,7 +85,7 @@ class TabelaClassificacaoIntegrationTest extends AbstractIntegrationTest {
     @Test
     void shouldPersistAndRetrieveNivelVo2MaxTree() {
         var raiz = new TabelaVo2Max();
-        raiz.setProtocolo(ProtocoloVo2Max.COOPER);
+        raiz.setProtocolo(Protocolo.COOPER);
         raiz.add(new NivelVo2Max("Ruim", 0.0, 25.0));
         raiz.add(new NivelVo2Max("Bom", 25.0, 40.0));
         raiz.add(new NivelVo2Max("Excelente", 40.0, 100.0));

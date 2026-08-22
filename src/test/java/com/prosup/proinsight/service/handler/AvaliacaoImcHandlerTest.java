@@ -6,6 +6,7 @@ import com.prosup.proinsight.domain.enums.TipoLimite;
 import com.prosup.proinsight.domain.model.TabelaClassificacao;
 import com.prosup.proinsight.domain.model.composite.classes.NivelImc;
 import com.prosup.proinsight.domain.model.composite.tabelas.TabelaClassificacaoGenerica;
+import com.prosup.proinsight.domain.strategy.AvaliacaoImcContext;
 import com.prosup.proinsight.domain.strategy.AvaliacaoStrategy;
 import com.prosup.proinsight.domain.strategy.StrategyRegistry;
 import com.prosup.proinsight.infrastructure.persistence.document.AvaliacaoFisicaDocument;
@@ -94,13 +95,13 @@ class AvaliacaoImcHandlerTest {
 
         var strategy = mock(AvaliacaoStrategy.class);
         when(strategy.avaliar(any())).thenReturn(new NivelImc("NORMAL", 18.5, 25.0));
-        when(strategyRegistry.resolve("IMC")).thenReturn(strategy);
+        when(strategyRegistry.resolve("IMC", AvaliacaoImcContext.class)).thenReturn(strategy);
 
         var expectedDoc = new AvaliacaoFisicaDocument();
         expectedDoc.setClienteId("cliente-1");
         expectedDoc.setProtocoloId("protocolo_imc_oms");
         expectedDoc.setMedicoes(List.of(new MedicaoImcDocument()));
-        when(avaliacaoMapper.toImcDocument(any(), any(), any(), any(), anyInt(), any())).thenReturn(expectedDoc);
+        when(avaliacaoMapper.toImcDocument(any(), any(), any(), any(), anyDouble(), any())).thenReturn(expectedDoc);
 
         var savedDoc = new AvaliacaoFisicaDocument();
         savedDoc.setId("avaliacao-123");
@@ -108,12 +109,13 @@ class AvaliacaoImcHandlerTest {
 
         when(responseMapper.obterNomeClassificacao(any())).thenReturn("NORMAL");
         when(responseMapper.toImcResponse(any(), anyString(), anyString(), anyString(), anyString(), anyString(), anyDouble(), anyInt(), anyInt()))
-            .thenReturn(new AvaliacaoImcResponse("NORMAL", "IMC OMS", "protocolo_imc_oms", "avaliador-1", "cliente-1", "avaliacao-123", "CONCLUIDA", Map.of("imc", 22.9, "peso_gramas", 70000, "altura_cm", 175)));
+            .thenReturn(new AvaliacaoImcResponse("NORMAL", "Normal", "IMC OMS", "protocolo_imc_oms", "avaliador-1", "cliente-1", "avaliacao-123", "CONCLUIDA", Map.of("imc", 22.9, "peso_gramas", 70000, "altura_cm", 175)));
 
         AvaliacaoImcResponse response = handler.processar(request);
 
         assertThat(response).isNotNull();
         assertThat(response.classificacao()).isEqualTo("NORMAL");
+        assertThat(response.classificacaoLegivel()).isEqualTo("Normal");
         assertThat(response.clienteId()).isEqualTo("cliente-1");
         assertThat(response.avaliadorId()).isEqualTo("avaliador-1");
         assertThat(response.protocoloId()).isEqualTo("protocolo_imc_oms");

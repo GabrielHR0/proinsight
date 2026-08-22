@@ -1,7 +1,7 @@
 package com.prosup.proinsight.infrastructure.persistence.mapper;
 
 import com.prosup.proinsight.api.dto.request.TesteVo2MaxDto;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
@@ -16,7 +16,7 @@ class TesteVo2MaxMapperRegistryTest {
 
     @Test
     void shouldConvertCooperDtoToTesteVo2MaxCooper() {
-        var dto = new TesteVo2MaxDto(ProtocoloVo2Max.COOPER, 3000.0);
+        var dto = new TesteVo2MaxDto(Protocolo.COOPER, 3000.0);
 
         TesteVo2Max result = registry.toDomain(dto);
 
@@ -26,7 +26,7 @@ class TesteVo2MaxMapperRegistryTest {
 
     @Test
     void shouldConvertRockportDtoToTesteVo2MaxRockport() {
-        var dto = new TesteVo2MaxDto(ProtocoloVo2Max.ROCKPORT, 12.5);
+        var dto = new TesteVo2MaxDto(Protocolo.ROCKPORT, 12.5);
         dto.setFrequenciaCardiaca(145);
         dto.setPesoKg(70.0);
 

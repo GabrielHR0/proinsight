@@ -1,8 +1,7 @@
 package com.prosup.proinsight.infrastructure.persistence.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.AvaliacaoFisica;
 import com.prosup.proinsight.domain.model.MedicaoImc;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
@@ -22,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AvaliacaoFisicaMapperTest {
 
-    private final AvaliacaoFisicaMapper mapper = new AvaliacaoFisicaMapper(new ObjectMapper());
+    private final AvaliacaoFisicaMapper mapper = new AvaliacaoFisicaMapper();
 
     @Test
     void shouldRoundTripVo2Max() {
@@ -72,7 +71,7 @@ class AvaliacaoFisicaMapperTest {
                 "pesagem",
                 List.of(teste)
         );
-        medicao.setResultado(27);
+        medicao.setResultado(27.0);
         domain.setMedicoes(List.of(medicao));
 
         AvaliacaoFisicaDocument doc = mapper.toDocument(domain);
@@ -127,7 +126,7 @@ class AvaliacaoFisicaMapperTest {
     void shouldRoundTripRockportViaDocument() {
         var now = Instant.now();
         var medDoc = new MedicaoVo2MaxDocument();
-        medDoc.setProtocolo(ProtocoloVo2Max.ROCKPORT);
+        medDoc.setProtocolo(Protocolo.ROCKPORT);
         medDoc.setTempoSegundos((int) Math.round(15.5 * 60));
         medDoc.setFrequenciaCardiacaBpm(140);
         medDoc.setVo2MaxCalculado(38);
@@ -146,7 +145,7 @@ class AvaliacaoFisicaMapperTest {
 
         assertThat(result.getMedicoes()).hasSize(1);
         var resultDoc = (MedicaoVo2MaxDocument) result.getMedicoes().get(0);
-        assertThat(resultDoc.getProtocolo()).isEqualTo(ProtocoloVo2Max.ROCKPORT);
+        assertThat(resultDoc.getProtocolo()).isEqualTo(Protocolo.ROCKPORT);
         assertThat(resultDoc.getTempoSegundos()).isEqualTo((int) Math.round(15.5 * 60));
         assertThat(resultDoc.getFrequenciaCardiacaBpm()).isEqualTo(140);
         assertThat(resultDoc.getVo2MaxCalculado()).isEqualTo(38);
@@ -156,7 +155,7 @@ class AvaliacaoFisicaMapperTest {
     void shouldRoundTripVo2MaxViaDocument() {
         var now = Instant.now();
         var medDoc = new MedicaoVo2MaxDocument();
-        medDoc.setProtocolo(ProtocoloVo2Max.COOPER);
+        medDoc.setProtocolo(Protocolo.COOPER);
         medDoc.setDistanciaMetros(3000);
         medDoc.setVo2MaxCalculado(45);
         medDoc.setMedidoEm(now);
@@ -175,7 +174,7 @@ class AvaliacaoFisicaMapperTest {
         assertThat(result.getMedicoes()).hasSize(1);
         var resultDoc = (MedicaoVo2MaxDocument) result.getMedicoes().get(0);
         assertThat(resultDoc.getDistanciaMetros()).isEqualTo(3000);
-        assertThat(resultDoc.getProtocolo()).isEqualTo(ProtocoloVo2Max.COOPER);
+        assertThat(resultDoc.getProtocolo()).isEqualTo(Protocolo.COOPER);
         assertThat(resultDoc.getVo2MaxCalculado()).isEqualTo(45);
         assertThat(resultDoc.getObservacoes()).isEqualTo("teste");
     }

@@ -1,7 +1,7 @@
 package com.prosup.proinsight.infrastructure.persistence;
 
 import com.prosup.proinsight.AbstractIntegrationTest;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.infrastructure.persistence.document.TabelaClassificacaoDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.composite.*;
@@ -34,7 +34,7 @@ class PolymorphicRaizPersistenceIT extends AbstractIntegrationTest {
     void setUp() {
         mongoTemplate.dropCollection(TabelaClassificacaoDocument.class);
 
-        PersistedTabelaVo2Max raiz = new PersistedTabelaVo2Max(ProtocoloVo2Max.COOPER);
+        PersistedTabelaVo2Max raiz = new PersistedTabelaVo2Max(Protocolo.COOPER);
         PersistedTabelaSexo filho = new PersistedTabelaSexo(Sexo.MASCULINO);
         raiz.addComponente(filho);
 

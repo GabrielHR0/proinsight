@@ -8,11 +8,9 @@ import com.prosup.proinsight.api.dto.response.AvaliacaoVo2MaxResponse;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.infrastructure.persistence.document.ClienteDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
-import com.prosup.proinsight.infrastructure.persistence.document.AvaliadorDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.ClienteRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
-import com.prosup.proinsight.infrastructure.persistence.repository.AvaliadorRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.AvaliacaoFisicaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.ProtocoloAvaliacaoRepository;
@@ -25,7 +23,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,8 +36,6 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
     private UserRepository userRepository;
     @Autowired
     private ClienteRepository clienteRepository;
-    @Autowired
-    private AvaliadorRepository avaliadorRepository;
     @Autowired
     private AcademiaRepository academiaRepository;
     @Autowired
@@ -60,7 +58,6 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
     @BeforeAll
     void setUpAll() {
         avaliacaoFisicaRepository.deleteAll();
-        avaliadorRepository.deleteAll();
         clienteRepository.deleteAll();
         academiaRepository.deleteAll();
         userRepository.deleteAll();
@@ -68,12 +65,17 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        var suf = UUID.randomUUID().toString().substring(0, 8);
         var user = new UserDocument();
-        user.setEmail("test-" + System.nanoTime() + "@test.com");
+        user.setUserName("usuario-test-" + suf);
+        user.setEmail("test-" + suf + "@test.com");
         user.setPassword("hash123");
         user.setActive(true);
-        user.setRoles(Set.of());
+        user.setAcademiaRoles(Map.of());
+        user.setCref("CREF-" + suf);
+        user.setCpf("98765432100" + suf);
         userId = userRepository.save(user).getId();
+        avaliadorId = userId;
 
         var academia = new AcademiaDocument();
         academia.setOwnerId(userId);
@@ -86,18 +88,8 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
         cliente.setEmail("joao-" + System.nanoTime() + "@test.com");
         cliente.setCpf("12345678901");
         cliente.setAcademiaId(academiaId);
+        cliente.setSexo(Sexo.MASCULINO);
         clienteId = clienteRepository.save(cliente).getId();
-
-        var avaliador = new AvaliadorDocument();
-        avaliador.setUserId(userId);
-        avaliador.setAcademiaId(academiaId);
-        avaliador.setCref("CREF-" + System.nanoTime());
-        avaliador.setFirstName("Maria");
-        avaliador.setLastName("Santos");
-        avaliador.setEmail("maria-" + System.nanoTime() + "@test.com");
-        avaliador.setTelefone("11999999999");
-        avaliador.setCpf("98765432100");
-        avaliadorId = avaliadorRepository.save(avaliador).getId();
     }
 
     @Test
@@ -106,7 +98,7 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
         request.setClienteId(clienteId);
         request.setProtocoloId("protocolo_vo2max_cooper");
         request.setAvaliadorId(avaliadorId);
-        request.setResultado(2400);
+        request.setResultado(2400.0);
         request.setIdade(25);
         request.setSexo(Sexo.MASCULINO);
         request.setObservacoes("Teste Cooper 12 min");
@@ -236,7 +228,7 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
         request.setClienteId(clienteId);
         request.setProtocoloId("protocolo_vo2max_cooper");
         request.setAvaliadorId(avaliadorId);
-        request.setResultado(3000);
+        request.setResultado(3000.0);
         request.setIdade(25);
         request.setSexo(Sexo.MASCULINO);
 

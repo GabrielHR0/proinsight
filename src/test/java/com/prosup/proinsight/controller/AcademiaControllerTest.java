@@ -5,19 +5,27 @@ import com.prosup.proinsight.api.controller.api.v1.AcademiaController;
 import com.prosup.proinsight.api.dto.request.AcademiaRequest;
 import com.prosup.proinsight.api.dto.response.AcademiaResponse;
 import com.prosup.proinsight.api.handler.GlobalExceptionHandler;
+import com.prosup.proinsight.domain.model.CustomUserDetails;
+import com.prosup.proinsight.domain.model.User;
 import com.prosup.proinsight.service.AcademiaService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -40,6 +48,20 @@ class AcademiaControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
+
+        var user = new User();
+        user.setId("user-1");
+        user.setEmail("owner@test.com");
+        user.setUserName("owner");
+        user.setAcademiaIds(Set.of("academia-1"));
+        var principal = new CustomUserDetails(user, List.of(), Map.of());
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(principal, "", List.of()));
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     // ── POST /academias ────────────────────────────────────────────────
@@ -73,6 +95,24 @@ class AcademiaControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.detail").value("User not found: user-1"));
+    }
+
+    @Test
+    void create_shouldUseAuthenticatedUserAsOwnerIgnoringBodyOwnerId() throws Exception {
+        var request = buildRequest();
+        request.setOwnerId("usuario-malicioso");
+        var response = buildResponse("new-id");
+
+        when(service.create(any(AcademiaRequest.class))).thenAnswer(inv -> {
+            AcademiaRequest captured = inv.getArgument(0);
+            assertThat(captured.getOwnerId()).isEqualTo("user-1");
+            return response;
+        });
+
+        mockMvc.perform(post("/academias")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
     }
 
     // ── GET /academias/{id} ────────────────────────────────────────────

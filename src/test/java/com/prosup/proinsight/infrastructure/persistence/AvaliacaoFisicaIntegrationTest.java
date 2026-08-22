@@ -2,7 +2,7 @@ package com.prosup.proinsight.infrastructure.persistence;
 
 import com.prosup.proinsight.AbstractIntegrationTest;
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.AvaliacaoFisica;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
