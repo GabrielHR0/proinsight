@@ -1,7 +1,7 @@
 package com.prosup.proinsight.bootstrap;
 
 import com.prosup.proinsight.config.properties.TabelaClassificacaoProperties;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.domain.enums.TipoLimite;
 import com.prosup.proinsight.infrastructure.persistence.document.TabelaClassificacaoDocument;
@@ -120,14 +120,14 @@ public class    TabelaClassificacaoInitializer implements CommandLineRunner {
 
     private PersistedTabelaVo2Max criarRaizCooper() {
         var raiz = new PersistedTabelaVo2Max();
-        raiz.setProtocolo(ProtocoloVo2Max.COOPER);
+        raiz.setProtocolo(Protocolo.COOPER);
         preencherSexos(raiz, COOPER_MASC, COOPER_FEM);
         return raiz;
     }
 
     private PersistedTabelaVo2Max criarRaizRockport() {
         var raiz = new PersistedTabelaVo2Max();
-        raiz.setProtocolo(ProtocoloVo2Max.ROCKPORT);
+        raiz.setProtocolo(Protocolo.ROCKPORT);
         preencherSexos(raiz, ROCKPORT_MASC, ROCKPORT_FEM);
         return raiz;
     }

@@ -1,7 +1,7 @@
 package com.prosup.proinsight.bootstrap;
 
 import com.prosup.proinsight.config.properties.TabelaClassificacaoProperties;
-import com.prosup.proinsight.domain.enums.ProtocoloVo2Max;
+import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.infrastructure.persistence.document.ProtocoloAvaliacaoDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.ProtocoloAvaliacaoRepository;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class ProtocoloAvaliacaoInitializer implements CommandLineRunner {
 
     private void criarCooper() {
         var doc = criarBasico("protocolo_vo2max_cooper", "Cooper 12 min",
-            CATEGORIA_VO2_MAX, true, ProtocoloVo2Max.COOPER, STRATEGY_VO2_MAX,
+            CATEGORIA_VO2_MAX, true, Protocolo.COOPER, STRATEGY_VO2_MAX,
             tabelaProperties.getCooperId());
         doc.setDescricao(
             "Teste de campo máximo em que o avaliado corre a maior distância possível em 12 minutos."
@@ -64,7 +64,7 @@ public class ProtocoloAvaliacaoInitializer implements CommandLineRunner {
 
     private void criarRockport() {
         var doc = criarBasico("protocolo_vo2max_rockport", "Rockport 1 mile",
-            CATEGORIA_VO2_MAX, false, ProtocoloVo2Max.ROCKPORT, STRATEGY_VO2_MAX,
+            CATEGORIA_VO2_MAX, false, Protocolo.ROCKPORT, STRATEGY_VO2_MAX,
             tabelaProperties.getRockportId());
         doc.setDescricao(
             "Teste de campo submáximo — caminhar 1 milha o mais rápido possível."
@@ -85,7 +85,7 @@ public class ProtocoloAvaliacaoInitializer implements CommandLineRunner {
 
     private void criarAha() {
         var doc = criarBasico("protocolo_vo2max_aha", "AHA/FRIEND (Esteira)",
-            CATEGORIA_VO2_MAX, false, ProtocoloVo2Max.ESTEIRA, STRATEGY_VO2_MAX,
+            CATEGORIA_VO2_MAX, false, Protocolo.ESTEIRA, STRATEGY_VO2_MAX,
             tabelaProperties.getAhaId());
         doc.setDescricao("Protocolo de esteira submáximo/máximo com incrementos progressivos.");
         doc.setUnidadeMedida("mL/kg/min");
@@ -95,7 +95,7 @@ public class ProtocoloAvaliacaoInitializer implements CommandLineRunner {
 
     private void criarEsteiraIncremental() {
         var doc = criarBasico("protocolo_vo2max_esteira_incremental", "Esteira Incremental",
-            CATEGORIA_VO2_MAX, false, ProtocoloVo2Max.ESTEIRA_INCREMENTAL,
+            CATEGORIA_VO2_MAX, false, Protocolo.ESTEIRA_INCREMENTAL,
             STRATEGY_VO2_MAX_ESTEIRA_INCREMENTAL, tabelaProperties.getEsteiraIncrementalId());
         doc.setDescricao("Teste incremental adaptado — velocidades progressivas até VO₂max.");
         doc.setCalculadora("VO₂ = (0.2 × vel_m/min) + (0.9 × vel_m/min × inclinação/100) + 3.5");
@@ -108,7 +108,7 @@ public class ProtocoloAvaliacaoInitializer implements CommandLineRunner {
 
     private void criarImc() {
         var doc = criarBasico("protocolo_imc_oms", "IMC - OMS",
-            CATEGORIA_IMC, true, null, STRATEGY_IMC,
+            CATEGORIA_IMC, true, Protocolo.IMC, STRATEGY_IMC,
             tabelaProperties.getImcId());
         doc.setDescricao("Cálculo do Índice de Massa Corporal conforme classificação da OMS.");
         doc.setCalculadora("IMC = peso_kg / altura_m²");
@@ -118,13 +118,17 @@ public class ProtocoloAvaliacaoInitializer implements CommandLineRunner {
     }
 
     private ProtocoloAvaliacaoDocument criarBasico(String id, String nome, String categoria,
-                                                    Boolean padrao, ProtocoloVo2Max protocoloVo2Max,
+                                                    Boolean padrao, Protocolo protocolo,
                                                     String strategyKey, String tabelaClassificacaoId) {
         if (repository.existsById(id)) {
             log.info("Protocolo '{}' já existe: {}", nome, id);
-            return repository.findById(id).orElseThrow();
+            var doc = repository.findById(id).orElseThrow();
+            doc.setProtocolo(protocolo);
+            doc.setStrategyKey(strategyKey);
+            doc.setTabelaClassificacaoId(tabelaClassificacaoId);
+            return doc;
         }
         return new ProtocoloAvaliacaoDocument(id, nome, categoria, padrao,
-                protocoloVo2Max, strategyKey, tabelaClassificacaoId);
+                protocolo, strategyKey, tabelaClassificacaoId);
     }
 }
