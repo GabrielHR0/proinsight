@@ -95,8 +95,8 @@ public class RegistrationService {
         var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         String jwt = jwtTokenProvider.generateToken(auth);
 
-        log.info("Usuário registrado: {} (academia={}, personal={})",
-                request.getEmail(), academiaId, academiaId == null);
+        log.info("Usuário registrado: {} (academia={})",
+                request.getEmail(), academiaId);
 
         return new LoginResponse(
                 jwt,

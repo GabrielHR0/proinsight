@@ -65,7 +65,7 @@ public class TenantContextFilter extends OncePerRequestFilter {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()
                 || "anonymousUser".equals(auth.getPrincipal())) {
-            return true;
+            return false;
         }
 
         if (auth.getPrincipal() instanceof CustomUserDetails userDetails) {

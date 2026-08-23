@@ -28,12 +28,28 @@ public class UserService {
     }
 
     public User register(String userName, String email, String plainPassword,
-                         Map<String, Set<String>> academiaRoles) {
+                         Map<String, Set<String>> academiaRoles,
+                         String cref, String cpf) {
         String pwHash = passwordEncoder.encode(plainPassword == null ? "" : plainPassword);
 
         validateRoles(academiaRoles);
 
         var doc = UserMapper.toDocument(userName, email, pwHash, academiaRoles);
+
+        // Sincroniza academiaIds com as chaves de academiaRoles
+        if (academiaRoles != null) {
+            for (String academiaId : academiaRoles.keySet()) {
+                doc.addAcademiaId(academiaId);
+            }
+        }
+
+        if (cref != null && !cref.isBlank()) {
+            doc.setCref(cref.trim());
+        }
+        if (cpf != null && !cpf.isBlank()) {
+            doc.setCpf(cpf.trim());
+        }
+
         var saved = userRepo.save(doc);
         return UserMapper.toDomain(saved);
     }
