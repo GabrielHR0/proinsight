@@ -36,7 +36,9 @@ public class UserController {
                 request.getUserName(),
                 request.getEmail(),
                 request.getPassword(),
-                academiaRoles);
+                academiaRoles,
+                request.getCref(),
+                request.getCpf());
 
         UserResponse response = new UserResponse(
                 user.getId(),

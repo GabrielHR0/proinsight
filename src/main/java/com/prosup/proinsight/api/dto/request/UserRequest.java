@@ -20,6 +20,10 @@ public class UserRequest {
     @Size(min = 8, message = "Senha deve ter no mínimo 8 caracteres")
     private String password;
 
+    private String cref;
+
+    private String cpf;
+
     private Map<String, Set<String>> academiaRoles;
 
     public UserRequest() {
@@ -55,6 +59,22 @@ public class UserRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getCref() {
+        return cref;
+    }
+
+    public void setCref(String cref) {
+        this.cref = cref;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public Map<String, Set<String>> getAcademiaRoles() {
