@@ -26,9 +26,12 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AvaliacaoVo2MaxHandler {
@@ -108,6 +111,20 @@ public class AvaliacaoVo2MaxHandler {
                 List.of(testeDomain)
         );
 
+        if (request.getFrequenciasCardiacas() != null && !request.getFrequenciasCardiacas().isEmpty()) {
+            Set<Integer> timestamps = new HashSet<>();
+            var fcMeasurements = new java.util.ArrayList<MedicaoVo2Max.MedicaoFrequenciaCardiaca>();
+            for (var fcDto : request.getFrequenciasCardiacas()) {
+                if (!timestamps.add(fcDto.getTempoDecorridoSegundos())) {
+                    throw new IllegalArgumentException(
+                        "FC duplicada para o tempo " + fcDto.getTempoDecorridoSegundos() + "s");
+                }
+                fcMeasurements.add(new MedicaoVo2Max.MedicaoFrequenciaCardiaca(
+                        fcDto.getTempoDecorridoSegundos(), fcDto.getFcBpm()));
+            }
+            medicao.setFrequenciasCardiacas(fcMeasurements);
+        }
+
         TabelaClassificacao tabela = tabelaClassificacaoRepository.findById(tabelaClassificacaoId)
                 .map(tabelaClassificacaoMapper::toDomain)
                 .orElseThrow(() -> new NoSuchElementException(
@@ -139,6 +156,10 @@ public class AvaliacaoVo2MaxHandler {
         Double vo2Calculado = testeDomain.calcularVo2Max(dados);
         medicao.setResultado(vo2Calculado != null ? vo2Calculado.intValue() : null);
 
+        if (vo2Calculado != null) {
+            medicao.setMetsCalculado(Math.round((vo2Calculado / 3.5) * 10.0) / 10.0);
+        }
+
         String classificacao = responseMapper.obterNomeClassificacao(resultado);
 
         var avaliacaoDoc = avaliacaoMapper.toVo2MaxDocument(
@@ -151,6 +172,6 @@ public class AvaliacaoVo2MaxHandler {
 
         var saved = avaliacaoService.save(avaliacaoDoc);
 
-        return responseMapper.toVo2MaxResponse(resultado, context, saved.getId());
+        return responseMapper.toVo2MaxResponse(resultado, context, saved.getId(), medicao.getMetsCalculado());
     }
 }

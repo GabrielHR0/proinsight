@@ -89,8 +89,8 @@ class AvaliacaoVo2MaxHandlerTest {
 
         assertThat(response.getClassificacao().getNome()).isEqualTo("MUITO_RUIM");
         assertThat(response.getClassificacao().getNomeLegivel()).isEqualTo("Muito ruim");
-        // VO2 = (0.2 * 100 m/min) + (0.9 * 100 * 0.01) + 3.5 = 24.4
-        assertThat(response.getClassificacao().getValorVo2Max()).isEqualTo(24.4);
+        // 6.0 km/h ≤ 6.0 → caminhada: VO₂ = (0.1 * 100.02 m/min) + 3.5 = 13.502
+        assertThat(response.getClassificacao().getValorVo2Max()).isEqualTo(13.502, org.assertj.core.data.Offset.offset(0.001));
         verify(clienteRepository).findById("cliente-1");
     }
 
@@ -130,7 +130,7 @@ class AvaliacaoVo2MaxHandlerTest {
         when(clienteRepository.findById("cliente-1")).thenReturn(Optional.of(cliente));
 
         // Tabela sem extremos abertos: MUITO_RUIM(30-40), RUIM(40-50), ...
-        // valor classificado 24.4 < 30 -> clamp -> MUITO_RUIM
+        // valor classificado 13.502 < 30 -> clamp -> MUITO_RUIM
         stubTabelaFechada();
         stubPersistencia();
         var response = processar(request(6.0, 1.0, null));

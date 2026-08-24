@@ -15,6 +15,9 @@ public class ClassificacaoVo2Max {
     
     @JsonProperty("valor_vo2max")
     private Double valorVo2Max;
+
+    @JsonProperty("mets_calculado")
+    private Double metsCalculado;
     
     public ClassificacaoVo2Max() {}
     
@@ -23,6 +26,13 @@ public class ClassificacaoVo2Max {
         this.nome = nome;
         this.descricao = descricao;
         this.valorVo2Max = valorVo2Max;
+    }
+
+    public ClassificacaoVo2Max(String nome, String descricao, Double valorVo2Max, Double metsCalculado) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.valorVo2Max = valorVo2Max;
+        this.metsCalculado = metsCalculado;
     }
     
     public String getNome() {
@@ -55,5 +65,13 @@ public class ClassificacaoVo2Max {
     
     public void setValorVo2Max(Double valorVo2Max) {
         this.valorVo2Max = valorVo2Max;
+    }
+
+    public Double getMetsCalculado() {
+        return metsCalculado;
+    }
+
+    public void setMetsCalculado(Double metsCalculado) {
+        this.metsCalculado = metsCalculado;
     }
 }

@@ -11,6 +11,8 @@ import java.util.List;
 public class MedicaoVo2Max extends Medicao<TesteVo2Max> {
 
     private Integer resultado;
+    private Double metsCalculado;
+    private List<MedicaoFrequenciaCardiaca> frequenciasCardiacas;
     private AquecimentoVo2Max aquecimento;
 
     public MedicaoVo2Max() {
@@ -32,11 +34,55 @@ public class MedicaoVo2Max extends Medicao<TesteVo2Max> {
         this.resultado = resultado;
     }
 
+    public Double getMetsCalculado() {
+        return metsCalculado;
+    }
+
+    public void setMetsCalculado(Double metsCalculado) {
+        this.metsCalculado = metsCalculado;
+    }
+
+    public List<MedicaoFrequenciaCardiaca> getFrequenciasCardiacas() {
+        return frequenciasCardiacas;
+    }
+
+    public void setFrequenciasCardiacas(List<MedicaoFrequenciaCardiaca> frequenciasCardiacas) {
+        this.frequenciasCardiacas = frequenciasCardiacas;
+    }
+
     public AquecimentoVo2Max getAquecimento() {
         return aquecimento;
     }
 
     public void setAquecimento(AquecimentoVo2Max aquecimento) {
         this.aquecimento = aquecimento;
+    }
+
+    public static class MedicaoFrequenciaCardiaca {
+        private int tempoDecorridoSegundos;
+        private int fcBpm;
+
+        public MedicaoFrequenciaCardiaca() {}
+
+        public MedicaoFrequenciaCardiaca(int tempoDecorridoSegundos, int fcBpm) {
+            this.tempoDecorridoSegundos = tempoDecorridoSegundos;
+            this.fcBpm = fcBpm;
+        }
+
+        public int getTempoDecorridoSegundos() {
+            return tempoDecorridoSegundos;
+        }
+
+        public void setTempoDecorridoSegundos(int tempoDecorridoSegundos) {
+            this.tempoDecorridoSegundos = tempoDecorridoSegundos;
+        }
+
+        public int getFcBpm() {
+            return fcBpm;
+        }
+
+        public void setFcBpm(int fcBpm) {
+            this.fcBpm = fcBpm;
+        }
     }
 }

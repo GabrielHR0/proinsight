@@ -168,6 +168,16 @@ public class AvaliacaoFisicaMapper {
         );
 
         medicao.setResultado(v.getVo2MaxCalculado());
+        medicao.setMetsCalculado(v.getMetsCalculado());
+
+        if (v.getFrequenciasCardiacas() != null && !v.getFrequenciasCardiacas().isEmpty()) {
+            var fcMeasurements = v.getFrequenciasCardiacas().stream()
+                .map(fc -> new MedicaoVo2Max.MedicaoFrequenciaCardiaca(
+                        fc.getTempoDecorridoSegundos(), fc.getFcBpm()))
+                .collect(Collectors.toList());
+            medicao.setFrequenciasCardiacas(fcMeasurements);
+        }
+
         return medicao;
     }
 
@@ -192,10 +202,19 @@ public class AvaliacaoFisicaMapper {
 
         var doc = new MedicaoVo2MaxDocument();
         doc.setVo2MaxCalculado(v.getResultado());
+        doc.setMetsCalculado(v.getMetsCalculado());
         doc.setMedidoEm(v.getMedidoEm());
         doc.setCreatedAt(v.getCreatedAt());
         doc.setUpdatedAt(v.getUpdatedAt());
         doc.setObservacoes(v.getObservacoes());
+
+        if (v.getFrequenciasCardiacas() != null && !v.getFrequenciasCardiacas().isEmpty()) {
+            var fcDocs = v.getFrequenciasCardiacas().stream()
+                .map(fc -> new MedicaoVo2MaxDocument.MedicaoFrequenciaCardiacaDocument(
+                        fc.getTempoDecorridoSegundos(), fc.getFcBpm()))
+                .collect(Collectors.toList());
+            doc.setFrequenciasCardiacas(fcDocs);
+        }
 
         if (testes == null || testes.isEmpty()) return doc;
 
