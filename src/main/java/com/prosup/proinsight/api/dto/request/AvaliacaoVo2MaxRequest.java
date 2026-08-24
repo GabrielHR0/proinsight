@@ -2,10 +2,13 @@ package com.prosup.proinsight.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.prosup.proinsight.domain.enums.Sexo;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+
+import java.util.List;
 
 
 public class AvaliacaoVo2MaxRequest {
@@ -42,12 +45,16 @@ public class AvaliacaoVo2MaxRequest {
     @JsonProperty("idade")
     private Integer idade;
 
-    @Positive(message = "inclinacao_percent deve ser positiva")
+    @PositiveOrZero(message = "inclinacao_percent deve ser maior ou igual a zero")
     @JsonProperty("inclinacao_percent")
     private Double inclinacaoPercent;
 
     @JsonProperty("sexo")
     private Sexo sexo;
+
+    @Valid
+    @JsonProperty("frequencias_cardiacas")
+    private List<MedicaoFrequenciaCardiacaDto> frequenciasCardiacas;
 
     public AvaliacaoVo2MaxRequest() {}
 
@@ -129,5 +136,13 @@ public class AvaliacaoVo2MaxRequest {
 
     public void setSexo(Sexo sexo) {
         this.sexo = sexo;
+    }
+
+    public List<MedicaoFrequenciaCardiacaDto> getFrequenciasCardiacas() {
+        return frequenciasCardiacas;
+    }
+
+    public void setFrequenciasCardiacas(List<MedicaoFrequenciaCardiacaDto> frequenciasCardiacas) {
+        this.frequenciasCardiacas = frequenciasCardiacas;
     }
 }

@@ -17,8 +17,10 @@ public class MedicaoVo2MaxDocument extends MedicaoDocument {
     private Double velocidadeKmh;
     private Double inclinacaoPercent;
     private Integer vo2MaxCalculado;
+    private Double metsCalculado;
     private String classificacaoVo2;
     private List<Object> testesAdicionais;
+    private List<MedicaoFrequenciaCardiacaDocument> frequenciasCardiacas;
 
     private AquecimentoDocument aquecimento;
 
@@ -116,5 +118,49 @@ public class MedicaoVo2MaxDocument extends MedicaoDocument {
 
     public Double getDistanciaKm() {
         return distanciaMetros != null ? distanciaMetros / 1000.0 : null;
+    }
+
+    public Double getMetsCalculado() {
+        return metsCalculado;
+    }
+
+    public void setMetsCalculado(Double metsCalculado) {
+        this.metsCalculado = metsCalculado;
+    }
+
+    public List<MedicaoFrequenciaCardiacaDocument> getFrequenciasCardiacas() {
+        return frequenciasCardiacas;
+    }
+
+    public void setFrequenciasCardiacas(List<MedicaoFrequenciaCardiacaDocument> frequenciasCardiacas) {
+        this.frequenciasCardiacas = frequenciasCardiacas;
+    }
+
+    public static class MedicaoFrequenciaCardiacaDocument {
+        private int tempoDecorridoSegundos;
+        private int fcBpm;
+
+        public MedicaoFrequenciaCardiacaDocument() {}
+
+        public MedicaoFrequenciaCardiacaDocument(int tempoDecorridoSegundos, int fcBpm) {
+            this.tempoDecorridoSegundos = tempoDecorridoSegundos;
+            this.fcBpm = fcBpm;
+        }
+
+        public int getTempoDecorridoSegundos() {
+            return tempoDecorridoSegundos;
+        }
+
+        public void setTempoDecorridoSegundos(int tempoDecorridoSegundos) {
+            this.tempoDecorridoSegundos = tempoDecorridoSegundos;
+        }
+
+        public int getFcBpm() {
+            return fcBpm;
+        }
+
+        public void setFcBpm(int fcBpm) {
+            this.fcBpm = fcBpm;
+        }
     }
 }

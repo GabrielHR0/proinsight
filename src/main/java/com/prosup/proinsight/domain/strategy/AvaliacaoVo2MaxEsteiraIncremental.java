@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component;
 /**
  * Strategy específica para avaliação de VO2Max em esteira incremental adaptada.
  *
- * Fórmula ACSM para corrida em esteira:
- *   VO₂ (mL·kg⁻¹·min⁻¹) = (0.2 × velocidade em m/min) + (0.9 × velocidade em m/min × inclinação/100) + 3.5
+ * Fórmula ACSM/AHA adaptada (inclinação = 0%):
+ *   Caminhada (≤6 km/h): VO₂ = (0.1 × velocidade em m/min) + 3,5
+ *   Corrida  (>6 km/h):  VO₂ = (0.2 × velocidade em m/min) + 3,5
+ *   Conversão: velocidade (m/min) = km/h × 16,67
+ *   METs = VO₂ ÷ 3,5
  *
- * Quando inclinação = 0%:
- *   VO₂ = (0.2 × velocidade) + 3.5
- *
- * Exemplo: 14.3 km/h = 238.3 m/min
- *   VO₂ = (0.2 × 238.3) + 3.5 ≈ 51.2 mL/kg/min ≈ 14.6 METs
+ * Exemplo: 10.5 km/h = 175.0 m/min (>6, então corrida)
+ *   VO₂ = (0.2 × 175.0) + 3.5 = 38.5 mL/kg/min ≈ 11.0 METs
  */
 @Component
 @StrategyFor("VO2_MAX_ESTEIRA_INCREMENTAL")
@@ -47,16 +47,20 @@ public class AvaliacaoVo2MaxEsteiraIncremental implements AvaliacaoStrategy<Aval
     }
 
     /**
-     * Calcula VO2Max para esteira incremental com inclinação.
+     * Calcula VO2Max para esteira incremental — fórmula ACSM/AHA adaptada.
+     *
+     * Caminhada (≤6 km/h): VO₂ = (0.1 × velocidade em m/min) + 3,5
+     * Corrida  (>6 km/h):  VO₂ = (0.2 × velocidade em m/min) + 3,5
+     * Conversão: velocidade (m/min) = km/h × 16,67
      *
      * @param velocidadeKmh Velocidade em km/h
-     * @param inclinacaoPercent Inclinação em percentual (0-15%)
+     * @param inclinacaoPercent Inclinação em percentual (registrada, não entra no cálculo do adaptado)
      * @return VO2Max em mL/kg/min
      */
     public static Double calcularVo2Max(double velocidadeKmh, double inclinacaoPercent) {
-        double velocidadeMmin = velocidadeKmh * 1000.0 / 60.0;
-        if (inclinacaoPercent > 0) {
-            return (0.2 * velocidadeMmin) + (0.9 * velocidadeMmin * inclinacaoPercent / 100.0) + 3.5;
+        double velocidadeMmin = velocidadeKmh * 16.67;
+        if (velocidadeKmh <= 6.0) {
+            return (0.1 * velocidadeMmin) + 3.5;
         }
         return (0.2 * velocidadeMmin) + 3.5;
     }

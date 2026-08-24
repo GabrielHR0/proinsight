@@ -48,7 +48,8 @@ public class AvaliacaoResponseMapper {
     public AvaliacaoVo2MaxResponse toVo2MaxResponse(
         Leaf resultado,
         AvaliacaoVo2MaxContext context,
-        String avaliacaoId
+        String avaliacaoId,
+        Double metsCalculado
     ) {
         String nome = obterNomeClassificacao(resultado);
         Double valor = extrairValorClassificado(context);
@@ -56,7 +57,8 @@ public class AvaliacaoResponseMapper {
         ClassificacaoVo2Max classificacao = new ClassificacaoVo2Max(
             nome,
             "Classificação obtida para o teste VO2Max",
-            valor
+            valor,
+            metsCalculado
         );
         classificacao.setNomeLegivel(ClassificacaoLegivel.humanizar(nome));
 

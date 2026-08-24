@@ -106,23 +106,16 @@ class TenantContextFilterTest {
     }
 
     @Test
-    @DisplayName("deve permitir header quando nao ha autenticacao (endpoints publicos)")
-    void headerSemAutenticacaoPermite() throws Exception {
+    @DisplayName("deve retornar 403 quando header X-Academia-Id é enviado sem autenticacao")
+    void headerSemAutenticacaoDeveRetornar403() throws Exception {
         var request = new MockHttpServletRequest();
         request.addHeader("X-Academia-Id", ACADEMIA_A);
         var response = new MockHttpServletResponse();
         var chain = mock(FilterChain.class);
-        AtomicBoolean chainCalled = new AtomicBoolean(false);
-
-        org.mockito.Mockito.doAnswer(inv -> {
-            chainCalled.set(true);
-            return null;
-        }).when(chain).doFilter(request, response);
 
         filter.doFilter(request, response, chain);
 
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(chainCalled).isTrue();
+        assertThat(response.getStatus()).isEqualTo(403);
         assertThat(TenantContext.getAcademiaId()).isNull();
     }
 

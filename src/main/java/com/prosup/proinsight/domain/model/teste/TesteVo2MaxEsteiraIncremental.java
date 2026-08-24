@@ -23,10 +23,10 @@ public class TesteVo2MaxEsteiraIncremental extends TesteVo2Max {
     @Override
     public Double calcularVo2Max(DadosAvaliacao dados) {
         if (velocidadeKmh == null) return null;
-        double velocidadeMmin = velocidadeKmh * 1000.0 / 60.0;
+        double velocidadeMmin = velocidadeKmh * 16.67;
 
-        if (inclinacaoPercent != null && inclinacaoPercent > 0) {
-            return (0.2 * velocidadeMmin) + (0.9 * velocidadeMmin * inclinacaoPercent / 100.0) + 3.5;
+        if (velocidadeKmh <= 6.0) {
+            return (0.1 * velocidadeMmin) + 3.5;
         }
         return (0.2 * velocidadeMmin) + 3.5;
     }
@@ -39,10 +39,10 @@ public class TesteVo2MaxEsteiraIncremental extends TesteVo2Max {
     @Override
     public String getValorClassificacao() {
         if (velocidadeKmh == null) return null;
-        double velocidadeMmin = velocidadeKmh * 1000.0 / 60.0;
+        double velocidadeMmin = velocidadeKmh * 16.67;
         double vo2max;
-        if (inclinacaoPercent != null && inclinacaoPercent > 0) {
-            vo2max = (0.2 * velocidadeMmin) + (0.9 * velocidadeMmin * inclinacaoPercent / 100.0) + 3.5;
+        if (velocidadeKmh <= 6.0) {
+            vo2max = (0.1 * velocidadeMmin) + 3.5;
         } else {
             vo2max = (0.2 * velocidadeMmin) + 3.5;
         }
