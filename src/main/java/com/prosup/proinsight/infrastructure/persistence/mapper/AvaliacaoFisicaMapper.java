@@ -280,6 +280,15 @@ public class AvaliacaoFisicaMapper {
         medicaoDoc.setMedidoEm(medicao.getMedidoEm());
         medicaoDoc.setObservacoes(medicao.getObservacoes());
         medicaoDoc.setVo2MaxCalculado(medicao.getResultado());
+        medicaoDoc.setMetsCalculado(medicao.getMetsCalculado());
+
+        if (medicao.getFrequenciasCardiacas() != null && !medicao.getFrequenciasCardiacas().isEmpty()) {
+            var fcDocs = medicao.getFrequenciasCardiacas().stream()
+                .map(fc -> new MedicaoVo2MaxDocument.MedicaoFrequenciaCardiacaDocument(
+                        fc.getTempoDecorridoSegundos(), fc.getFcBpm()))
+                .collect(Collectors.toList());
+            medicaoDoc.setFrequenciasCardiacas(fcDocs);
+        }
 
         var primeiroTeste = medicao.getTestes().get(0);
         medicaoDoc.setProtocolo(primeiroTeste.getProtocolo());
