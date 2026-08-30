@@ -21,6 +21,7 @@ import com.prosup.proinsight.api.dto.request.AvaliacaoVo2MaxRequest;
 import com.prosup.proinsight.api.dto.request.TesteVo2MaxDto;
 import com.prosup.proinsight.api.dto.response.AvaliacaoVo2MaxResponse;
 import com.prosup.proinsight.service.AvaliacaoService;
+import com.prosup.proinsight.service.ReferenciaClassificacaoService;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -45,6 +46,7 @@ public class AvaliacaoVo2MaxHandler {
     private final StrategyRegistry registry;
     private final AvaliacaoService avaliacaoService;
     private final ClienteRepository clienteRepository;
+    private final ReferenciaClassificacaoService referenciaService;
 
     public AvaliacaoVo2MaxHandler(
         TesteVo2MaxMapperRegistry testeRegistry,
@@ -55,7 +57,8 @@ public class AvaliacaoVo2MaxHandler {
         AvaliacaoResponseMapper responseMapper,
         StrategyRegistry registry,
         AvaliacaoService avaliacaoService,
-        ClienteRepository clienteRepository
+        ClienteRepository clienteRepository,
+        ReferenciaClassificacaoService referenciaService
     ) {
         this.testeRegistry = testeRegistry;
         this.protocoloRepository = protocoloRepository;
@@ -66,6 +69,7 @@ public class AvaliacaoVo2MaxHandler {
         this.registry = registry;
         this.avaliacaoService = avaliacaoService;
         this.clienteRepository = clienteRepository;
+        this.referenciaService = referenciaService;
     }
 
     public AvaliacaoVo2MaxResponse processar(AvaliacaoVo2MaxRequest request) {
@@ -172,6 +176,8 @@ public class AvaliacaoVo2MaxHandler {
 
         var saved = avaliacaoService.save(avaliacaoDoc);
 
-        return responseMapper.toVo2MaxResponse(resultado, context, saved.getId(), medicao.getMetsCalculado());
+        var referencias = referenciaService.extrair(tabela.getRaiz(), sexo, idade);
+
+        return responseMapper.toVo2MaxResponse(resultado, context, saved.getId(), medicao.getMetsCalculado(), referencias);
     }
 }

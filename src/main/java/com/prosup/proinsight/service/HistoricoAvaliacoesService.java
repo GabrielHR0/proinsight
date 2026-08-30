@@ -3,18 +3,11 @@ package com.prosup.proinsight.service;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.prosup.proinsight.api.dto.response.AvaliacaoHistoricoResponse;
-import com.prosup.proinsight.api.dto.response.NivelReferenciaResponse;
 import com.prosup.proinsight.api.dto.response.ReferenciaClassificacaoResponse;
 import com.prosup.proinsight.config.TenantContext;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.domain.model.ClassificacaoLegivel;
 import com.prosup.proinsight.domain.model.TabelaClassificacao;
-import com.prosup.proinsight.domain.model.composite.Component;
-import com.prosup.proinsight.domain.model.composite.Composite;
-import com.prosup.proinsight.domain.model.composite.classes.NivelImc;
-import com.prosup.proinsight.domain.model.composite.classes.NivelVo2Max;
-import com.prosup.proinsight.domain.model.composite.tabelas.TabelaIdade;
-import com.prosup.proinsight.domain.model.composite.tabelas.TabelaSexo;
 import com.prosup.proinsight.infrastructure.persistence.document.ClienteDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.ProtocoloAvaliacaoDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.TabelaClassificacaoDocument;
@@ -34,7 +27,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,6 +49,7 @@ public class HistoricoAvaliacoesService {
     private final ClienteRepository clienteRepository;
     private final TabelaClassificacaoRepository tabelaClassificacaoRepository;
     private final TabelaClassificacaoMapper tabelaClassificacaoMapper;
+    private final ReferenciaClassificacaoService referenciaService;
 
     private final Cache<String, List<AvaliacaoHistoricoResponse>> cache = Caffeine.newBuilder()
         .expireAfterWrite(Duration.ofSeconds(60))
@@ -67,12 +60,14 @@ public class HistoricoAvaliacoesService {
                                       ProtocoloAvaliacaoRepository protocoloRepository,
                                       ClienteRepository clienteRepository,
                                       TabelaClassificacaoRepository tabelaClassificacaoRepository,
-                                      TabelaClassificacaoMapper tabelaClassificacaoMapper) {
+                                      TabelaClassificacaoMapper tabelaClassificacaoMapper,
+                                      ReferenciaClassificacaoService referenciaService) {
         this.mongoTemplate = mongoTemplate;
         this.protocoloRepository = protocoloRepository;
         this.clienteRepository = clienteRepository;
         this.tabelaClassificacaoRepository = tabelaClassificacaoRepository;
         this.tabelaClassificacaoMapper = tabelaClassificacaoMapper;
+        this.referenciaService = referenciaService;
     }
 
     public List<AvaliacaoHistoricoResponse> listarPorCliente(String clienteId) {
@@ -103,6 +98,7 @@ public class HistoricoAvaliacoesService {
             .include("medicoes.distanciaMetros")
             .include("medicoes.tempoSegundos")
             .include("medicoes.frequenciaCardiacaBpm")
+            .include("medicoes.frequenciasCardiacas")
             .include("medicoes.pesoKg")
             .include("medicoes.imcCalculado")
             .include("medicoes.classificacaoImc")
@@ -224,7 +220,7 @@ public class HistoricoAvaliacoesService {
         for (String campo : List.of(
             "protocolo", "medidoEm", "observacoes",
             "velocidadeKmh", "inclinacaoPercent", "distanciaMetros", "tempoSegundos",
-            "frequenciaCardiacaBpm", "pesoKg",
+            "frequenciaCardiacaBpm", "frequenciasCardiacas", "pesoKg",
             "massaCorporalGramas", "alturaCm",
             "percentualGordura", "massaMagraKg", "massaGordaKg",
             "aguaCorporalPercentual", "gorduraVisceral", "tmbKcal", "idadeMetabolica"
@@ -262,7 +258,7 @@ public class HistoricoAvaliacoesService {
                 continue;
             }
             TabelaClassificacao tabela = tabelaClassificacaoMapper.toDomain(doc);
-            ReferenciaClassificacaoResponse referencia = extrairReferencia(tabela.getRaiz(), sexo, idade);
+            ReferenciaClassificacaoResponse referencia = referenciaService.extrair(tabela.getRaiz(), sexo, idade);
             if (referencia != null) {
                 resultado.put(protocoloId, referencia);
             }
@@ -275,121 +271,5 @@ public class HistoricoAvaliacoesService {
             return null;
         }
         return Period.between(dataNascimento, LocalDate.now()).getYears();
-    }
-
-    private static ReferenciaClassificacaoResponse extrairReferencia(Component raiz, Sexo sexo, Integer idade) {
-        if (!(raiz instanceof Composite composite)) {
-            return null;
-        }
-
-        List<NivelImc> niveisImc = new ArrayList<>();
-        List<TabelaSexo> tabelasSexo = new ArrayList<>();
-        for (Component child : composite.getChildren()) {
-            if (child instanceof NivelImc nivel) {
-                niveisImc.add(nivel);
-            } else if (child instanceof TabelaSexo tabela) {
-                tabelasSexo.add(tabela);
-            }
-        }
-
-        if (!niveisImc.isEmpty()) {
-            List<NivelReferenciaResponse> niveis = ordenarPorMinimo(niveisImc.stream()
-                .map(nivel -> toReferencia(nivel.getClassificacao(), nivel.getMin(), nivel.getMax(),
-                    nivel.getTipoMin() != null ? nivel.getTipoMin().name() : null,
-                    nivel.getTipoMax() != null ? nivel.getTipoMax().name() : null))
-                .toList());
-            return niveis.isEmpty() ? null
-                : new ReferenciaClassificacaoResponse(null, null, null, niveis);
-        }
-
-        if (sexo == null) {
-            return null;
-        }
-        for (TabelaSexo tabela : tabelasSexo) {
-            if (tabela.getSexo() != sexo) {
-                continue;
-            }
-            TabelaIdade faixa = selecionarFaixaEtaria(tabela, idade);
-            if (faixa == null) {
-                return null;
-            }
-            List<NivelReferenciaResponse> niveis = ordenarPorMinimo(faixa.getChildren().stream()
-                .filter(NivelVo2Max.class::isInstance)
-                .map(nivel -> {
-                    NivelVo2Max n = (NivelVo2Max) nivel;
-                    return toReferencia(n.getClassificacao(), n.getMin(), n.getMax(),
-                        n.getTipoMin() != null ? n.getTipoMin().name() : null,
-                        n.getTipoMax() != null ? n.getTipoMax().name() : null);
-                })
-                .toList());
-            if (niveis.isEmpty()) {
-                return null;
-            }
-            return new ReferenciaClassificacaoResponse(
-                sexo.name(), faixa.getIdadeMin(), faixa.getIdadeMax(), niveis);
-        }
-        return null;
-    }
-
-    private static TabelaIdade selecionarFaixaEtaria(TabelaSexo tabela, Integer idade) {
-        List<TabelaIdade> faixas = new ArrayList<>();
-        for (Component child : tabela.getChildren()) {
-            if (child instanceof TabelaIdade faixa) {
-                faixas.add(faixa);
-            }
-        }
-        if (faixas.isEmpty()) {
-            return null;
-        }
-        if (idade != null) {
-            for (TabelaIdade faixa : faixas) {
-                if (idade >= faixa.getIdadeMin() && idade <= faixa.getIdadeMax()) {
-                    return faixa;
-                }
-            }
-        }
-        // Sem idade ou sem match exato: usa a faixa etária mais próxima,
-        // replicando o fallback do classificador (TabelaSexo).
-        TabelaIdade maisProxima = null;
-        long melhorDistancia = Long.MAX_VALUE;
-        for (TabelaIdade faixa : faixas) {
-            long distancia;
-            if (idade == null) {
-                distancia = 0;
-            } else if (idade < faixa.getIdadeMin()) {
-                distancia = faixa.getIdadeMin() - idade;
-            } else if (idade > faixa.getIdadeMax()) {
-                distancia = idade - faixa.getIdadeMax();
-            } else {
-                distancia = 0;
-            }
-            if (distancia < melhorDistancia) {
-                melhorDistancia = distancia;
-                maisProxima = faixa;
-            }
-        }
-        return maisProxima;
-    }
-
-    private static List<NivelReferenciaResponse> ordenarPorMinimo(List<NivelReferenciaResponse> niveis) {
-        if (niveis.size() < 2) {
-            return niveis;
-        }
-        List<NivelReferenciaResponse> ordenados = new ArrayList<>(niveis);
-        ordenados.sort(Comparator.comparing(NivelReferenciaResponse::min,
-            Comparator.nullsFirst(Comparator.naturalOrder())));
-        return List.copyOf(ordenados);
-    }
-
-    private static NivelReferenciaResponse toReferencia(String classificacao, Double min, Double max,
-                                                        String tipoMin, String tipoMax) {
-        return new NivelReferenciaResponse(
-            classificacao,
-            ClassificacaoLegivel.humanizar(classificacao),
-            min,
-            max,
-            tipoMin,
-            tipoMax
-        );
     }
 }

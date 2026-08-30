@@ -28,6 +28,7 @@ import com.prosup.proinsight.infrastructure.persistence.repository.ClienteReposi
 import com.prosup.proinsight.infrastructure.persistence.repository.ProtocoloAvaliacaoRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.TabelaClassificacaoRepository;
 import com.prosup.proinsight.service.AvaliacaoService;
+import com.prosup.proinsight.service.ReferenciaClassificacaoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,7 @@ class AvaliacaoVo2MaxHandlerTest {
     @Mock private StrategyRegistry registry;
     @Mock private AvaliacaoService avaliacaoService;
     @Mock private ClienteRepository clienteRepository;
+    private final ReferenciaClassificacaoService referenciaService = new ReferenciaClassificacaoService();
 
     private final TesteVo2MaxMapperRegistry testeRegistry = new TesteVo2MaxMapperRegistry();
     private final AvaliacaoResponseMapper responseMapper = new AvaliacaoResponseMapper();
@@ -74,7 +76,8 @@ class AvaliacaoVo2MaxHandlerTest {
             responseMapper,
             registry,
             avaliacaoService,
-            clienteRepository
+            clienteRepository,
+            referenciaService
         );
     }
 

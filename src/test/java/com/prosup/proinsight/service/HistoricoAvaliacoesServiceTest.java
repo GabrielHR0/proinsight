@@ -53,13 +53,14 @@ class HistoricoAvaliacoesServiceTest {
     @Mock private ClienteRepository clienteRepository;
     @Mock private TabelaClassificacaoRepository tabelaClassificacaoRepository;
     @Mock private TabelaClassificacaoMapper tabelaClassificacaoMapper;
+    private final ReferenciaClassificacaoService referenciaService = new ReferenciaClassificacaoService();
 
     private HistoricoAvaliacoesService service;
 
     @BeforeEach
     void setUp() {
         service = new HistoricoAvaliacoesService(mongoTemplate, protocoloRepository,
-            clienteRepository, tabelaClassificacaoRepository, tabelaClassificacaoMapper);
+            clienteRepository, tabelaClassificacaoRepository, tabelaClassificacaoMapper, referenciaService);
         TenantContext.setAcademiaId("acad-1");
     }
 
@@ -95,6 +96,7 @@ class HistoricoAvaliacoesServiceTest {
             .append("medicoes.distanciaMetros", 1)
             .append("medicoes.tempoSegundos", 1)
             .append("medicoes.frequenciaCardiacaBpm", 1)
+            .append("medicoes.frequenciasCardiacas", 1)
             .append("medicoes.pesoKg", 1)
             .append("medicoes.imcCalculado", 1)
             .append("medicoes.classificacaoImc", 1)
