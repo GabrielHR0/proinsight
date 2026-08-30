@@ -1,5 +1,6 @@
 package com.prosup.proinsight.api.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
@@ -17,6 +18,10 @@ public class AvaliacaoVo2MaxResponse {
 
     @JsonProperty("classificacao")
     private ClassificacaoVo2Max classificacao;
+
+    @JsonProperty("referencias")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private ReferenciaClassificacaoResponse referencias;
 
     @JsonProperty("data_avaliacao")
     private LocalDateTime dataAvaliacao;
@@ -68,6 +73,14 @@ public class AvaliacaoVo2MaxResponse {
 
     public void setClassificacao(ClassificacaoVo2Max classificacao) {
         this.classificacao = classificacao;
+    }
+
+    public ReferenciaClassificacaoResponse getReferencias() {
+        return referencias;
+    }
+
+    public void setReferencias(ReferenciaClassificacaoResponse referencias) {
+        this.referencias = referencias;
     }
 
     public LocalDateTime getDataAvaliacao() {

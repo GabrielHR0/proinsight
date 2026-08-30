@@ -3,6 +3,7 @@ package com.prosup.proinsight.infrastructure.persistence.mapper;
 import com.prosup.proinsight.api.dto.response.AvaliacaoImcResponse;
 import com.prosup.proinsight.api.dto.response.AvaliacaoVo2MaxResponse;
 import com.prosup.proinsight.api.dto.response.ClassificacaoVo2Max;
+import com.prosup.proinsight.api.dto.response.ReferenciaClassificacaoResponse;
 import com.prosup.proinsight.domain.model.ClassificacaoLegivel;
 import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.composite.classes.NivelImc;
@@ -49,7 +50,8 @@ public class AvaliacaoResponseMapper {
         Leaf resultado,
         AvaliacaoVo2MaxContext context,
         String avaliacaoId,
-        Double metsCalculado
+        Double metsCalculado,
+        ReferenciaClassificacaoResponse referencias
     ) {
         String nome = obterNomeClassificacao(resultado);
         Double valor = extrairValorClassificado(context);
@@ -62,12 +64,14 @@ public class AvaliacaoResponseMapper {
         );
         classificacao.setNomeLegivel(ClassificacaoLegivel.humanizar(nome));
 
-        return new AvaliacaoVo2MaxResponse(
+        AvaliacaoVo2MaxResponse response = new AvaliacaoVo2MaxResponse(
             context.getClienteId(),
             context.getAvaliadorId(),
             classificacao,
             avaliacaoId
         );
+        response.setReferencias(referencias);
+        return response;
     }
 
     public AvaliacaoImcResponse toImcResponse(
