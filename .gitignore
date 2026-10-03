@@ -48,3 +48,7 @@ logs/
 .playwright-mcp/
 node_modules/*.png
 opencode.json
+
+### local artifacts ###
+token.txt
+/*.png
