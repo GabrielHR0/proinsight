@@ -18,11 +18,12 @@ public class AquecimentoMapper {
 
         if (domain instanceof AquecimentoVo2MaxCooper cooper) {
             doc.setDistanciaMetros(cooper.getDistanciaMetros());
-        } else if (domain instanceof AquecimentoVo2MaxRockport rockport) {
-            doc.setDistanciaMetros(rockport.getDistanciaMetros());
         } else if (domain instanceof AquecimentoVo2MaxEsteiraIncremental esteira) {
             doc.setVelocidadeKmh(esteira.getVelocidadeKmh());
             doc.setInclinacaoPercent(esteira.getInclinacaoPercent());
+        } else {
+            throw new IllegalArgumentException(
+                    "Aquecimento não suportado na escrita: " + domain.getClass().getSimpleName());
         }
 
         return doc;
@@ -39,18 +40,13 @@ public class AquecimentoMapper {
                 a.setObservacoes(doc.getObservacoes());
                 yield a;
             }
-            case ROCKPORT -> {
-                var a = new AquecimentoVo2MaxRockport(doc.getTempoMinutos(), doc.getDistanciaMetros());
-                a.setObservacoes(doc.getObservacoes());
-                yield a;
-            }
-            case ESTEIRA, ESTEIRA_INCREMENTAL -> {
+            case ESTEIRA_INCREMENTAL -> {
                 var a = new AquecimentoVo2MaxEsteiraIncremental(
                         doc.getVelocidadeKmh(), doc.getInclinacaoPercent(), doc.getTempoMinutos());
                 a.setObservacoes(doc.getObservacoes());
                 yield a;
             }
-            case IMC -> null;
+            case IMC, AVALIACAO_FUNCIONAL_IDOSO -> null;
         };
     }
 }

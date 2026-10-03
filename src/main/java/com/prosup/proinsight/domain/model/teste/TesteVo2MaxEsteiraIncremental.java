@@ -33,7 +33,7 @@ public class TesteVo2MaxEsteiraIncremental extends TesteVo2Max {
 
     @Override
     public String gerarCodigo() {
-        return "ESTEIRA_INCREMENTAL_" + System.currentTimeMillis();
+        return "ESTEIRA-" + java.util.UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 
     @Override

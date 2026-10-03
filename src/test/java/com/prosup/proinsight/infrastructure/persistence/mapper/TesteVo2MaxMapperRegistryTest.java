@@ -4,7 +4,7 @@ import com.prosup.proinsight.api.dto.request.TesteVo2MaxDto;
 import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
-import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
+import com.prosup.proinsight.domain.model.teste.TesteVo2MaxEsteiraIncremental;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,23 +25,21 @@ class TesteVo2MaxMapperRegistryTest {
     }
 
     @Test
-    void shouldConvertRockportDtoToTesteVo2MaxRockport() {
-        var dto = new TesteVo2MaxDto(Protocolo.ROCKPORT, 12.5);
-        dto.setFrequenciaCardiaca(145);
-        dto.setPesoKg(70.0);
+    void shouldConvertEsteiraIncrementalDtoToTeste() {
+        var dto = new TesteVo2MaxDto(Protocolo.ESTEIRA_INCREMENTAL, 12.5);
+        dto.setInclinacaoPercent(5.0);
 
         TesteVo2Max result = registry.toDomain(dto);
 
-        assertThat(result).isInstanceOf(TesteVo2MaxRockport.class);
-        var rockport = (TesteVo2MaxRockport) result;
-        assertThat(rockport.getTempoMinutos()).isEqualTo(12.5);
-        assertThat(rockport.getFrequenciaCardiaca()).isEqualTo(145);
-        assertThat(rockport.getPesoKg()).isEqualTo(70.0);
+        assertThat(result).isInstanceOf(TesteVo2MaxEsteiraIncremental.class);
+        var esteira = (TesteVo2MaxEsteiraIncremental) result;
+        assertThat(esteira.getVelocidadeKmh()).isEqualTo(12.5);
+        assertThat(esteira.getInclinacaoPercent()).isEqualTo(5.0);
     }
 
     @Test
     void shouldThrowWhenProtocoloNotMapped() {
-        var dto = new TesteVo2MaxDto(null, 0);
+        var dto = new TesteVo2MaxDto(Protocolo.AVALIACAO_FUNCIONAL_IDOSO, 0);
 
         assertThrows(IllegalArgumentException.class, () -> registry.toDomain(dto));
     }

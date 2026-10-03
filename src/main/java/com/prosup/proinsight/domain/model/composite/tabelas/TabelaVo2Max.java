@@ -26,7 +26,7 @@ public class TabelaVo2Max extends Composite {
 
     @Override
     public Leaf classificarComTeste(Teste teste, DadosAvaliacao dados) {
-        if (protocolo == null || !teste.getCriterio().equals(protocolo.name())) {
+        if (protocolo == null || !(teste instanceof com.prosup.proinsight.domain.model.teste.TesteVo2Max tv2) || tv2.getProtocolo() == null || !tv2.getProtocolo().equals(protocolo)) {
             return null;
         }
 

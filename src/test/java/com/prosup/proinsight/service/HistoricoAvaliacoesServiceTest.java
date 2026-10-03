@@ -108,7 +108,15 @@ class HistoricoAvaliacoesServiceTest {
             .append("medicoes.aguaCorporalPercentual", 1)
             .append("medicoes.gorduraVisceral", 1)
             .append("medicoes.tmbKcal", 1)
-            .append("medicoes.idadeMetabolica", 1));
+            .append("medicoes.idadeMetabolica", 1)
+            .append("medicoes.sentarLevantar30s", 1)
+            .append("medicoes.flexaoCotovelo30s", 1)
+            .append("medicoes.marchaEstacionaria2Min", 1)
+            .append("medicoes.sentarAlcancarPes", 1)
+            .append("medicoes.alcancarCostas", 1)
+            .append("medicoes.levantarCaminhar25m", 1)
+            .append("medicoes.classificacoes", 1)
+            .append("medicoes.percentis", 1));
     }
 
     @Test
@@ -154,6 +162,30 @@ class HistoricoAvaliacoesServiceTest {
         assertThat(r.classificacaoLegivel()).isEqualTo("Normal");
         assertThat(r.detalhes()).containsEntry("massaCorporalGramas", 70000)
             .containsEntry("alturaCm", 175);
+    }
+
+    @Test
+    void deveParsearFuncionalComMediaDePercentis() {
+        when(protocoloRepository.findAll()).thenReturn(List.of(protocoloFuncional()));
+        when(mongoTemplate.find(any(), eq(Document.class), eq("avaliacoesFisicas")))
+            .thenReturn(List.of(docFuncional()));
+
+        List<AvaliacaoHistoricoResponse> respostas = service.listarPorCliente("cliente-1");
+
+        assertThat(respostas).hasSize(1);
+        AvaliacaoHistoricoResponse r = respostas.get(0);
+        assertThat(r.tipo()).isEqualTo("FUNCIONAL");
+        assertThat(r.protocoloNome()).isEqualTo("Avaliação Funcional com Idosos");
+        assertThat(r.valor()).isEqualTo(50.0);
+        assertThat(r.classificacao()).isEqualTo("NORMAL");
+        assertThat(r.classificacaoLegivel()).isEqualTo("Normal");
+        assertThat(r.detalhes()).containsKey("percentis");
+        @SuppressWarnings("unchecked")
+        var percentis = (Map<String, Object>) r.detalhes().get("percentis");
+        assertThat(percentis)
+            .containsEntry("SENTAR_LEVANTAR_30S", 40)
+            .containsEntry("MARCHA_ESTACIONARIA_2MIN", 60)
+            .containsEntry("FLEXAO_COTOVELO_30S", 50);
     }
 
     @Test
@@ -354,6 +386,33 @@ class HistoricoAvaliacoesServiceTest {
         raiz.add(new NivelImc("OBESIDADE_II", 35.0, 40.0, TipoLimite.INCLUSIVO, TipoLimite.EXCLUSIVO));
         raiz.add(new NivelImc("OBESIDADE_III", 40.0, null, TipoLimite.INCLUSIVO, TipoLimite.INCLUSIVO));
         return new TabelaClassificacao("classificacao_imc_oms", "IMC OMS", raiz);
+    }
+
+    private ProtocoloAvaliacaoDocument protocoloFuncional() {
+        var protocolo = new ProtocoloAvaliacaoDocument();
+        protocolo.setId("protocolo_avaliacao_funcional_idoso");
+        protocolo.setNome("Avaliação Funcional com Idosos");
+        return protocolo;
+    }
+
+    private Document docFuncional() {
+        var medicao = new Document()
+            .append("tipo", "FUNCIONAL")
+            .append("medidoEm", Date.from(Instant.parse("2026-09-20T10:00:00.000Z")))
+            .append("observacoes", "Sessão 1")
+            .append("percentis", new Document()
+                .append("SENTAR_LEVANTAR_30S", 40)
+                .append("MARCHA_ESTACIONARIA_2MIN", 60)
+                .append("FLEXAO_COTOVELO_30S", 50))
+            .append("classificacoes", new Document()
+                .append("SENTAR_LEVANTAR_30S", "Percentil 40")
+                .append("MARCHA_ESTACIONARIA_2MIN", "Percentil 60")
+                .append("FLEXAO_COTOVELO_30S", "Percentil 50"));
+        return new Document("_id", new ObjectId("6a82074d3fb51575e080081e"))
+            .append("clienteId", "cliente-1")
+            .append("protocoloId", "protocolo_avaliacao_funcional_idoso")
+            .append("createdAt", Date.from(Instant.parse("2026-09-20T10:05:00.000Z")))
+            .append("medicoes", List.of(medicao));
     }
 
     private Document docVo2Max() {

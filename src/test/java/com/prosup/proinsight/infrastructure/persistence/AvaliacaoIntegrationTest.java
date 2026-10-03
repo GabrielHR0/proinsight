@@ -119,31 +119,6 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void avaliacaoRockport_fluxoCompleto() {
-        var request = new AvaliacaoVo2MaxRequest();
-        request.setClienteId(clienteId);
-        request.setProtocoloId("protocolo_vo2max_rockport");
-        request.setAvaliadorId(avaliadorId);
-        request.setResultado(15.5);
-        request.setIdade(30);
-        request.setSexo(Sexo.FEMININO);
-        request.setFrequenciaCardiaca(140);
-        request.setPesoKg(65.0);
-        request.setObservacoes("Teste Rockport 1 mile");
-
-        AvaliacaoVo2MaxResponse response = avaliacaoVo2MaxHandler.processar(request);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getAvaliacaoId()).isNotNull();
-        assertThat(response.getClassificacao()).isNotNull();
-        assertThat(response.getClassificacao().getNome()).isIn("MUITO_RUIM", "RUIM", "MÉDIO", "BOM", "EXCELENTE");
-        assertThat(response.getClassificacao().getValorVo2Max()).isPositive();
-
-        var saved = avaliacaoFisicaRepository.findById(response.getAvaliacaoId()).orElseThrow();
-        assertThat(saved.getMedicoes()).hasSize(1);
-    }
-
-    @Test
     void avaliacaoEsteiraIncremental_fluxoCompleto() {
         var request = new AvaliacaoVo2MaxRequest();
         request.setClienteId(clienteId);
@@ -241,16 +216,14 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void avaliacaoRockport_muitoRuim() {
+    void avaliacaoCooper_muitoRuim() {
         var request = new AvaliacaoVo2MaxRequest();
         request.setClienteId(clienteId);
-        request.setProtocoloId("protocolo_vo2max_rockport");
+        request.setProtocoloId("protocolo_vo2max_cooper");
         request.setAvaliadorId(avaliadorId);
-        request.setResultado(20.0);
+        request.setResultado(1500.0);
         request.setIdade(25);
         request.setSexo(Sexo.MASCULINO);
-        request.setFrequenciaCardiaca(160);
-        request.setPesoKg(90.0);
 
         AvaliacaoVo2MaxResponse response = avaliacaoVo2MaxHandler.processar(request);
 

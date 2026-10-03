@@ -1,12 +1,15 @@
 package com.prosup.proinsight.api.controller.api.v1;
 
 import com.prosup.proinsight.api.annotation.Audited;
+import com.prosup.proinsight.api.dto.request.AvaliacaoFuncionalRequest;
 import com.prosup.proinsight.api.dto.request.AvaliacaoImcRequest;
 import com.prosup.proinsight.api.dto.request.AvaliacaoVo2MaxRequest;
+import com.prosup.proinsight.api.dto.response.AvaliacaoFuncionalResponse;
 import com.prosup.proinsight.api.dto.response.AvaliacaoImcResponse;
 import com.prosup.proinsight.api.dto.response.AvaliacaoVo2MaxResponse;
 import com.prosup.proinsight.api.dto.response.DadosPreAvaliacaoResponse;
 import com.prosup.proinsight.service.PreAvaliacaoService;
+import com.prosup.proinsight.service.handler.AvaliacaoFuncionalHandler;
 import com.prosup.proinsight.service.handler.AvaliacaoImcHandler;
 import com.prosup.proinsight.service.handler.AvaliacaoVo2MaxHandler;
 import jakarta.validation.Valid;
@@ -21,13 +24,16 @@ public class AvaliacaoController {
 
     private final AvaliacaoVo2MaxHandler vo2MaxHandler;
     private final AvaliacaoImcHandler imcHandler;
+    private final AvaliacaoFuncionalHandler funcionalHandler;
     private final PreAvaliacaoService preAvaliacaoService;
 
     public AvaliacaoController(AvaliacaoVo2MaxHandler vo2MaxHandler,
                                AvaliacaoImcHandler imcHandler,
+                               AvaliacaoFuncionalHandler funcionalHandler,
                                PreAvaliacaoService preAvaliacaoService) {
         this.vo2MaxHandler = vo2MaxHandler;
         this.imcHandler = imcHandler;
+        this.funcionalHandler = funcionalHandler;
         this.preAvaliacaoService = preAvaliacaoService;
     }
 
@@ -48,6 +54,16 @@ public class AvaliacaoController {
         @Valid @RequestBody AvaliacaoImcRequest request
     ) {
         AvaliacaoImcResponse response = imcHandler.processar(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/funcional")
+    @Audited
+    @PreAuthorize("hasAuthority('AVALIACOES_CRIAR')")
+    public ResponseEntity<AvaliacaoFuncionalResponse> avaliarFuncional(
+        @Valid @RequestBody AvaliacaoFuncionalRequest request
+    ) {
+        AvaliacaoFuncionalResponse response = funcionalHandler.processar(request);
         return ResponseEntity.ok(response);
     }
 

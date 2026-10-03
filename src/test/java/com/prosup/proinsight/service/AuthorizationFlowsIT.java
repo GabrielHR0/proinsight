@@ -48,9 +48,11 @@ class AuthorizationFlowsIT extends AbstractIntegrationTest {
     @Autowired private CustomUserDetailsService userDetailsService;
     @Autowired private JwtTokenProvider jwtTokenProvider;
     @Autowired private ClienteService clienteService;
+    @Autowired private RoleInitializer roleInitializer;
 
     @BeforeAll
     void cleanDatabase() {
+        roleInitializer.run();
         clienteRepository.deleteAll();
         userRepository.deleteAll();
         academiaRepository.deleteAll();

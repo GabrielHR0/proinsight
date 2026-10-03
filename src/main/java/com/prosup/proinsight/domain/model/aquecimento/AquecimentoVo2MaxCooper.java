@@ -28,7 +28,7 @@ public class AquecimentoVo2MaxCooper extends AquecimentoVo2Max {
 
     @Override
     public String gerarCodigo() {
-        return "AQUEC_COOPER_" + System.currentTimeMillis();
+        return "AQUEC-COOPER-" + java.util.UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 
     @Override

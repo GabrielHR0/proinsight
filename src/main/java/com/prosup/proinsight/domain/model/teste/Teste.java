@@ -5,7 +5,6 @@ import com.prosup.proinsight.domain.DadosAvaliacao;
 public interface Teste {
 
     String gerarCodigo();
-    String getCriterio();
     String getValorClassificacao();
 
     default String getValorClassificacao(DadosAvaliacao dados) {

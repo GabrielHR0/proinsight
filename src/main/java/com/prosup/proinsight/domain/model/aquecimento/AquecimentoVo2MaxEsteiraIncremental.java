@@ -25,7 +25,7 @@ public class AquecimentoVo2MaxEsteiraIncremental extends AquecimentoVo2Max {
 
     @Override
     public String gerarCodigo() {
-        return "AQUEC_ESTEIRA_" + System.currentTimeMillis();
+        return "AQUEC-ESTEIRA-" + java.util.UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 
     @Override

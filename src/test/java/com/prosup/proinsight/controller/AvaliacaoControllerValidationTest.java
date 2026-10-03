@@ -3,10 +3,13 @@ package com.prosup.proinsight.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prosup.proinsight.api.controller.api.v1.AvaliacaoController;
 import com.prosup.proinsight.api.dto.request.AvaliacaoVo2MaxRequest;
+import com.prosup.proinsight.api.dto.response.AvaliacaoFuncionalResponse;
 import com.prosup.proinsight.api.dto.response.AvaliacaoVo2MaxResponse;
 import com.prosup.proinsight.api.dto.response.ClassificacaoVo2Max;
+import com.prosup.proinsight.api.handler.AvaliacaoFuncionalException;
 import com.prosup.proinsight.api.handler.GlobalExceptionHandler;
 import com.prosup.proinsight.service.PreAvaliacaoService;
+import com.prosup.proinsight.service.handler.AvaliacaoFuncionalHandler;
 import com.prosup.proinsight.service.handler.AvaliacaoImcHandler;
 import com.prosup.proinsight.service.handler.AvaliacaoVo2MaxHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -35,13 +40,16 @@ class AvaliacaoControllerValidationTest {
     private AvaliacaoImcHandler imcHandler;
 
     @Mock
+    private AvaliacaoFuncionalHandler funcionalHandler;
+
+    @Mock
     private PreAvaliacaoService preAvaliacaoService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        var controller = new AvaliacaoController(handler, imcHandler, preAvaliacaoService);
+        var controller = new AvaliacaoController(handler, imcHandler, funcionalHandler, preAvaliacaoService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
@@ -148,5 +156,90 @@ class AvaliacaoControllerValidationTest {
         request.setAvaliadorId("avaliador-1");
         request.setResultado(42.0);
         return request;
+    }
+
+    @Test
+    void shouldReturn200WhenFuncionalPayloadIsValid() throws Exception {
+        when(funcionalHandler.processar(any())).thenReturn(new AvaliacaoFuncionalResponse(
+                "Avaliação Funcional do Idoso - Bateria de Fullerton", "protocolo-1",
+                "avaliador-1", "cliente-1", "avaliacao-1", "CONCLUIDA", 70, "MASCULINO",
+                List.of(), java.util.Map.of("total_testes", 1)));
+
+        mockMvc.perform(post("/avaliacoes/funcional")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"cliente_id":"cliente-1","protocolo_id":"protocolo-1","avaliador_id":"avaliador-1",
+                                 "idade":70,"testes":[{"teste":"SENTAR_LEVANTAR_30S","valor":14.0}]}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avaliacao_id").value("avaliacao-1"))
+                .andExpect(jsonPath("$.status").value("CONCLUIDA"));
+    }
+
+    @Test
+    void shouldReturn400WhenFuncionalTestesIsEmpty() throws Exception {
+        mockMvc.perform(post("/avaliacoes/funcional")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"cliente_id":"cliente-1","protocolo_id":"protocolo-1","avaliador_id":"avaliador-1",
+                                 "testes":[]}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("proinsight://problems/validation-error"))
+                .andExpect(jsonPath("$.violations[0].field").value("testes"))
+                .andExpect(jsonPath("$.violations[0].message").value("ao menos um teste deve ser informado"));
+    }
+
+    @Test
+    void shouldReturn400WhenFuncionalTesteValorIsNull() throws Exception {
+        mockMvc.perform(post("/avaliacoes/funcional")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"cliente_id":"cliente-1","protocolo_id":"protocolo-1","avaliador_id":"avaliador-1",
+                                 "testes":[{"teste":"SENTAR_LEVANTAR_30S"}]}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.violations[0].field").value("testes[0].valor"))
+                .andExpect(jsonPath("$.violations[0].message").value("valor é obrigatório"));
+    }
+
+    @Test
+    void shouldReturn400WithStructuredTestViolationsWhenHandlerRejects() throws Exception {
+        when(funcionalHandler.processar(any())).thenThrow(AvaliacaoFuncionalException.badRequest(
+                "Um ou mais testes estão inválidos ou incompletos. Veja 'violations' para detalhes.",
+                List.of(AvaliacaoFuncionalException.violacao(
+                        "testes[MARCHA_ESTACIONARIA_2MIN]",
+                        "Teste obrigatório não informado: Marcha estacionária de 2 minutos"))));
+
+        mockMvc.perform(post("/avaliacoes/funcional")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"cliente_id":"cliente-1","protocolo_id":"protocolo-1","avaliador_id":"avaliador-1",
+                                 "idade":70,"testes":[{"teste":"SENTAR_LEVANTAR_30S","valor":14.0}]}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("proinsight://problems/validation-error"))
+                .andExpect(jsonPath("$.violations[0].field").value("testes[MARCHA_ESTACIONARIA_2MIN]"))
+                .andExpect(jsonPath("$.violations[0].message")
+                        .value("Teste obrigatório não informado: Marcha estacionária de 2 minutos"));
+    }
+
+    @Test
+    void shouldReturn422WithFieldWhenFuncionalClassificationFails() throws Exception {
+        when(funcionalHandler.processar(any())).thenThrow(AvaliacaoFuncionalException.unprocessable(
+                "Idade do cliente indisponível: informe 'idade' no request ou cadastre a data de nascimento do cliente",
+                List.of(AvaliacaoFuncionalException.violacao(
+                        "idade",
+                        "Idade do cliente indisponível: informe 'idade' no request ou cadastre a data de nascimento do cliente"))));
+
+        mockMvc.perform(post("/avaliacoes/funcional")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"cliente_id":"cliente-1","protocolo_id":"protocolo-1","avaliador_id":"avaliador-1",
+                                 "testes":[{"teste":"SENTAR_LEVANTAR_30S","valor":14.0}]}
+                                """))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.type").value("proinsight://problems/unprocessable-entity"))
+                .andExpect(jsonPath("$.violations[0].field").value("idade"));
     }
 }

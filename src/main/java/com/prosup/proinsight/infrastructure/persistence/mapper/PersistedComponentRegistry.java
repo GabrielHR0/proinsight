@@ -4,6 +4,7 @@ import com.prosup.proinsight.domain.model.composite.Component;
 import com.prosup.proinsight.domain.model.composite.classes.NivelForca;
 import com.prosup.proinsight.domain.model.composite.classes.NivelImc;
 import com.prosup.proinsight.domain.model.composite.classes.NivelVo2Max;
+import com.prosup.proinsight.domain.model.composite.classes.PercentilFuncional;
 import com.prosup.proinsight.domain.model.composite.tabelas.TabelaEquipamento;
 import com.prosup.proinsight.domain.model.composite.tabelas.TabelaIdade;
 import com.prosup.proinsight.domain.model.composite.tabelas.TabelaClassificacaoGenerica;
@@ -62,6 +63,8 @@ public class PersistedComponentRegistry {
                 this::toDomainNivelVo2Max, this::toPersistedNivelVo2Max);
         register("persistedNivelImc", PersistedNivelImc.class, NivelImc.class,
                 this::toDomainNivelImc, this::toPersistedNivelImc);
+        register("persistedPercentilFuncional", PersistedPercentilFuncional.class, PercentilFuncional.class,
+                this::toDomainPercentilFuncional, this::toPersistedPercentilFuncional);
         register("persistedTabelaVo2Max", PersistedTabelaVo2Max.class, TabelaVo2Max.class,
                 this::toDomainTabelaVo2Max, this::toPersistedTabelaVo2Max);
         register("persistedTabelaSexo", PersistedTabelaSexo.class, TabelaSexo.class,
@@ -120,6 +123,20 @@ public class PersistedComponentRegistry {
     private PersistedComponent toPersistedNivelImc(Component d) {
         var src = (NivelImc) d;
         return new PersistedNivelImc(src.getClassificacao(), src.getMin(), src.getMax(),
+                src.getTipoMin(), src.getTipoMax());
+    }
+
+    private Component toDomainPercentilFuncional(PersistedComponent p) {
+        var src = (PersistedPercentilFuncional) p;
+        var dst = new PercentilFuncional(src.getPercentil(), src.getMin(), src.getMax());
+        if (src.getTipoMin() != null) dst.setTipoMin(src.getTipoMin());
+        if (src.getTipoMax() != null) dst.setTipoMax(src.getTipoMax());
+        return dst;
+    }
+
+    private PersistedComponent toPersistedPercentilFuncional(Component d) {
+        var src = (PercentilFuncional) d;
+        return new PersistedPercentilFuncional(src.getPercentil(), src.getMin(), src.getMax(),
                 src.getTipoMin(), src.getTipoMax());
     }
 

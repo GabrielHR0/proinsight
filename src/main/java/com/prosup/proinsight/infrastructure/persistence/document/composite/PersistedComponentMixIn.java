@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = PersistedNivelForca.class, name = "persistedNivelForca"),
         @JsonSubTypes.Type(value = PersistedNivelVo2Max.class, name = "persistedNivelVo2Max"),
         @JsonSubTypes.Type(value = PersistedNivelImc.class, name = "persistedNivelImc"),
+        @JsonSubTypes.Type(value = PersistedPercentilFuncional.class, name = "persistedPercentilFuncional"),
         @JsonSubTypes.Type(value = PersistedTabelaClassificacaoGenerica.class, name = "persistedTabelaClassificacaoGenerica")
 })
 public interface PersistedComponentMixIn {

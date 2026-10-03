@@ -12,12 +12,7 @@ public class TesteImc implements Teste{
 
     @Override
     public String gerarCodigo() {
-        return "IMC"+ System.currentTimeMillis();
-    }
-
-    @Override
-    public String getCriterio() {
-        return "IMC";
+        return "IMC-" + java.util.UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 
     public TesteImc() {

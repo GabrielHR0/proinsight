@@ -7,6 +7,7 @@ import com.prosup.proinsight.api.dto.response.ReferenciaClassificacaoResponse;
 import com.prosup.proinsight.config.TenantContext;
 import com.prosup.proinsight.domain.enums.Sexo;
 import com.prosup.proinsight.domain.model.ClassificacaoLegivel;
+import com.prosup.proinsight.domain.model.PercentilFaixa;
 import com.prosup.proinsight.domain.model.TabelaClassificacao;
 import com.prosup.proinsight.infrastructure.persistence.document.ClienteDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.ProtocoloAvaliacaoDocument;
@@ -110,7 +111,15 @@ public class HistoricoAvaliacoesService {
             .include("medicoes.aguaCorporalPercentual")
             .include("medicoes.gorduraVisceral")
             .include("medicoes.tmbKcal")
-            .include("medicoes.idadeMetabolica");
+            .include("medicoes.idadeMetabolica")
+            .include("medicoes.sentarLevantar30s")
+            .include("medicoes.flexaoCotovelo30s")
+            .include("medicoes.marchaEstacionaria2Min")
+            .include("medicoes.sentarAlcancarPes")
+            .include("medicoes.alcancarCostas")
+            .include("medicoes.levantarCaminhar25m")
+            .include("medicoes.classificacoes")
+            .include("medicoes.percentis");
 
         List<Document> rawDocs = mongoTemplate.find(query, Document.class, COLLECTION);
         if (rawDocs.isEmpty()) {
@@ -197,8 +206,24 @@ public class HistoricoAvaliacoesService {
             }
             case "IMC" -> medicao.getDouble("imcCalculado");
             case "BIOIMPEDANCIA" -> medicao.getDouble("pesoKg");
+            case "FUNCIONAL" -> mediaPercentis(medicao);
             default -> null;
         };
+    }
+
+    private static Double mediaPercentis(Document medicao) {
+        if (!(medicao.get("percentis") instanceof Map<?, ?> percentis) || percentis.isEmpty()) {
+            return null;
+        }
+        double soma = 0;
+        int total = 0;
+        for (Object valor : percentis.values()) {
+            if (valor instanceof Number n) {
+                soma += n.doubleValue();
+                total++;
+            }
+        }
+        return total == 0 ? null : soma / total;
     }
 
     private static String extrairClassificacao(Document medicao, String tipo) {
@@ -208,6 +233,7 @@ public class HistoricoAvaliacoesService {
         return switch (tipo) {
             case "VO2_MAX" -> medicao.getString("classificacaoVo2");
             case "IMC" -> medicao.getString("classificacaoImc");
+            case "FUNCIONAL" -> PercentilFaixa.classificar(mediaPercentis(medicao));
             default -> null;
         };
     }
@@ -223,7 +249,10 @@ public class HistoricoAvaliacoesService {
             "frequenciaCardiacaBpm", "frequenciasCardiacas", "pesoKg",
             "massaCorporalGramas", "alturaCm",
             "percentualGordura", "massaMagraKg", "massaGordaKg",
-            "aguaCorporalPercentual", "gorduraVisceral", "tmbKcal", "idadeMetabolica"
+            "aguaCorporalPercentual", "gorduraVisceral", "tmbKcal", "idadeMetabolica",
+            "sentarLevantar30s", "flexaoCotovelo30s", "marchaEstacionaria2Min",
+            "sentarAlcancarPes", "alcancarCostas", "levantarCaminhar25m",
+            "classificacoes", "percentis"
         )) {
             Object valor = medicao.get(campo);
             if (valor != null) {

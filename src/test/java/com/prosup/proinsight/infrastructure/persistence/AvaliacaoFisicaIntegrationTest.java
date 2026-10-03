@@ -7,7 +7,7 @@ import com.prosup.proinsight.domain.model.AvaliacaoFisica;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
-import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
+import com.prosup.proinsight.domain.model.teste.TesteVo2MaxEsteiraIncremental;
 import com.prosup.proinsight.infrastructure.persistence.document.AvaliacaoFisicaDocument;
 import com.prosup.proinsight.infrastructure.persistence.mapper.AvaliacaoFisicaMapper;
 import com.prosup.proinsight.infrastructure.persistence.repository.AvaliacaoFisicaRepository;
@@ -75,8 +75,8 @@ class AvaliacaoFisicaIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void shouldPersistAndRetrieveAvaliacaoFisicaWithRockport() {
-        var teste = new TesteVo2MaxRockport(15.5, 140, 72.0);
+    void shouldPersistAndRetrieveAvaliacaoFisicaWithEsteiraIncremental() {
+        var teste = new TesteVo2MaxEsteiraIncremental(12.5, 5.0);
         var medicao = new MedicaoVo2Max(
                 MedicaoTipo.VO2_MAX,
                 Instant.now(),
@@ -87,16 +87,18 @@ class AvaliacaoFisicaIntegrationTest extends AbstractIntegrationTest {
         );
 
         var avaliacaoDomain = new AvaliacaoFisica();
-        avaliacaoDomain.setClienteId("cliente-rock");
-        avaliacaoDomain.setProtocoloId("protocolo-rockport");
+        avaliacaoDomain.setClienteId("cliente-esteira");
+        avaliacaoDomain.setProtocoloId("protocolo-esteira-incremental");
         avaliacaoDomain.setMedicoes(List.of(medicao));
 
         AvaliacaoFisicaDocument saved = repository.save(mapper.toDocument(avaliacaoDomain));
         AvaliacaoFisica result = mapper.toDomain(repository.findById(saved.getId()).orElseThrow());
 
         assertThat(result.getMedicoes()).hasSize(1);
-        assertThat(result.getMedicoes().get(0).getTestes().get(0))
-                .isInstanceOf(TesteVo2MaxRockport.class);
+        var testeResult = result.getMedicoes().get(0).getTestes().get(0);
+        assertThat(testeResult).isInstanceOf(TesteVo2MaxEsteiraIncremental.class);
+        assertThat(((TesteVo2MaxEsteiraIncremental) testeResult).getVelocidadeKmh()).isEqualTo(12.5);
+        assertThat(((TesteVo2MaxEsteiraIncremental) testeResult).getInclinacaoPercent()).isEqualTo(5.0);
     }
 
     @Test

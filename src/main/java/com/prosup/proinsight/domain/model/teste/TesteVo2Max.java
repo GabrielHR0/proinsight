@@ -20,11 +20,6 @@ public abstract class TesteVo2Max implements Teste {
     public abstract Double calcularVo2Max(DadosAvaliacao dados);
 
     @Override
-    public String getCriterio() {
-        return protocolo != null ? protocolo.name() : null;
-    }
-
-    @Override
     public String getValorClassificacao() {
         return valorClassificacao != null ? String.valueOf(valorClassificacao) : null;
     }

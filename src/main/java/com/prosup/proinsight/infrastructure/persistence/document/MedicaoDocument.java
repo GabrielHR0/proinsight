@@ -18,6 +18,7 @@ import java.util.List;
     @JsonSubTypes.Type(value = MedicaoVo2MaxDocument.class, name = "VO2_MAX"),
     @JsonSubTypes.Type(value = MedicaoImcDocument.class, name = "IMC"),
     @JsonSubTypes.Type(value = MedicaoBioimpedanciaDocument.class, name = "BIOIMPEDANCIA"),
+    @JsonSubTypes.Type(value = MedicaoFuncionalDocument.class, name = "FUNCIONAL"),
 })
 public abstract class MedicaoDocument {
 

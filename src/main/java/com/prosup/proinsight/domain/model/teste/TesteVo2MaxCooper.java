@@ -23,7 +23,7 @@ public class TesteVo2MaxCooper extends TesteVo2Max {
 
     @Override
     public String gerarCodigo() {
-        return "COOPER_" + System.currentTimeMillis();
+        return "COOPER-" + java.util.UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 
     @Override

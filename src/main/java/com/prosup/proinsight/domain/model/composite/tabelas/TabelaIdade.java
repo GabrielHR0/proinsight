@@ -60,6 +60,8 @@ public class TabelaIdade extends Composite {
      * quando a idade do avaliado não pertence a nenhuma faixa.
      */
     public Leaf classificarComClampDeValor(Teste teste, DadosAvaliacao dados) {
+        dados.adicionar("idadeMin", idadeMin);
+        dados.adicionar("idadeMax", idadeMax);
         for (Component child : getChildren()) {
             Leaf result = child.classificarComTeste(teste, dados);
             if (result != null) {
@@ -88,18 +90,26 @@ public class TabelaIdade extends Composite {
         double melhorDistancia = Double.MAX_VALUE;
 
         for (Component child : getChildren()) {
-            if (!(child instanceof NivelVo2Max nivel)) {
+            Double min = null;
+            Double max = null;
+            if (child instanceof NivelVo2Max nivel) {
+                min = nivel.getMin();
+                max = nivel.getMax();
+            } else if (child instanceof com.prosup.proinsight.domain.model.composite.classes.PercentilFuncional p) {
+                min = p.getMin();
+                max = p.getMax();
+            } else {
                 continue;
             }
             double distancia = 0;
-            if (nivel.getMin() != null && valor < nivel.getMin()) {
-                distancia = nivel.getMin() - valor;
-            } else if (nivel.getMax() != null && valor > nivel.getMax()) {
-                distancia = valor - nivel.getMax();
+            if (min != null && valor < min) {
+                distancia = min - valor;
+            } else if (max != null && valor > max) {
+                distancia = valor - max;
             }
             if (distancia < melhorDistancia) {
                 melhorDistancia = distancia;
-                melhor = nivel;
+                melhor = (Leaf) child;
             }
         }
         return melhor;

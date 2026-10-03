@@ -21,11 +21,6 @@ public abstract class AquecimentoVo2Max implements Aquecimento {
         this.protocolo = protocolo;
     }
 
-    @Override
-    public String getCriterio() {
-        return protocolo != null ? protocolo.name() : null;
-    }
-
     public Protocolo getProtocolo() {
         return protocolo;
     }

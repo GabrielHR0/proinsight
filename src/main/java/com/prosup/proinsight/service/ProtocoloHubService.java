@@ -2,12 +2,16 @@ package com.prosup.proinsight.service;
 
 import com.prosup.proinsight.api.dto.response.ProtocoloDetalheResponse;
 import com.prosup.proinsight.api.dto.response.ProtocoloResumoResponse;
+import com.prosup.proinsight.api.dto.response.TesteFuncionalDto;
+import com.prosup.proinsight.domain.enums.TesteFuncionalTipo;
 import com.prosup.proinsight.infrastructure.persistence.document.ProtocoloAvaliacaoDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.UsuarioProtocoloFavoritoDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.ProtocoloAvaliacaoRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UsuarioProtocoloFavoritoRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +107,22 @@ public class ProtocoloHubService {
     }
 
     private ProtocoloDetalheResponse toDetalhe(ProtocoloAvaliacaoDocument doc) {
+        List<TesteFuncionalDto> testes = null;
+        if (doc.getTabelasPorTeste() != null && !doc.getTabelasPorTeste().isEmpty()) {
+            testes = new ArrayList<>();
+            for (TesteFuncionalTipo tipo : TesteFuncionalTipo.values()) {
+                if (doc.getTabelasPorTeste().containsKey(tipo.name())) {
+                    testes.add(new TesteFuncionalDto(
+                            tipo.name(),
+                            tipo.getNome(),
+                            tipo.getUnidade(),
+                            tipo.getTimer(),
+                            tipo.getSegundos()
+                    ));
+                }
+            }
+        }
+
         return new ProtocoloDetalheResponse(
                 doc.getId(),
                 doc.getNome(),
@@ -120,7 +140,8 @@ public class ProtocoloHubService {
                 doc.getEquipamentoNecessario(),
                 doc.getCriteriosExclusao(),
                 doc.getObservacoes(),
-                doc.getCreatedAt()
+                doc.getCreatedAt(),
+                testes
         );
     }
 }

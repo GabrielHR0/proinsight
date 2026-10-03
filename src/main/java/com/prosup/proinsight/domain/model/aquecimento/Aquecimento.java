@@ -9,7 +9,5 @@ public interface Aquecimento {
 
     String gerarCodigo();
 
-    String getCriterio();
-
     String getDescricao();
 }

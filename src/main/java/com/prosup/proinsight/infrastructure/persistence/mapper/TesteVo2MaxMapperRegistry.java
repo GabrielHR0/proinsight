@@ -4,7 +4,6 @@ import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxEsteiraIncremental;
-import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
 import com.prosup.proinsight.api.dto.request.TesteVo2MaxDto;
 import org.springframework.stereotype.Component;
 
@@ -28,18 +27,7 @@ public class TesteVo2MaxMapperRegistry {
             return new TesteVo2MaxCooper(distanciaMetros);
         });
 
-        mappers.put(Protocolo.ROCKPORT, dto -> new TesteVo2MaxRockport(
-            dto.getResultado(),
-            dto.getFrequenciaCardiaca(),
-            dto.getPesoKg()
-        ));
-
         mappers.put(Protocolo.ESTEIRA_INCREMENTAL, dto -> new TesteVo2MaxEsteiraIncremental(
-            dto.getResultado(),
-            dto.getInclinacaoPercent()
-        ));
-
-        mappers.put(Protocolo.ESTEIRA, dto -> new TesteVo2MaxEsteiraIncremental(
             dto.getResultado(),
             dto.getInclinacaoPercent()
         ));

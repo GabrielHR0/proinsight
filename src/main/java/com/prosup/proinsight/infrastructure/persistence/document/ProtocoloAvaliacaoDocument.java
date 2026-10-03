@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Document(collection = "protocolos")
 public class ProtocoloAvaliacaoDocument {
@@ -25,6 +26,7 @@ public class ProtocoloAvaliacaoDocument {
     private Protocolo protocolo;
     private String strategyKey;
     private String tabelaClassificacaoId;
+    private Map<String, String> tabelasPorTeste;
 
     private String descricao;
     private String comoRealizar;
@@ -78,6 +80,9 @@ public class ProtocoloAvaliacaoDocument {
 
     public String getTabelaClassificacaoId() { return tabelaClassificacaoId; }
     public void setTabelaClassificacaoId(String tabelaClassificacaoId) { this.tabelaClassificacaoId = tabelaClassificacaoId; }
+
+    public Map<String, String> getTabelasPorTeste() { return tabelasPorTeste; }
+    public void setTabelasPorTeste(Map<String, String> tabelasPorTeste) { this.tabelasPorTeste = tabelasPorTeste; }
 
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }

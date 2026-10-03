@@ -6,7 +6,7 @@ import com.prosup.proinsight.domain.enums.MedicaoTipo;
 import com.prosup.proinsight.domain.enums.Protocolo;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
-import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
+import com.prosup.proinsight.domain.model.teste.TesteVo2MaxEsteiraIncremental;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -38,10 +38,9 @@ class AvaliacaoVo2MaxDtoMapperTest {
     }
 
     @Test
-    void shouldConvertMedicaoDtoWithRockportTest() {
-        var testeDto = new TesteVo2MaxDto(Protocolo.ROCKPORT, 12.5);
-        testeDto.setFrequenciaCardiaca(145);
-        testeDto.setPesoKg(70.0);
+    void shouldConvertMedicaoDtoWithEsteiraIncrementalTest() {
+        var testeDto = new TesteVo2MaxDto(Protocolo.ESTEIRA_INCREMENTAL, 12.5);
+        testeDto.setInclinacaoPercent(5.0);
         var medicaoDto = new MedicaoVo2MaxDto(
                 null, null,
                 List.of(testeDto)
@@ -50,29 +49,27 @@ class AvaliacaoVo2MaxDtoMapperTest {
         MedicaoVo2Max result = mapper.toMedicaoDomain(medicaoDto);
 
         assertThat(result.getTestes()).hasSize(1);
-        assertThat(result.getTestes().get(0)).isInstanceOf(TesteVo2MaxRockport.class);
-        var rockport = (TesteVo2MaxRockport) result.getTestes().get(0);
-        assertThat(rockport.getTempoMinutos()).isEqualTo(12.5);
-        assertThat(rockport.getFrequenciaCardiaca()).isEqualTo(145);
-        assertThat(rockport.getPesoKg()).isEqualTo(70.0);
+        assertThat(result.getTestes().get(0)).isInstanceOf(TesteVo2MaxEsteiraIncremental.class);
+        var esteira = (TesteVo2MaxEsteiraIncremental) result.getTestes().get(0);
+        assertThat(esteira.getVelocidadeKmh()).isEqualTo(12.5);
+        assertThat(esteira.getInclinacaoPercent()).isEqualTo(5.0);
     }
 
     @Test
     void shouldConvertMedicaoDtoWithMultipleTests() {
         var cooper = new TesteVo2MaxDto(Protocolo.COOPER, 3000.0);
-        var rockport = new TesteVo2MaxDto(Protocolo.ROCKPORT, 15.0);
-        rockport.setFrequenciaCardiaca(140);
-        rockport.setPesoKg(75.0);
+        var esteira = new TesteVo2MaxDto(Protocolo.ESTEIRA_INCREMENTAL, 15.0);
+        esteira.setInclinacaoPercent(4.0);
         var medicaoDto = new MedicaoVo2MaxDto(
                 null, null,
-                List.of(cooper, rockport)
+                List.of(cooper, esteira)
         );
 
         MedicaoVo2Max result = mapper.toMedicaoDomain(medicaoDto);
 
         assertThat(result.getTestes()).hasSize(2);
         assertThat(result.getTestes().get(0)).isInstanceOf(TesteVo2MaxCooper.class);
-        assertThat(result.getTestes().get(1)).isInstanceOf(TesteVo2MaxRockport.class);
+        assertThat(result.getTestes().get(1)).isInstanceOf(TesteVo2MaxEsteiraIncremental.class);
     }
 
     @Test

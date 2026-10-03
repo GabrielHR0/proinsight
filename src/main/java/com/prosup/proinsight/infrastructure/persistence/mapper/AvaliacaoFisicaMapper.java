@@ -2,17 +2,27 @@ package com.prosup.proinsight.infrastructure.persistence.mapper;
 
 import com.prosup.proinsight.domain.enums.MedicaoTipo;
 import com.prosup.proinsight.domain.enums.Protocolo;
+import com.prosup.proinsight.domain.enums.TesteFuncionalTipo;
 import com.prosup.proinsight.domain.model.Medicao;
 import com.prosup.proinsight.domain.model.AvaliacaoFisica;
+import com.prosup.proinsight.domain.model.MedicaoFuncional;
 import com.prosup.proinsight.domain.model.MedicaoImc;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
+import com.prosup.proinsight.domain.model.teste.Teste;
 import com.prosup.proinsight.domain.model.teste.TesteImc;
 import com.prosup.proinsight.domain.model.teste.TesteVo2Max;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxEsteiraIncremental;
-import com.prosup.proinsight.domain.model.teste.TesteVo2MaxRockport;
+import com.prosup.proinsight.domain.model.teste.aptidao_fisica_idosos.AlcancarCostas;
+import com.prosup.proinsight.domain.model.teste.aptidao_fisica_idosos.FlexaoCotovelo;
+import com.prosup.proinsight.domain.model.teste.aptidao_fisica_idosos.LevantarCaminhar2m5;
+import com.prosup.proinsight.domain.model.teste.aptidao_fisica_idosos.MarchaEstacionaria;
+import com.prosup.proinsight.domain.model.teste.aptidao_fisica_idosos.SentarAlcancarPes;
+import com.prosup.proinsight.domain.model.teste.aptidao_fisica_idosos.SentarLevantar;
+import com.prosup.proinsight.domain.model.teste.aptidao_fisica_idosos.TesteAptdaoFisicaIdosos;
 import com.prosup.proinsight.infrastructure.persistence.document.AvaliacaoFisicaDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.MedicaoDocument;
+import com.prosup.proinsight.infrastructure.persistence.document.MedicaoFuncionalDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.MedicaoImcDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.MedicaoVo2MaxDocument;
 import org.springframework.stereotype.Component;
@@ -34,10 +44,12 @@ public class AvaliacaoFisicaMapper {
         documentToDomain = new HashMap<>();
         documentToDomain.put(MedicaoTipo.VO2_MAX, this::vo2MaxToDomain);
         documentToDomain.put(MedicaoTipo.IMC, this::imcToDomain);
+        documentToDomain.put(MedicaoTipo.FUNCIONAL, this::funcionalToDomain);
 
         domainToDocument = new HashMap<>();
         domainToDocument.put(MedicaoTipo.VO2_MAX, this::vo2MaxToDocument);
         domainToDocument.put(MedicaoTipo.IMC, this::imcToDocument);
+        domainToDocument.put(MedicaoTipo.FUNCIONAL, this::funcionalToDocument);
     }
 
     public AvaliacaoFisica toDomain(AvaliacaoFisicaDocument doc) {
@@ -123,38 +135,75 @@ public class AvaliacaoFisicaMapper {
         return medicao;
     }
 
+    private Medicao funcionalToDomain(MedicaoDocument doc) {
+        var f = (MedicaoFuncionalDocument) doc;
+
+        var testes = new ArrayList<TesteAptdaoFisicaIdosos>();
+        adicionarTesteFuncional(testes, TesteFuncionalTipo.SENTAR_LEVANTAR_30S, f.getSentarLevantar30s());
+        adicionarTesteFuncional(testes, TesteFuncionalTipo.FLEXAO_COTOVELO_30S, f.getFlexaoCotovelo30s());
+        adicionarTesteFuncional(testes, TesteFuncionalTipo.MARCHA_ESTACIONARIA_2MIN, f.getMarchaEstacionaria2Min());
+        adicionarTesteFuncional(testes, TesteFuncionalTipo.SENTAR_ALCANCAR_PES, f.getSentarAlcancarPes());
+        adicionarTesteFuncional(testes, TesteFuncionalTipo.ALCANCAR_COSTAS, f.getAlcancarCostas());
+        adicionarTesteFuncional(testes, TesteFuncionalTipo.LEVANTAR_CAMINHAR_2M5, f.getLevantarCaminhar25m());
+
+        MedicaoFuncional medicao = new MedicaoFuncional(
+            MedicaoTipo.FUNCIONAL,
+            f.getMedidoEm(), f.getCreatedAt(), f.getUpdatedAt(),
+            f.getObservacoes(),
+            testes
+        );
+
+        if (f.getClassificacoes() != null) {
+            medicao.setClassificacoes(f.getClassificacoes());
+        }
+        if (f.getPercentis() != null) {
+            medicao.setPercentis(f.getPercentis());
+        }
+        return medicao;
+    }
+
+    private static void adicionarTesteFuncional(List<TesteAptdaoFisicaIdosos> testes, TesteFuncionalTipo tipo, Double valor) {
+        if (valor == null) return;
+        switch (tipo) {
+            case SENTAR_LEVANTAR_30S -> testes.add(new SentarLevantar(tipo, valor, valor.intValue()));
+            case FLEXAO_COTOVELO_30S -> testes.add(new FlexaoCotovelo(tipo, valor, valor.intValue()));
+            case MARCHA_ESTACIONARIA_2MIN -> testes.add(new MarchaEstacionaria(tipo, valor, valor.intValue()));
+            case SENTAR_ALCANCAR_PES -> testes.add(new SentarAlcancarPes(tipo, valor, valor));
+            case ALCANCAR_COSTAS -> testes.add(new AlcancarCostas(tipo, valor, valor));
+            case LEVANTAR_CAMINHAR_2M5 -> testes.add(new LevantarCaminhar2m5(tipo, valor, valor));
+        }
+    }
+
     private Medicao vo2MaxToDomain(MedicaoDocument doc) {
         var v = (MedicaoVo2MaxDocument) doc;
 
         var testes = new ArrayList<TesteVo2Max>();
 
-        if (v.getProtocolo() == Protocolo.ROCKPORT) {
-            double tempoMinutos = v.getTempoSegundos() != null
-                ? v.getTempoSegundos() / 60.0
-                : 0;
-            testes.add(new TesteVo2MaxRockport(tempoMinutos, v.getFrequenciaCardiacaBpm(), v.getPesoKg()));
-        } else if (v.getProtocolo() == Protocolo.ESTEIRA_INCREMENTAL) {
-            testes.add(new TesteVo2MaxEsteiraIncremental(v.getVelocidadeKmh(), v.getInclinacaoPercent()));
-        } else {
-            testes.add(new TesteVo2MaxCooper(v.getDistanciaMetros()));
+        if (v.getProtocolo() == null) {
+            throw new IllegalArgumentException("Medição VO2Max sem protocolo definido");
         }
+        testes.add(switch (v.getProtocolo()) {
+            case COOPER -> new TesteVo2MaxCooper(v.getDistanciaMetros());
+            case ESTEIRA_INCREMENTAL -> new TesteVo2MaxEsteiraIncremental(
+                    v.getVelocidadeKmh(), v.getInclinacaoPercent());
+            default -> throw new IllegalArgumentException(
+                    "Protocolo VO2Max não suportado na leitura: " + v.getProtocolo());
+        });
 
         if (v.getTestesAdicionais() != null) {
             for (var item : v.getTestesAdicionais()) {
                 if (item instanceof java.util.Map<?, ?> map) {
                     String protocolo = (String) map.get("protocolo");
-                    if (Protocolo.ROCKPORT.name().equals(protocolo)) {
-                        Double t = (Double) map.get("tempoMinutos");
-                        Integer fc = (Integer) map.get("frequenciaCardiaca");
-                        Double peso = (Double) map.get("pesoKg");
-                        testes.add(new TesteVo2MaxRockport(t != null ? t : 0, fc, peso));
-                    } else if (Protocolo.ESTEIRA_INCREMENTAL.name().equals(protocolo)) {
+                    if ("COOPER".equals(protocolo)) {
+                        Integer dist = (Integer) map.get("distanciaMetros");
+                        testes.add(new TesteVo2MaxCooper(dist != null ? dist : 0));
+                    } else if ("ESTEIRA_INCREMENTAL".equals(protocolo)) {
                         Double vel = (Double) map.get("velocidadeKmh");
                         Double inc = (Double) map.get("inclinacaoPercent");
                         testes.add(new TesteVo2MaxEsteiraIncremental(vel, inc));
                     } else {
-                        Integer dist = (Integer) map.get("distanciaMetros");
-                        testes.add(new TesteVo2MaxCooper(dist != null ? dist : 0));
+                        throw new IllegalArgumentException(
+                                "Protocolo de teste adicional não suportado: " + protocolo);
                     }
                 }
             }
@@ -196,6 +245,35 @@ public class AvaliacaoFisicaMapper {
         return doc;
     }
 
+    private MedicaoDocument funcionalToDocument(Medicao domain) {
+        var m = (MedicaoFuncional) domain;
+
+        var doc = new MedicaoFuncionalDocument();
+        doc.setMedidoEm(m.getMedidoEm());
+        doc.setCreatedAt(m.getCreatedAt());
+        doc.setUpdatedAt(m.getUpdatedAt());
+        doc.setObservacoes(m.getObservacoes());
+        doc.setClassificacoes(m.getClassificacoes());
+        doc.setPercentis(m.getPercentis());
+
+        if (m.getTestes() != null) {
+            for (var teste : m.getTestes()) {
+                if (teste == null || !(teste instanceof TesteAptdaoFisicaIdosos funcional)) {
+                    continue;
+                }
+                switch (funcional.getTipo()) {
+                    case SENTAR_LEVANTAR_30S -> doc.setSentarLevantar30s(funcional.getValor());
+                    case FLEXAO_COTOVELO_30S -> doc.setFlexaoCotovelo30s(funcional.getValor());
+                    case MARCHA_ESTACIONARIA_2MIN -> doc.setMarchaEstacionaria2Min(funcional.getValor());
+                    case SENTAR_ALCANCAR_PES -> doc.setSentarAlcancarPes(funcional.getValor());
+                    case ALCANCAR_COSTAS -> doc.setAlcancarCostas(funcional.getValor());
+                    case LEVANTAR_CAMINHAR_2M5 -> doc.setLevantarCaminhar25m(funcional.getValor());
+                }
+            }
+        }
+        return doc;
+    }
+
     private MedicaoDocument vo2MaxToDocument(Medicao domain) {
         var v = (MedicaoVo2Max) domain;
         var testes = v.getTestes();
@@ -226,12 +304,9 @@ public class AvaliacaoFisicaMapper {
         } else if (primeiro instanceof TesteVo2MaxEsteiraIncremental esteira) {
             doc.setVelocidadeKmh(esteira.getVelocidadeKmh());
             doc.setInclinacaoPercent(esteira.getInclinacaoPercent());
-        } else if (primeiro instanceof TesteVo2MaxRockport rockport) {
-            doc.setTempoSegundos(rockport.getTempoMinutos() != null
-                ? (int) Math.round(rockport.getTempoMinutos() * 60)
-                : null);
-            doc.setFrequenciaCardiacaBpm(rockport.getFrequenciaCardiaca());
-            doc.setPesoKg(rockport.getPesoKg());
+        } else {
+            throw new IllegalArgumentException(
+                    "Teste VO2Max não suportado na escrita: " + primeiro.getClass().getSimpleName());
         }
 
         if (testes.size() > 1) {
@@ -239,16 +314,17 @@ public class AvaliacaoFisicaMapper {
             for (int i = 1; i < testes.size(); i++) {
                 var t = testes.get(i);
                 var map = new java.util.HashMap<String, Object>();
-                map.put("protocolo", t.getProtocolo().name());
                 if (t instanceof TesteVo2MaxCooper c) {
+                    map.put("protocolo", Protocolo.COOPER.name());
                     map.put("distanciaMetros", c.getDistanciaMetros());
                 } else if (t instanceof TesteVo2MaxEsteiraIncremental e) {
+                    map.put("protocolo", Protocolo.ESTEIRA_INCREMENTAL.name());
                     map.put("velocidadeKmh", e.getVelocidadeKmh());
                     map.put("inclinacaoPercent", e.getInclinacaoPercent());
-                } else if (t instanceof TesteVo2MaxRockport r) {
-                    map.put("tempoMinutos", r.getTempoMinutos());
-                    map.put("frequenciaCardiaca", r.getFrequenciaCardiaca());
-                    map.put("pesoKg", r.getPesoKg());
+                } else {
+                    throw new IllegalArgumentException(
+                            "Teste VO2Max adicional não suportado na escrita: "
+                                    + t.getClass().getSimpleName());
                 }
                 doc.getTestesAdicionais().add(map);
             }
@@ -265,6 +341,18 @@ public class AvaliacaoFisicaMapper {
         var teste = medicao.getTestes().get(0);
         medicaoDoc.setMassaCorporalGramas(teste.getMassaCorporalGramas());
         medicaoDoc.setAlturaCm(teste.getAlturaCentimetros());
+
+        var avaliacaoDoc = new AvaliacaoFisicaDocument();
+        avaliacaoDoc.setClienteId(clienteId);
+        avaliacaoDoc.setAvaliadorId(avaliadorId);
+        avaliacaoDoc.setProtocoloId(protocoloId);
+        avaliacaoDoc.setMedicoes(List.of(medicaoDoc));
+
+        return avaliacaoDoc;
+    }
+
+    public AvaliacaoFisicaDocument toFuncionalDocument(String clienteId, String avaliadorId, String protocoloId, MedicaoFuncional medicao) {
+        var medicaoDoc = (MedicaoFuncionalDocument) funcionalToDocument(medicao);
 
         var avaliacaoDoc = new AvaliacaoFisicaDocument();
         avaliacaoDoc.setClienteId(clienteId);
@@ -297,12 +385,9 @@ public class AvaliacaoFisicaMapper {
         } else if (primeiroTeste instanceof TesteVo2MaxEsteiraIncremental esteira) {
             medicaoDoc.setVelocidadeKmh(esteira.getVelocidadeKmh());
             medicaoDoc.setInclinacaoPercent(esteira.getInclinacaoPercent());
-        } else if (primeiroTeste instanceof TesteVo2MaxRockport rockport) {
-            medicaoDoc.setTempoSegundos(rockport.getTempoMinutos() != null
-                    ? (int) Math.round(rockport.getTempoMinutos() * 60)
-                    : null);
-            medicaoDoc.setFrequenciaCardiacaBpm(rockport.getFrequenciaCardiaca());
-            medicaoDoc.setPesoKg(rockport.getPesoKg());
+        } else {
+            throw new IllegalArgumentException(
+                    "Teste VO2Max não suportado na escrita: " + primeiroTeste.getClass().getSimpleName());
         }
 
         if (classificacao != null) {
@@ -314,16 +399,17 @@ public class AvaliacaoFisicaMapper {
             for (int i = 1; i < medicao.getTestes().size(); i++) {
                 var t = medicao.getTestes().get(i);
                 var map = new HashMap<String, Object>();
-                map.put("protocolo", t.getProtocolo().name());
                 if (t instanceof TesteVo2MaxCooper c) {
+                    map.put("protocolo", Protocolo.COOPER.name());
                     map.put("distanciaMetros", c.getDistanciaMetros());
                 } else if (t instanceof TesteVo2MaxEsteiraIncremental e) {
+                    map.put("protocolo", Protocolo.ESTEIRA_INCREMENTAL.name());
                     map.put("velocidadeKmh", e.getVelocidadeKmh());
                     map.put("inclinacaoPercent", e.getInclinacaoPercent());
-                } else if (t instanceof TesteVo2MaxRockport r) {
-                    map.put("tempoMinutos", r.getTempoMinutos());
-                    map.put("frequenciaCardiaca", r.getFrequenciaCardiaca());
-                    map.put("pesoKg", r.getPesoKg());
+                } else {
+                    throw new IllegalArgumentException(
+                            "Teste VO2Max adicional não suportado na escrita: "
+                                    + t.getClass().getSimpleName());
                 }
                 medicaoDoc.getTestesAdicionais().add(map);
             }
