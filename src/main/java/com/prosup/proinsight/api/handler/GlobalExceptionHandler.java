@@ -24,6 +24,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.*;
@@ -162,6 +163,36 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, headers, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+    @ExceptionHandler(AvaliacaoFuncionalException.class)
+    public ResponseEntity<Object> handleAvaliacaoFuncional(AvaliacaoFuncionalException ex, HttpServletRequest request) {
+        log.warn("Erro na avaliação funcional [{}]: URI={}, status={}, detalhe={}",
+                request.getRemoteAddr(), request.getRequestURI(), ex.getStatus(), ex.getMessage());
+
+        String type = ex.getStatus() == HttpStatus.UNPROCESSABLE_ENTITY
+                ? "proinsight://problems/unprocessable-entity"
+                : "proinsight://problems/validation-error";
+        String title = ex.getStatus() == HttpStatus.UNPROCESSABLE_ENTITY
+                ? "Unprocessable Entity"
+                : "Validation Failed";
+
+        Map<String, Object> body = construirErroRFC7807(
+                type,
+                title,
+                ex.getStatus().value(),
+                ex.getMessage() != null && !ex.getMessage().isBlank()
+                        ? ex.getMessage()
+                        : "Falha na validação ou classificação da avaliação funcional.",
+                request.getRequestURI()
+        );
+        if (ex.getViolations() != null && !ex.getViolations().isEmpty()) {
+            body.put("violations", ex.getViolations());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+        return new ResponseEntity<>(body, headers, ex.getStatus());
+    }
+
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<Object> handleRateLimit(RateLimitExceededException ex, HttpServletRequest request) {
         log.warn("Rate limit excedido: URI={}, IP={}", request.getRequestURI(), request.getRemoteAddr());
@@ -293,6 +324,24 @@ public class GlobalExceptionHandler {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(PROBLEM_JSON);
         return new ResponseEntity<>(body, headers, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleNoResourceFound(NoResourceFoundException ex, HttpServletRequest request) {
+        log.warn("Rota inexistente [{}]: URI={}, detalhe={}",
+                request.getRemoteAddr(), request.getRequestURI(), ex.getMessage());
+
+        Map<String, Object> body = construirErroRFC7807(
+            "proinsight://problems/not-found",
+            "Not Found",
+            HttpStatus.NOT_FOUND.value(),
+            "Rota não encontrada: " + request.getRequestURI(),
+            request.getRequestURI()
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
