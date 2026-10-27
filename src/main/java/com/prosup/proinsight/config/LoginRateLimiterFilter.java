@@ -15,6 +15,8 @@ import java.util.Set;
 
 public class LoginRateLimiterFilter extends OncePerRequestFilter {
 
+    private final boolean trustProxyHeaders;
+
     static final int MAX_ATTEMPTS = 5;
     private static final Duration WINDOW = Duration.ofMinutes(1);
     private static final Set<String> PROTECTED_PATHS = Set.of(
@@ -24,6 +26,10 @@ public class LoginRateLimiterFilter extends OncePerRequestFilter {
             "/api/v1/auth/forgot-password",
             "/api/v1/auth/reset-password"
     );
+
+    public LoginRateLimiterFilter(boolean trustProxyHeaders) {
+        this.trustProxyHeaders = trustProxyHeaders;
+    }
 
     private final Cache<String, Integer> attempts = Caffeine.newBuilder()
             .expireAfterWrite(WINDOW)
@@ -35,7 +41,7 @@ public class LoginRateLimiterFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String ip = resolveIp(request);
+        String ip = ClientIpResolver.resolve(request, trustProxyHeaders);
         int count = attempts.get(ip, k -> 0) + 1;
         attempts.put(ip, count);
 
@@ -61,18 +67,6 @@ public class LoginRateLimiterFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return !PROTECTED_PATHS.contains(request.getRequestURI());
-    }
-
-    private static String resolveIp(HttpServletRequest request) {
-        boolean trustProxy = Boolean.parseBoolean(
-                System.getProperty("security.trust-proxy-headers", "false"));
-        if (trustProxy) {
-            String xff = request.getHeader("X-Forwarded-For");
-            if (xff != null && !xff.isBlank()) {
-                return xff.split(",")[0].trim();
-            }
-        }
-        return request.getRemoteAddr();
     }
 
     public void reset() {

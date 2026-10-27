@@ -4,7 +4,6 @@ import com.prosup.proinsight.api.dto.request.RegisterRequest;
 import com.prosup.proinsight.bootstrap.RoleInitializer;
 import com.prosup.proinsight.config.JwtTokenProvider;
 import com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument;
-import com.prosup.proinsight.infrastructure.persistence.document.RefreshTokenDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.RoleDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
@@ -75,9 +74,7 @@ class RegistrationFlowsTest {
         when(userRepository.findByUserName(any())).thenReturn(Optional.empty());
         when(userRepository.save(any(UserDocument.class))).thenReturn(savedUser);
 
-        var refreshTokenDoc = new RefreshTokenDocument();
-        refreshTokenDoc.setId("refresh-token-123");
-        when(refreshTokenService.createRefreshToken(any())).thenReturn(refreshTokenDoc);
+        when(refreshTokenService.createRefreshToken(any())).thenReturn("refresh-token-123");
         when(jwtTokenProvider.generateToken(any())).thenReturn("jwt-token-xyz");
         when(jwtTokenProvider.getExpirationMs()).thenReturn(86400000L);
 

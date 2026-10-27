@@ -745,13 +745,15 @@ Os mappers (`infrastructure/persistence/mapper/`) convertem entre documentos Mon
 |---|---|
 | `application.properties` | Padrão: define `jwt.issuer`, `jwt.audience`, CORS |
 | `application-local.properties` | Local dev: MongoDB, JWT secret, default-user |
+| `application-prod.properties` | Produção: proxy headers confiáveis |
 | `application-test.properties` | Testes: MongoDB test, JWT secret fixo |
 
 ### 10.5 Profiles
 
 | Profile | Ativação | Uso |
 |---|---|---|
-| `local` | Padrão (`spring.profiles.default=local`) | Desenvolvimento local |
+| `prod` | Padrão (`spring.profiles.default=prod`) | Produção e execução sem profile explícito |
+| `local` | Explicita (`SPRING_PROFILES_ACTIVE=local`) | Desenvolvimento local |
 | `test` | Spring test | Testes de integração |
 
 ### 10.6 Actuator
@@ -765,9 +767,9 @@ Endpoints expostos: `health`, `info`, `metrics`, `prometheus`
 
 | Tipo | Sufixo | Framework | Quantidade |
 |---|---|---|---|
-| Unitário | `*Test.java` | JUnit 5 + Mockito | 125 |
-| Integração | `*IT.java` | Spring Boot Test (RANDOM_PORT) | 41 |
-| **Total** | | | **166** |
+| Unitário | `*Test.java` | JUnit 5 + Mockito | 308 |
+| Integração | `*IT.java` | Spring Boot Test (RANDOM_PORT) | 138 |
+| **Total** | | | **446** |
 
 Os testes de integração estendem `AbstractIntegrationTest` e usam MongoDB real via Docker.
 

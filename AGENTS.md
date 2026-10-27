@@ -41,7 +41,7 @@ Quando o desenvolvedor disser que deseja **estudar**, aprender um conceito, prat
 | Testes unitários | `./mvnw test` |
 | Testes de integração | `./mvnw verify` |
 | Tudo (build + testes) | `./mvnw clean verify` |
-| Dev server | `./mvnw spring-boot:run` |
+| Dev server (local) | `$env:SPRING_PROFILES_ACTIVE="local"; ./mvnw spring-boot:run` |
 | Subir MongoDB | `docker compose -f docker/docker-compose.yml up -d` |
 
 ## Estrutura de pacotes
@@ -65,7 +65,7 @@ com.prosup.proinsight/
 - **Testes de integração**: sufixo `*IT.java` (estendem `AbstractIntegrationTest`)
 - **API versionada**: `/api/v1/`, `/api/v2/`
 - **Properties por ambiente**: `application-{profile}.properties`
-- **Profile local** (`.env`): `SPRING_PROFILES_ACTIVE=local`
+- **Profile local**: ativar explicitamente com `SPRING_PROFILES_ACTIVE=local` (o padrão é `prod`)
 - **MongoDB URI local**: `mongodb://root:example@localhost:27017/proinsight_dev?authSource=admin`
 - **Logs**: JSON em `./logs/proinsight.log`
 

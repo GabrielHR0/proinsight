@@ -20,6 +20,7 @@ import com.prosup.proinsight.service.AcademiaService;
 import com.prosup.proinsight.service.CustomUserDetailsService;
 import com.prosup.proinsight.service.LoginLockoutService;
 import com.prosup.proinsight.service.PasswordChangeService;
+import com.prosup.proinsight.service.PasswordResetNotifier;
 import com.prosup.proinsight.service.PasswordResetService;
 import com.prosup.proinsight.service.RateLimitService;
 import com.prosup.proinsight.service.RefreshTokenService;
@@ -72,6 +73,7 @@ public class AuthController {
     private final TokenBlacklistService tokenBlacklistService;
     private final RateLimitService rateLimitService;
     private final PasswordResetService passwordResetService;
+    private final PasswordResetNotifier passwordResetNotifier;
     private final PasswordChangeService passwordChangeService;
     private final com.prosup.proinsight.service.UserPermissionService userPermissionService;
 
@@ -86,6 +88,7 @@ public class AuthController {
                           TokenBlacklistService tokenBlacklistService,
                           RateLimitService rateLimitService,
                           PasswordResetService passwordResetService,
+                          PasswordResetNotifier passwordResetNotifier,
                           PasswordChangeService passwordChangeService,
                           com.prosup.proinsight.service.UserPermissionService userPermissionService) {
         this.authenticationManager = authenticationManager;
@@ -99,6 +102,7 @@ public class AuthController {
         this.tokenBlacklistService = tokenBlacklistService;
         this.rateLimitService = rateLimitService;
         this.passwordResetService = passwordResetService;
+        this.passwordResetNotifier = passwordResetNotifier;
         this.passwordChangeService = passwordChangeService;
         this.userPermissionService = userPermissionService;
     }
@@ -226,8 +230,15 @@ public class AuthController {
             return ResponseEntity.ok().build();
         }
 
-        log.info("Token de reset gerado para {}", request.getEmail());
-        return ResponseEntity.ok(Map.of("resetToken", rawToken));
+        // O token nunca deve ser devolvido na resposta HTTP; ele é entregue
+        // fora de banda (e-mail em produção, log em local/test).
+        try {
+            passwordResetNotifier.send(request.getEmail(), rawToken);
+        } catch (RuntimeException e) {
+            log.error("Falha ao entregar token de reset para {}", request.getEmail(), e);
+        }
+        log.info("Solicitação de reset de senha registrada para {}", request.getEmail());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset-password")
@@ -297,7 +308,7 @@ public class AuthController {
         var user = userDetails.getUser();
         Map<String, List<String>> academiaPermissoes = buildPermissoesMap(userDetails);
 
-        String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getId();
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId());
         String jwt = tokenProvider.generateToken(
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
 

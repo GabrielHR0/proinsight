@@ -20,9 +20,9 @@ import java.util.NoSuchElementException;
 /**
  * Fluxo de "esqueci minha senha": gera um token aleatório de uso único
  * (armazenado apenas como hash SHA-256, como um refresh token), com TTL
- * via índice MongoDB. O token em texto puro é devolvido ao chamador para
- * envio por e-mail; o endpoint sempre responde 200 para não vazar a
- * existência de contas.
+ * via índice MongoDB. O token em texto puro é devolvido apenas ao
+ * {@link PasswordResetNotifier}, que o entrega fora de banda; o endpoint
+ * sempre responde 200 para não vazar a existência de contas.
  */
 @Service
 public class PasswordResetService {

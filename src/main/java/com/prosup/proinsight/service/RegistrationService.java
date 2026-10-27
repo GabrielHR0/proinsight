@@ -110,7 +110,7 @@ public class RegistrationService {
         savedUser.addAcademiaId(academiaId);
         savedUser = userRepository.save(savedUser);
 
-        String refreshToken = refreshTokenService.createRefreshToken(savedUser.getId()).getId();
+        String refreshToken = refreshTokenService.createRefreshToken(savedUser.getId());
         return new RegistrationPersistResult(savedUser, academiaId, refreshToken);
     }
 

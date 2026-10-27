@@ -7,6 +7,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * Refresh token stored as its SHA-256 hash. The raw token is only returned to
+ * the client that created it and is never persisted.
+ */
 @Document(collection = "refresh_tokens")
 public class RefreshTokenDocument {
 

@@ -29,6 +29,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     private static final int MAX_CONSECUTIVE_FAILURES_PER_KEY = 5;
 
     private final ApiKeyRepository apiKeyRepository;
+    private final boolean trustProxyHeaders;
 
     private final Cache<String, Integer> failuresByIp = Caffeine.newBuilder()
             .expireAfterWrite(FAILURE_WINDOW)
@@ -38,8 +39,10 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
             .maximumSize(10_000)
             .build();
 
-    public ApiKeyAuthenticationFilter(ApiKeyRepository apiKeyRepository) {
+    public ApiKeyAuthenticationFilter(ApiKeyRepository apiKeyRepository,
+                                           boolean trustProxyHeaders) {
         this.apiKeyRepository = apiKeyRepository;
+        this.trustProxyHeaders = trustProxyHeaders;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
         String rawKey = header.substring(7);
 
-        String ip = request.getRemoteAddr();
+        String ip = ClientIpResolver.resolve(request, trustProxyHeaders);
         if (isIpBlocked(ip)) {
             writeTooManyRequests(response);
             return;

@@ -10,7 +10,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.HexFormat;
 import java.util.UUID;
 
 @Service
@@ -28,16 +32,23 @@ public class RefreshTokenService {
         this.refreshExpirationMs = refreshExpirationMs;
     }
 
-    public RefreshTokenDocument createRefreshToken(String userId) {
+    /**
+     * Creates a refresh token and returns the raw value exactly once.
+     * Only its SHA-256 hash is persisted, so a database leak does not expose
+     * usable refresh tokens.
+     */
+    public String createRefreshToken(String userId) {
+        String rawToken = UUID.randomUUID().toString();
         var token = new RefreshTokenDocument(
-                UUID.randomUUID().toString(),
+                sha256(rawToken),
                 userId,
                 Instant.now().plusMillis(refreshExpirationMs));
-        return repository.save(token);
+        repository.save(token);
+        return rawToken;
     }
 
-    public RefreshTokenDocument validateAndRevoke(String tokenId) {
-        Query query = Query.query(Criteria.where("_id").is(tokenId)
+    public RefreshTokenDocument validateAndRevoke(String rawToken) {
+        Query query = Query.query(Criteria.where("_id").is(sha256(rawToken))
                 .and("revoked").is(false)
                 .and("expiryDate").gt(Instant.now()));
         Update update = new Update().set("revoked", true);
@@ -56,5 +67,15 @@ public class RefreshTokenService {
 
     public void revokeAllByUserId(String userId) {
         repository.deleteByUserId(userId);
+    }
+
+    private static String sha256(String value) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(
+                    digest.digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 indisponível", e);
+        }
     }
 }

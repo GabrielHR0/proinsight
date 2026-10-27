@@ -6,7 +6,6 @@ import com.prosup.proinsight.config.JwtTokenProvider;
 import com.prosup.proinsight.domain.enums.Permissao;
 import com.prosup.proinsight.domain.model.CustomUserDetails;
 import com.prosup.proinsight.domain.model.User;
-import com.prosup.proinsight.infrastructure.persistence.document.RefreshTokenDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
@@ -66,9 +65,7 @@ class RegistrationServiceTest {
         when(userRepository.findByUserName(any())).thenReturn(Optional.empty());
         when(userRepository.save(any(UserDocument.class))).thenReturn(savedUser);
 
-        var refreshTokenDoc = new RefreshTokenDocument();
-        refreshTokenDoc.setId("refresh-token-123");
-        when(refreshTokenService.createRefreshToken(any())).thenReturn(refreshTokenDoc);
+        when(refreshTokenService.createRefreshToken(any())).thenReturn("refresh-token-123");
         when(jwtTokenProvider.generateToken(any())).thenReturn("jwt-token-xyz");
         when(jwtTokenProvider.getExpirationMs()).thenReturn(86400000L);
 

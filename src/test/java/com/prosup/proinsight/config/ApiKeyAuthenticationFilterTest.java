@@ -78,7 +78,7 @@ class ApiKeyAuthenticationFilterTest {
         @Test
         @DisplayName("deve definir autenticacao com permissoes corretas")
         void autenticaComPermissoes() throws Exception {
-            var filter = new ApiKeyAuthenticationFilter(createRepo(KEY_HASH, validDoc));
+            var filter = new ApiKeyAuthenticationFilter(createRepo(KEY_HASH, validDoc), false);
             var request = new MockHttpServletRequest();
             request.addHeader("Authorization", "Bearer " + RAW_KEY);
             var response = new MockHttpServletResponse();
@@ -98,7 +98,7 @@ class ApiKeyAuthenticationFilterTest {
         @Test
         @DisplayName("deve configurar TenantContext com academiaId da chave")
         void configuraTenantContext() throws Exception {
-            var filter = new ApiKeyAuthenticationFilter(createRepo(KEY_HASH, validDoc));
+            var filter = new ApiKeyAuthenticationFilter(createRepo(KEY_HASH, validDoc), false);
             var request = new MockHttpServletRequest();
             request.addHeader("Authorization", "Bearer " + RAW_KEY);
             var response = new MockHttpServletResponse();
@@ -119,7 +119,7 @@ class ApiKeyAuthenticationFilterTest {
         @Test
         @DisplayName("deve ignorar request sem cabecalho Authorization")
         void semAuthorization() throws Exception {
-            var filter = new ApiKeyAuthenticationFilter(createRepo(KEY_HASH, validDoc));
+            var filter = new ApiKeyAuthenticationFilter(createRepo(KEY_HASH, validDoc), false);
             var request = new MockHttpServletRequest();
             var response = new MockHttpServletResponse();
 
@@ -131,7 +131,7 @@ class ApiKeyAuthenticationFilterTest {
         @Test
         @DisplayName("deve ignorar request sem prefixo pk_ no token")
         void semPrefixoPk() throws Exception {
-            var filter = new ApiKeyAuthenticationFilter(createRepo(KEY_HASH, validDoc));
+            var filter = new ApiKeyAuthenticationFilter(createRepo(KEY_HASH, validDoc), false);
             var request = new MockHttpServletRequest();
             request.addHeader("Authorization", "Bearer token-comum-jwt");
             var response = new MockHttpServletResponse();
@@ -144,7 +144,7 @@ class ApiKeyAuthenticationFilterTest {
         @Test
         @DisplayName("deve ignorar request com chave inexistente")
         void chaveInexistente() throws Exception {
-            var filter = new ApiKeyAuthenticationFilter(createRepo("hash_inexistente", null));
+            var filter = new ApiKeyAuthenticationFilter(createRepo("hash_inexistente", null), false);
             var request = new MockHttpServletRequest();
             request.addHeader("Authorization", "Bearer pk_chave_inexistente");
             var response = new MockHttpServletResponse();
@@ -160,7 +160,7 @@ class ApiKeyAuthenticationFilterTest {
             var hash = sha256("pk_expirada_key");
             var doc = new ApiKeyDocument(hash, ACADEMIA_ID, Set.of("CLIENTES_LER"),
                     Instant.now().minus(Duration.ofDays(1)), "expirada");
-            var filter = new ApiKeyAuthenticationFilter(createRepo(hash, doc));
+            var filter = new ApiKeyAuthenticationFilter(createRepo(hash, doc), false);
 
             var request = new MockHttpServletRequest();
             request.addHeader("Authorization", "Bearer pk_expirada_key");
@@ -178,7 +178,7 @@ class ApiKeyAuthenticationFilterTest {
             var doc = new ApiKeyDocument(hash, ACADEMIA_ID, Set.of("CLIENTES_LER"),
                     Instant.now().plus(Duration.ofDays(30)), "inativa");
             doc.setActive(false);
-            var filter = new ApiKeyAuthenticationFilter(createRepo(hash, doc));
+            var filter = new ApiKeyAuthenticationFilter(createRepo(hash, doc), false);
 
             var request = new MockHttpServletRequest();
             request.addHeader("Authorization", "Bearer pk_inativa_key");

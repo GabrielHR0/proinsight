@@ -41,8 +41,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public LoginRateLimiterFilter loginRateLimiterFilter() {
-        return new LoginRateLimiterFilter();
+    public LoginRateLimiterFilter loginRateLimiterFilter(
+            @Value("${security.trust-proxy-headers:false}") boolean trustProxyHeaders) {
+        return new LoginRateLimiterFilter(trustProxyHeaders);
     }
 
     @Bean
@@ -58,13 +59,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public ApiKeyAuthenticationFilter apiKeyAuthenticationFilter() {
-        return new ApiKeyAuthenticationFilter(apiKeyRepository);
+    public ApiKeyAuthenticationFilter apiKeyAuthenticationFilter(
+            @Value("${security.trust-proxy-headers:false}") boolean trustProxyHeaders) {
+        return new ApiKeyAuthenticationFilter(apiKeyRepository, trustProxyHeaders);
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
-                                                   TenantRateLimiterFilter tenantRateLimiterFilter)
+                                                   TenantRateLimiterFilter tenantRateLimiterFilter,
+                                                   ApiKeyAuthenticationFilter apiKeyAuthenticationFilter,
+                                                   LoginRateLimiterFilter loginRateLimiterFilter)
             throws Exception
     {
         httpSecurity
@@ -99,8 +103,8 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(apiKeyAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(loginRateLimiterFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(loginRateLimiterFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(tenantContextFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(tenantRateLimiterFilter, TenantContextFilter.class);

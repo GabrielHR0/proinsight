@@ -12,8 +12,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.HttpEntity;
@@ -30,6 +32,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -52,6 +58,8 @@ class AuthIntegrationIT {
     private PasswordResetTokenRepository passwordResetTokenRepository;
     @Autowired
     private RateLimitService rateLimitService;
+    @MockBean
+    private PasswordResetNotifier passwordResetNotifier;
 
     private static final String PW = "Test@123";
     private static final String ACADEMIA_A = "academia-a-it";
@@ -101,6 +109,12 @@ class AuthIntegrationIT {
         doc.setActive(true);
         doc.setAcademiaRoles(academiaRoles);
         return userRepository.save(doc).getId();
+    }
+
+    private String captureResetToken(String email) {
+        ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
+        verify(passwordResetNotifier).send(eq(email), tokenCaptor.capture());
+        return tokenCaptor.getValue();
     }
 
     private ResponseEntity<Map> login(String credential, String password) {
@@ -411,7 +425,9 @@ class AuthIntegrationIT {
                 Map.of("email", "admin@test.com"), Map.class);
 
         assertThat(forgotResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        String resetToken = (String) forgotResponse.getBody().get("resetToken");
+        assertThat(forgotResponse.getBody()).isNull();
+
+        String resetToken = captureResetToken("admin@test.com");
 
         var resetResponse = restTemplate.postForEntity(
                 "/api/v1/auth/reset-password",
@@ -436,6 +452,7 @@ class AuthIntegrationIT {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNull();
+        verify(passwordResetNotifier, never()).send(any(), any());
     }
 
     @Test
@@ -453,10 +470,10 @@ class AuthIntegrationIT {
     @DisplayName("Reset → token reutilizado → 404")
     void resetPassword_tokenReutilizado() {
         seed();
-        var forgotResponse = restTemplate.postForEntity(
+        restTemplate.postForEntity(
                 "/api/v1/auth/forgot-password",
                 Map.of("email", "admin@test.com"), Map.class);
-        String resetToken = (String) forgotResponse.getBody().get("resetToken");
+        String resetToken = captureResetToken("admin@test.com");
 
         restTemplate.postForEntity(
                 "/api/v1/auth/reset-password",
@@ -495,10 +512,10 @@ class AuthIntegrationIT {
         assertThat(loginResp.getBody()).isNotNull();
         String refreshToken = (String) loginResp.getBody().get("refreshToken");
 
-        var forgotResp = restTemplate.postForEntity(
+        restTemplate.postForEntity(
                 "/api/v1/auth/forgot-password",
                 Map.of("email", "admin@test.com"), Map.class);
-        String resetToken = (String) forgotResp.getBody().get("resetToken");
+        String resetToken = captureResetToken("admin@test.com");
         restTemplate.postForEntity(
                 "/api/v1/auth/reset-password",
                 Map.of("token", resetToken, "newPassword", "Resetada@123"),
