@@ -4,7 +4,15 @@ import com.prosup.proinsight.domain.enums.TesteFuncionalTipo;
 
 public class FlexaoCotovelo extends TesteAptdaoFisicaIdosos {
 
-    public Integer repeticoes;
+    private Integer repeticoes;
+
+    public Integer getRepeticoes() {
+        return repeticoes;
+    }
+
+    public void setRepeticoes(Integer repeticoes) {
+        this.repeticoes = repeticoes;
+    }
 
     public FlexaoCotovelo(TesteFuncionalTipo tipo, Double valor, Integer repeticoes) {
         super(tipo, valor);

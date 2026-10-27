@@ -68,11 +68,14 @@ public class PreAvaliacaoService {
                     for (var m : medicoes) {
                         var tipo = m.getString("tipo");
                         if ("IMC".equals(tipo)) {
-                            var massaGramas = m.getInteger("massaCorporalGramas");
-                            if (massaGramas != null) {
-                                pesoKg = massaGramas / 1000.0;
+                            Object rawMassa = m.get("massaCorporalGramas");
+                            if (rawMassa instanceof Number numMassa) {
+                                pesoKg = numMassa.doubleValue() / 1000.0;
                             }
-                            alturaCm = m.getInteger("alturaCm");
+                            Object rawAltura = m.get("alturaCm");
+                            if (rawAltura instanceof Number numAltura) {
+                                alturaCm = numAltura.intValue();
+                            }
                             break;
                         }
                     }

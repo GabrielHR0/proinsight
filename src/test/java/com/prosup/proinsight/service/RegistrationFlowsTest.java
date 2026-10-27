@@ -5,6 +5,7 @@ import com.prosup.proinsight.bootstrap.RoleInitializer;
 import com.prosup.proinsight.config.JwtTokenProvider;
 import com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.RefreshTokenDocument;
+import com.prosup.proinsight.infrastructure.persistence.document.RoleDocument;
 import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
@@ -292,7 +293,9 @@ class RegistrationFlowsTest {
             var mockUserRepo = mock(com.prosup.proinsight.infrastructure.persistence.repository.UserRepository.class);
             var mockPasswordEncoder = mock(PasswordEncoder.class);
 
-            when(mockRoleRepo.existsById(any())).thenReturn(true);
+            when(mockRoleRepo.findAllById(any())).thenReturn(List.of(
+                    new RoleDocument(RoleInitializer.ROLE_ADMIN_ID, "admin", null, Set.of()),
+                    new RoleDocument(RoleInitializer.ROLE_EMPLOYEE_ID, "employee", null, Set.of())));
             when(mockPasswordEncoder.encode(any())).thenReturn("hashed-pw");
 
             var docToReturn = new UserDocument();
@@ -329,7 +332,9 @@ class RegistrationFlowsTest {
             var mockUserRepo = mock(com.prosup.proinsight.infrastructure.persistence.repository.UserRepository.class);
             var mockPasswordEncoder = mock(PasswordEncoder.class);
 
-            when(mockRoleRepo.existsById(any())).thenReturn(true);
+            when(mockRoleRepo.findAllById(any())).thenReturn(List.of(
+                    new RoleDocument(RoleInitializer.ROLE_ADMIN_ID, "admin", null, Set.of()),
+                    new RoleDocument(RoleInitializer.ROLE_EMPLOYEE_ID, "employee", null, Set.of())));
             when(mockPasswordEncoder.encode(any())).thenReturn("hashed-pw");
 
             var docToReturn = new UserDocument();
@@ -367,7 +372,9 @@ class RegistrationFlowsTest {
             var mockUserRepo = mock(com.prosup.proinsight.infrastructure.persistence.repository.UserRepository.class);
             var mockPasswordEncoder = mock(PasswordEncoder.class);
 
-            when(mockRoleRepo.existsById(any())).thenReturn(true);
+            when(mockRoleRepo.findAllById(any())).thenReturn(List.of(
+                    new RoleDocument(RoleInitializer.ROLE_ADMIN_ID, "admin", null, Set.of()),
+                    new RoleDocument(RoleInitializer.ROLE_EMPLOYEE_ID, "employee", null, Set.of())));
             when(mockPasswordEncoder.encode(any())).thenReturn("hashed-pw");
 
             when(mockUserRepo.save(any(UserDocument.class))).thenAnswer(inv -> {
@@ -403,7 +410,7 @@ class RegistrationFlowsTest {
             var mockUserRepo = mock(com.prosup.proinsight.infrastructure.persistence.repository.UserRepository.class);
             var mockPasswordEncoder = mock(PasswordEncoder.class);
 
-            when(mockRoleRepo.existsById("role_inexistente")).thenReturn(false);
+            when(mockRoleRepo.findAllById(Set.of("role_inexistente"))).thenReturn(List.of());
 
             var userService = new com.prosup.proinsight.service.UserService(
                     mockUserRepo, mockRoleRepo, mockPasswordEncoder);

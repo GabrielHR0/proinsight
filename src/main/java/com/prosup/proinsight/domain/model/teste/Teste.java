@@ -5,9 +5,20 @@ import com.prosup.proinsight.domain.DadosAvaliacao;
 public interface Teste {
 
     String gerarCodigo();
-    String getValorClassificacao();
+
+    Double getValorNumerico();
+
+    default Double getValorNumerico(DadosAvaliacao dados) {
+        return getValorNumerico();
+    }
+
+    default String getValorClassificacao() {
+        Double valor = getValorNumerico();
+        return valor != null ? String.valueOf(valor) : null;
+    }
 
     default String getValorClassificacao(DadosAvaliacao dados) {
-        return getValorClassificacao();
+        Double valor = getValorNumerico(dados);
+        return valor != null ? String.valueOf(valor) : null;
     }
 }

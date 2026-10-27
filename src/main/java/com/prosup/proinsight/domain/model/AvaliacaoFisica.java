@@ -1,5 +1,6 @@
 package com.prosup.proinsight.domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ public class AvaliacaoFisica {
     private String avaliadorId;
     private String protocoloId;
     private String versaoProtocolo;
-    private List<Medicao> medicoes;
+    private List<Medicao<?>> medicoes = new ArrayList<>();
     private Map<String, Object> metadados;
 
     public String getId() {
@@ -53,12 +54,12 @@ public class AvaliacaoFisica {
         this.versaoProtocolo = versaoProtocolo;
     }
 
-    public List<Medicao> getMedicoes() {
+    public List<Medicao<?>> getMedicoes() {
         return medicoes;
     }
 
-    public void setMedicoes(List<Medicao> medicoes) {
-        this.medicoes = medicoes;
+    public void setMedicoes(List<Medicao<?>> medicoes) {
+        this.medicoes = medicoes != null ? new ArrayList<>(medicoes) : new ArrayList<>();
     }
 
     public Map<String, Object> getMetadados() {

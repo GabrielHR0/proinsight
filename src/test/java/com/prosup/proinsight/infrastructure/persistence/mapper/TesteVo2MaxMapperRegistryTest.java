@@ -38,8 +38,29 @@ class TesteVo2MaxMapperRegistryTest {
     }
 
     @Test
+    void shouldRejectCooperWithoutResultado() {
+        var dto = new TesteVo2MaxDto(Protocolo.COOPER, null);
+
+        assertThrows(IllegalArgumentException.class, () -> registry.toDomain(dto));
+    }
+
+    @Test
+    void shouldRejectCooperWithFractionalDistance() {
+        var dto = new TesteVo2MaxDto(Protocolo.COOPER, 2999.5);
+
+        assertThrows(IllegalArgumentException.class, () -> registry.toDomain(dto));
+    }
+
+    @Test
+    void shouldRejectEsteiraWithoutResultado() {
+        var dto = new TesteVo2MaxDto(Protocolo.ESTEIRA_INCREMENTAL, null);
+
+        assertThrows(IllegalArgumentException.class, () -> registry.toDomain(dto));
+    }
+
+    @Test
     void shouldThrowWhenProtocoloNotMapped() {
-        var dto = new TesteVo2MaxDto(Protocolo.AVALIACAO_FUNCIONAL_IDOSO, 0);
+        var dto = new TesteVo2MaxDto(Protocolo.AVALIACAO_FUNCIONAL_IDOSO, 0.0);
 
         assertThrows(IllegalArgumentException.class, () -> registry.toDomain(dto));
     }

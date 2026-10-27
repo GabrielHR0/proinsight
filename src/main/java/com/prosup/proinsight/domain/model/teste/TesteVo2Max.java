@@ -20,8 +20,8 @@ public abstract class TesteVo2Max implements Teste {
     public abstract Double calcularVo2Max(DadosAvaliacao dados);
 
     @Override
-    public String getValorClassificacao() {
-        return valorClassificacao != null ? String.valueOf(valorClassificacao) : null;
+    public Double getValorNumerico() {
+        return valorClassificacao;
     }
 
     public Protocolo getProtocolo() {
@@ -34,10 +34,6 @@ public abstract class TesteVo2Max implements Teste {
 
     public void setProtocolo(Protocolo protocolo) {
         this.protocolo = protocolo;
-    }
-
-    public Double getValorClassificacaoObj() {
-        return valorClassificacao;
     }
 
     public void setValorClassificacao(Double valorClassificacao) {

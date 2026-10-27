@@ -320,6 +320,31 @@ class JwtTokenProviderTest {
         }
 
         @Test
+        @DisplayName("deve lancar JwtException para permissao desconhecida no token")
+        void permissaoDesconhecida() {
+            String token = Jwts.builder()
+                    .id("jti-permissao-invalida")
+                    .issuer(ISSUER)
+                    .audience().add(AUDIENCE).and()
+                    .subject("test@test.com")
+                    .claim("userId", "user-1")
+                    .claim("userName", "testuser")
+                    .claim("academiaIds", List.of("academia-1"))
+                    .claim("academiaPermissoes",
+                            Map.of("academia-1", List.of("PERMISSAO_INEXISTENTE")))
+                    .issuedAt(new Date())
+                    .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                    .signWith(secretKey)
+                    .compact();
+            var request = new MockHttpServletRequest();
+            request.addHeader("X-Academia-Id", "academia-1");
+
+            assertThatThrownBy(() -> provider.getAuthentication(token, request))
+                    .isInstanceOf(JwtException.class)
+                    .hasMessageContaining("Permissão desconhecida");
+        }
+
+        @Test
         @DisplayName("deve lancar JwtException para token revogado")
         void tokenRevogado() {
             String token = provider.generateToken(createAuth());

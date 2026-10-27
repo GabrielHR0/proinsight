@@ -2,10 +2,11 @@ package com.prosup.proinsight.domain.model.composite.classes;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
 import com.prosup.proinsight.domain.enums.TipoLimite;
+import com.prosup.proinsight.domain.model.composite.FaixaNumerica;
 import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.teste.Teste;
 
-public class NivelForca extends Leaf {
+public class NivelForca extends Leaf implements FaixaNumerica {
 
     private String nome;
     private Integer nivel;
@@ -46,22 +47,17 @@ public class NivelForca extends Leaf {
 
     @Override
     public Leaf classificarComTeste(Teste teste, DadosAvaliacao dados) {
-        String valorStr = teste.getValorClassificacao(dados);
-        if (valorStr == null) return null;
-        try {
-            double valor = Double.parseDouble(valorStr);
-            if (min != null) {
-                if (tipoMin == TipoLimite.EXCLUSIVO && valor <= min) return null;
-                if (tipoMin == TipoLimite.INCLUSIVO && valor < min) return null;
-            }
-            if (max != null) {
-                if (tipoMax == TipoLimite.EXCLUSIVO && valor >= max) return null;
-                if (tipoMax == TipoLimite.INCLUSIVO && valor > max) return null;
-            }
-            return this;
-        } catch (NumberFormatException e) {
-            return null;
+        Double valor = teste.getValorNumerico(dados);
+        if (valor == null) return null;
+        if (min != null) {
+            if (tipoMin == TipoLimite.EXCLUSIVO && valor <= min) return null;
+            if (tipoMin == TipoLimite.INCLUSIVO && valor < min) return null;
         }
+        if (max != null) {
+            if (tipoMax == TipoLimite.EXCLUSIVO && valor >= max) return null;
+            if (tipoMax == TipoLimite.INCLUSIVO && valor > max) return null;
+        }
+        return this;
     }
 
     public String getNome() {

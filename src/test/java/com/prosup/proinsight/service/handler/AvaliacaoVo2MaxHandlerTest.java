@@ -143,6 +143,26 @@ class AvaliacaoVo2MaxHandlerTest {
     }
 
     @Test
+    void shouldPropagateDadosAdicionaisParaMedicaoPersistida() {
+        var cliente = clienteMasc(2004, 6, 19);
+        when(clienteRepository.findById("cliente-1")).thenReturn(Optional.of(cliente));
+
+        stubTabelaAberta();
+        stubPersistencia();
+        var request = request(6.0, 1.0, null);
+        request.setPesoKg(78.5);
+        request.setFrequenciaCardiaca(165);
+
+        processar(request);
+
+        var captor = org.mockito.ArgumentCaptor.forClass(MedicaoVo2Max.class);
+        verify(avaliacaoMapper).toVo2MaxDocument(
+            anyString(), anyString(), anyString(), captor.capture(), anyString());
+        assertThat(captor.getValue().getPesoKg()).isEqualTo(78.5);
+        assertThat(captor.getValue().getFrequenciaCardiacaBpm()).isEqualTo(165);
+    }
+
+    @Test
     void shouldThrowWhenClienteSexoIsUnavailable() {
         when(clienteRepository.findById("cliente-1")).thenReturn(Optional.empty());
 

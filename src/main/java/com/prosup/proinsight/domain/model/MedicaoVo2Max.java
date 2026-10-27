@@ -10,8 +10,11 @@ import java.util.List;
 
 public class MedicaoVo2Max extends Medicao<TesteVo2Max> {
 
-    private Integer resultado;
+    private Double resultado;
     private Double metsCalculado;
+    private Integer tempoSegundos;
+    private Integer frequenciaCardiacaBpm;
+    private Double pesoKg;
     private List<MedicaoFrequenciaCardiaca> frequenciasCardiacas;
     private AquecimentoVo2Max aquecimento;
 
@@ -26,11 +29,11 @@ public class MedicaoVo2Max extends Medicao<TesteVo2Max> {
         super(tipo, medidoEm, createdAt, updatedAt, observacoes, testes);
     }
 
-    public Integer getResultado() {
+    public Double getResultado() {
         return resultado;
     }
 
-    public void setResultado(Integer resultado) {
+    public void setResultado(Double resultado) {
         this.resultado = resultado;
     }
 
@@ -40,6 +43,30 @@ public class MedicaoVo2Max extends Medicao<TesteVo2Max> {
 
     public void setMetsCalculado(Double metsCalculado) {
         this.metsCalculado = metsCalculado;
+    }
+
+    public Integer getTempoSegundos() {
+        return tempoSegundos;
+    }
+
+    public void setTempoSegundos(Integer tempoSegundos) {
+        this.tempoSegundos = tempoSegundos;
+    }
+
+    public Integer getFrequenciaCardiacaBpm() {
+        return frequenciaCardiacaBpm;
+    }
+
+    public void setFrequenciaCardiacaBpm(Integer frequenciaCardiacaBpm) {
+        this.frequenciaCardiacaBpm = frequenciaCardiacaBpm;
+    }
+
+    public Double getPesoKg() {
+        return pesoKg;
+    }
+
+    public void setPesoKg(Double pesoKg) {
+        this.pesoKg = pesoKg;
     }
 
     public List<MedicaoFrequenciaCardiaca> getFrequenciasCardiacas() {

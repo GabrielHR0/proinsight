@@ -3,8 +3,8 @@ package com.prosup.proinsight.domain.model.composite.tabelas;
 import com.prosup.proinsight.domain.DadosAvaliacao;
 import com.prosup.proinsight.domain.model.composite.Component;
 import com.prosup.proinsight.domain.model.composite.Composite;
+import com.prosup.proinsight.domain.model.composite.FaixaNumerica;
 import com.prosup.proinsight.domain.model.composite.Leaf;
-import com.prosup.proinsight.domain.model.composite.classes.NivelVo2Max;
 import com.prosup.proinsight.domain.model.teste.Teste;
 
 public class TabelaIdade extends Composite {
@@ -60,10 +60,11 @@ public class TabelaIdade extends Composite {
      * quando a idade do avaliado não pertence a nenhuma faixa.
      */
     public Leaf classificarComClampDeValor(Teste teste, DadosAvaliacao dados) {
-        dados.adicionar("idadeMin", idadeMin);
-        dados.adicionar("idadeMax", idadeMax);
+        DadosAvaliacao contexto = dados != null ? dados.copia() : new DadosAvaliacao();
+        contexto.adicionar("idadeMin", idadeMin);
+        contexto.adicionar("idadeMax", idadeMax);
         for (Component child : getChildren()) {
-            Leaf result = child.classificarComTeste(teste, dados);
+            Leaf result = child.classificarComTeste(teste, contexto);
             if (result != null) {
                 return result;
             }
@@ -71,18 +72,12 @@ public class TabelaIdade extends Composite {
 
         // Nenhum nível casou com o valor do teste: classifica no nível mais próximo
         // (clamp), em vez de retornar null e quebrar a avaliação.
-        return classificarNivelMaisProximo(teste, dados);
+        return classificarNivelMaisProximo(teste, contexto);
     }
 
     private Leaf classificarNivelMaisProximo(Teste teste, DadosAvaliacao dados) {
-        String valorStr = teste.getValorClassificacao(dados);
-        if (valorStr == null) {
-            return null;
-        }
-        double valor;
-        try {
-            valor = Double.parseDouble(valorStr);
-        } catch (NumberFormatException e) {
+        Double valor = teste.getValorNumerico(dados);
+        if (valor == null) {
             return null;
         }
 
@@ -90,17 +85,11 @@ public class TabelaIdade extends Composite {
         double melhorDistancia = Double.MAX_VALUE;
 
         for (Component child : getChildren()) {
-            Double min = null;
-            Double max = null;
-            if (child instanceof NivelVo2Max nivel) {
-                min = nivel.getMin();
-                max = nivel.getMax();
-            } else if (child instanceof com.prosup.proinsight.domain.model.composite.classes.PercentilFuncional p) {
-                min = p.getMin();
-                max = p.getMax();
-            } else {
+            if (!(child instanceof FaixaNumerica faixa)) {
                 continue;
             }
+            Double min = faixa.getMin();
+            Double max = faixa.getMax();
             double distancia = 0;
             if (min != null && valor < min) {
                 distancia = min - valor;

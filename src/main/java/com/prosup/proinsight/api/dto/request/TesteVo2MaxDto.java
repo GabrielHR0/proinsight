@@ -13,7 +13,7 @@ public class TesteVo2MaxDto {
 
     @PositiveOrZero(message = "resultado deve ser maior ou igual a zero")
     @JsonProperty("resultado")
-    private double resultado;
+    private Double resultado;
 
     @JsonProperty("frequencia_cardiaca")
     private Integer frequenciaCardiaca;
@@ -26,7 +26,7 @@ public class TesteVo2MaxDto {
 
     public TesteVo2MaxDto() {}
 
-    public TesteVo2MaxDto(Protocolo protocolo, double resultado) {
+    public TesteVo2MaxDto(Protocolo protocolo, Double resultado) {
         this.protocolo = protocolo;
         this.resultado = resultado;
     }
@@ -39,11 +39,11 @@ public class TesteVo2MaxDto {
         this.protocolo = protocolo;
     }
 
-    public double getResultado() {
+    public Double getResultado() {
         return resultado;
     }
 
-    public void setResultado(double resultado) {
+    public void setResultado(Double resultado) {
         this.resultado = resultado;
     }
 

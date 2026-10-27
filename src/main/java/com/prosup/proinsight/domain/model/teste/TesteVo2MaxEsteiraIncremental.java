@@ -37,25 +37,13 @@ public class TesteVo2MaxEsteiraIncremental extends TesteVo2Max {
     }
 
     @Override
-    public String getValorClassificacao() {
-        if (velocidadeKmh == null) return null;
-        double velocidadeMmin = velocidadeKmh * 16.67;
-        double vo2max;
-        if (velocidadeKmh <= 6.0) {
-            vo2max = (0.1 * velocidadeMmin) + 3.5;
-        } else {
-            vo2max = (0.2 * velocidadeMmin) + 3.5;
-        }
-        return String.valueOf(vo2max);
+    public Double getValorNumerico() {
+        return calcularVo2Max(null);
     }
 
     @Override
-    public String getValorClassificacao(DadosAvaliacao dados) {
-        Double vo2max = calcularVo2Max(dados);
-        if (vo2max != null) {
-            this.valorClassificacao = vo2max;
-        }
-        return vo2max != null ? String.valueOf(vo2max) : null;
+    public Double getValorNumerico(DadosAvaliacao dados) {
+        return calcularVo2Max(dados);
     }
 
     public Double getVelocidadeKmh() {

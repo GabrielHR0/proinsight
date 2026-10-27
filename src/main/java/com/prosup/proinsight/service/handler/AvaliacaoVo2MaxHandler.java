@@ -114,6 +114,8 @@ public class AvaliacaoVo2MaxHandler {
                 request.getObservacoes(),
                 List.of(testeDomain)
         );
+        medicao.setPesoKg(request.getPesoKg());
+        medicao.setFrequenciaCardiacaBpm(request.getFrequenciaCardiaca());
 
         if (request.getFrequenciasCardiacas() != null && !request.getFrequenciasCardiacas().isEmpty()) {
             Set<Integer> timestamps = new HashSet<>();
@@ -158,7 +160,7 @@ public class AvaliacaoVo2MaxHandler {
         }
 
         Double vo2Calculado = testeDomain.calcularVo2Max(dados);
-        medicao.setResultado(vo2Calculado != null ? vo2Calculado.intValue() : null);
+        medicao.setResultado(vo2Calculado);
 
         if (vo2Calculado != null) {
             medicao.setMetsCalculado(Math.round((vo2Calculado / 3.5) * 10.0) / 10.0);
@@ -178,6 +180,6 @@ public class AvaliacaoVo2MaxHandler {
 
         var referencias = referenciaService.extrair(tabela.getRaiz(), sexo, idade);
 
-        return responseMapper.toVo2MaxResponse(resultado, context, saved.getId(), medicao.getMetsCalculado(), referencias);
+        return responseMapper.toVo2MaxResponse(resultado, context, saved.getId(), medicao.getMetsCalculado(), referencias, saved.getCreatedAt() != null ? saved.getCreatedAt() : medicao.getMedidoEm());
     }
 }

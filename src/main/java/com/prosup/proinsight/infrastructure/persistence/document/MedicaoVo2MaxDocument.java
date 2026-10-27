@@ -16,7 +16,7 @@ public class MedicaoVo2MaxDocument extends MedicaoDocument {
     private Double pesoKg;
     private Double velocidadeKmh;
     private Double inclinacaoPercent;
-    private Integer vo2MaxCalculado;
+    private Double vo2MaxCalculado;
     private Double metsCalculado;
     private String classificacaoVo2;
     private List<Object> testesAdicionais;
@@ -92,11 +92,11 @@ public class MedicaoVo2MaxDocument extends MedicaoDocument {
         this.testesAdicionais = testesAdicionais;
     }
 
-    public Integer getVo2MaxCalculado() {
+    public Double getVo2MaxCalculado() {
         return vo2MaxCalculado;
     }
 
-    public void setVo2MaxCalculado(Integer vo2MaxCalculado) {
+    public void setVo2MaxCalculado(Double vo2MaxCalculado) {
         this.vo2MaxCalculado = vo2MaxCalculado;
     }
 

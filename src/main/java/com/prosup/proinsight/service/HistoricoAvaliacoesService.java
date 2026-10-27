@@ -74,15 +74,19 @@ public class HistoricoAvaliacoesService {
     public List<AvaliacaoHistoricoResponse> listarPorCliente(String clienteId) {
         String academiaId = TenantContext.getAcademiaId();
         String key = (academiaId == null ? "" : academiaId) + ":" + clienteId;
-        return cache.get(key, k -> buscarNoMongo(clienteId));
+        return cache.get(key, k -> buscarNoMongo(clienteId, academiaId));
     }
 
     public void invalidar(String clienteId) {
         cache.asMap().keySet().removeIf(k -> k.endsWith(":" + clienteId));
     }
 
-    private List<AvaliacaoHistoricoResponse> buscarNoMongo(String clienteId) {
-        var query = new Query(Criteria.where("clienteId").is(clienteId))
+    private List<AvaliacaoHistoricoResponse> buscarNoMongo(String clienteId, String academiaId) {
+        Criteria criteria = Criteria.where("clienteId").is(clienteId);
+        if (academiaId != null && !academiaId.isBlank()) {
+            criteria = criteria.and("academiaId").is(academiaId);
+        }
+        var query = new Query(criteria)
             .with(Sort.by(Sort.Direction.DESC, "createdAt"));
         query.fields()
             .include("clienteId")
@@ -144,9 +148,10 @@ public class HistoricoAvaliacoesService {
     private AvaliacaoHistoricoResponse toResponse(Document doc,
                                                   Map<String, String> protocoloNomes,
                                                   Map<String, ReferenciaClassificacaoResponse> referenciasPorProtocolo) {
-        String id = doc.getObjectId("_id") != null
-            ? doc.getObjectId("_id").toHexString()
-            : doc.getString("_id");
+        Object rawId = doc.get("_id");
+        String id = rawId instanceof org.bson.types.ObjectId objectId
+            ? objectId.toHexString()
+            : rawId != null ? rawId.toString() : null;
         String clienteId = doc.getString("clienteId");
         String protocoloId = doc.getString("protocoloId");
         Instant createdAt = doc.getDate("createdAt") != null
@@ -200,15 +205,16 @@ public class HistoricoAvaliacoesService {
             return null;
         }
         return switch (tipo) {
-            case "VO2_MAX" -> {
-                Integer v = medicao.getInteger("vo2MaxCalculado");
-                yield v != null ? v.doubleValue() : null;
-            }
-            case "IMC" -> medicao.getDouble("imcCalculado");
-            case "BIOIMPEDANCIA" -> medicao.getDouble("pesoKg");
+            case "VO2_MAX" -> numero(medicao.get("vo2MaxCalculado"));
+            case "IMC" -> numero(medicao.get("imcCalculado"));
+            case "BIOIMPEDANCIA" -> numero(medicao.get("pesoKg"));
             case "FUNCIONAL" -> mediaPercentis(medicao);
             default -> null;
         };
+    }
+
+    private static Double numero(Object raw) {
+        return raw instanceof Number n ? n.doubleValue() : null;
     }
 
     private static Double mediaPercentis(Document medicao) {

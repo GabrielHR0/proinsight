@@ -45,15 +45,7 @@ public class AvaliacaoResponseMapper {
     public Double extrairValorClassificado(AvaliacaoVo2MaxContext context) {
         return context.getTestes().stream()
             .findFirst()
-            .map(t -> t.getValorClassificacao(context.getDadosAvaliacao()))
-            .filter(v -> v != null && !v.isBlank())
-            .map(v -> {
-                try {
-                    return Double.parseDouble(v);
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-            })
+            .map(t -> t.calcularVo2Max(context.getDadosAvaliacao()))
             .orElse(null);
     }
 
@@ -82,6 +74,21 @@ public class AvaliacaoResponseMapper {
             avaliacaoId
         );
         response.setReferencias(referencias);
+        return response;
+    }
+
+    public AvaliacaoVo2MaxResponse toVo2MaxResponse(
+        Leaf resultado,
+        AvaliacaoVo2MaxContext context,
+        String avaliacaoId,
+        Double metsCalculado,
+        ReferenciaClassificacaoResponse referencias,
+        java.time.Instant dataAvaliacao
+    ) {
+        var response = toVo2MaxResponse(resultado, context, avaliacaoId, metsCalculado, referencias);
+        if (dataAvaliacao != null) {
+            response.setDataAvaliacao(java.time.LocalDateTime.ofInstant(dataAvaliacao, java.time.ZoneId.systemDefault()));
+        }
         return response;
     }
 

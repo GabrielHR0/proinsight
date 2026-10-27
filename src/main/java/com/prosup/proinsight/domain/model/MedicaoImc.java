@@ -40,6 +40,9 @@ public class MedicaoImc extends Medicao<TesteImc>{
     }
 
     public TesteImc getTeste(){
-        return this.getTestes().get(0);
+        if (getTestes() == null || getTestes().isEmpty()) {
+            throw new IllegalStateException("Medição de IMC não possui teste associado");
+        }
+        return getTestes().get(0);
     }
 }

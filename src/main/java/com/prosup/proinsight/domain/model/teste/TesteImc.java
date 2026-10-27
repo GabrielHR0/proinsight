@@ -1,8 +1,6 @@
 package com.prosup.proinsight.domain.model.teste;
 
-import java.util.Locale;
-
-public class TesteImc implements Teste{
+public class TesteImc implements Teste {
 
     private final String codigo = this.gerarCodigo();
 
@@ -28,11 +26,10 @@ public class TesteImc implements Teste{
     }
 
     @Override
-    public String getValorClassificacao() {
-        if (massaCorporalGramas == null || alturaCentimetros == null) return null;
+    public Double getValorNumerico() {
+        if (massaCorporalGramas == null || alturaCentimetros == null || alturaCentimetros == 0) return null;
         double alturaMetros = alturaCentimetros / 100.0;
-        double imc = (massaCorporalGramas / 1000.0) / (alturaMetros * alturaMetros);
-        return String.format(Locale.US, "%.2f", imc);
+        return (massaCorporalGramas / 1000.0) / (alturaMetros * alturaMetros);
     }
 
     public Integer getMassaCorporalGramas() {

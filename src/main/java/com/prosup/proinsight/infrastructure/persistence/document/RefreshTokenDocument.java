@@ -16,7 +16,7 @@ public class RefreshTokenDocument {
     @Indexed
     private String userId;
 
-    @Indexed
+    @Indexed(expireAfterSeconds = 0)
     private Instant expiryDate;
 
     private boolean revoked;

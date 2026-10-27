@@ -37,8 +37,9 @@ import java.util.stream.Collectors;
 @Component
 public class AvaliacaoFisicaMapper {
 
-    private final Map<MedicaoTipo, Function<MedicaoDocument, Medicao>> documentToDomain;
-    private final Map<MedicaoTipo, Function<Medicao, MedicaoDocument>> domainToDocument;
+    private final Map<MedicaoTipo, Function<MedicaoDocument, Medicao<?>>> documentToDomain;
+    private final Map<MedicaoTipo, Function<Medicao<?>, MedicaoDocument>> domainToDocument;
+    private final AquecimentoMapper aquecimentoMapper = new AquecimentoMapper();
 
     public AvaliacaoFisicaMapper() {
         documentToDomain = new HashMap<>();
@@ -64,7 +65,7 @@ public class AvaliacaoFisicaMapper {
         avaliacao.setProtocoloId(doc.getProtocoloId());
 
         if (doc.getMedicoes() != null && !doc.getMedicoes().isEmpty()) {
-            List<Medicao> medicoesDomain = doc.getMedicoes().stream()
+            List<Medicao<?>> medicoesDomain = doc.getMedicoes().stream()
                 .map(this::convertMedicaoDocumentToDomain)
                 .collect(Collectors.toList());
             avaliacao.setMedicoes(medicoesDomain);
@@ -98,7 +99,7 @@ public class AvaliacaoFisicaMapper {
         return doc;
     }
 
-    private Medicao convertMedicaoDocumentToDomain(MedicaoDocument doc) {
+    private Medicao<?> convertMedicaoDocumentToDomain(MedicaoDocument doc) {
         if (doc == null) return null;
         var fn = documentToDomain.get(doc.getTipo());
         if (fn == null) {
@@ -107,7 +108,7 @@ public class AvaliacaoFisicaMapper {
         return fn.apply(doc);
     }
 
-    private MedicaoDocument convertMedicaoDomainToDocument(Medicao domain) {
+    private MedicaoDocument convertMedicaoDomainToDocument(Medicao<?> domain) {
         if (domain == null) return null;
         var fn = domainToDocument.get(domain.getTipo());
         if (fn == null) {
@@ -116,7 +117,7 @@ public class AvaliacaoFisicaMapper {
         return fn.apply(domain);
     }
 
-    private Medicao imcToDomain(MedicaoDocument doc) {
+    private Medicao<?> imcToDomain(MedicaoDocument doc) {
         var i = (MedicaoImcDocument) doc;
 
         TesteImc teste = new TesteImc(
@@ -135,7 +136,7 @@ public class AvaliacaoFisicaMapper {
         return medicao;
     }
 
-    private Medicao funcionalToDomain(MedicaoDocument doc) {
+    private Medicao<?> funcionalToDomain(MedicaoDocument doc) {
         var f = (MedicaoFuncionalDocument) doc;
 
         var testes = new ArrayList<TesteAptdaoFisicaIdosos>();
@@ -174,7 +175,7 @@ public class AvaliacaoFisicaMapper {
         }
     }
 
-    private Medicao vo2MaxToDomain(MedicaoDocument doc) {
+    private Medicao<?> vo2MaxToDomain(MedicaoDocument doc) {
         var v = (MedicaoVo2MaxDocument) doc;
 
         var testes = new ArrayList<TesteVo2Max>();
@@ -218,6 +219,9 @@ public class AvaliacaoFisicaMapper {
 
         medicao.setResultado(v.getVo2MaxCalculado());
         medicao.setMetsCalculado(v.getMetsCalculado());
+        medicao.setTempoSegundos(v.getTempoSegundos());
+        medicao.setFrequenciaCardiacaBpm(v.getFrequenciaCardiacaBpm());
+        medicao.setPesoKg(v.getPesoKg());
 
         if (v.getFrequenciasCardiacas() != null && !v.getFrequenciasCardiacas().isEmpty()) {
             var fcMeasurements = v.getFrequenciasCardiacas().stream()
@@ -227,10 +231,12 @@ public class AvaliacaoFisicaMapper {
             medicao.setFrequenciasCardiacas(fcMeasurements);
         }
 
+        medicao.setAquecimento(aquecimentoMapper.toDomain(v.getAquecimento()));
+
         return medicao;
     }
 
-    private MedicaoDocument imcToDocument(Medicao domain) {
+    private MedicaoDocument imcToDocument(Medicao<?> domain) {
         var m = (MedicaoImc) domain;
         var teste = m.getTeste();
 
@@ -245,7 +251,7 @@ public class AvaliacaoFisicaMapper {
         return doc;
     }
 
-    private MedicaoDocument funcionalToDocument(Medicao domain) {
+    private MedicaoDocument funcionalToDocument(Medicao<?> domain) {
         var m = (MedicaoFuncional) domain;
 
         var doc = new MedicaoFuncionalDocument();
@@ -274,17 +280,21 @@ public class AvaliacaoFisicaMapper {
         return doc;
     }
 
-    private MedicaoDocument vo2MaxToDocument(Medicao domain) {
+    private MedicaoDocument vo2MaxToDocument(Medicao<?> domain) {
         var v = (MedicaoVo2Max) domain;
         var testes = v.getTestes();
 
         var doc = new MedicaoVo2MaxDocument();
         doc.setVo2MaxCalculado(v.getResultado());
         doc.setMetsCalculado(v.getMetsCalculado());
+        doc.setTempoSegundos(v.getTempoSegundos());
+        doc.setFrequenciaCardiacaBpm(v.getFrequenciaCardiacaBpm());
+        doc.setPesoKg(v.getPesoKg());
         doc.setMedidoEm(v.getMedidoEm());
         doc.setCreatedAt(v.getCreatedAt());
         doc.setUpdatedAt(v.getUpdatedAt());
         doc.setObservacoes(v.getObservacoes());
+        doc.setAquecimento(aquecimentoMapper.toDocument(v.getAquecimento()));
 
         if (v.getFrequenciasCardiacas() != null && !v.getFrequenciasCardiacas().isEmpty()) {
             var fcDocs = v.getFrequenciasCardiacas().stream()
@@ -338,7 +348,7 @@ public class AvaliacaoFisicaMapper {
         medicaoDoc.setMedidoEm(medicao.getMedidoEm());
         medicaoDoc.setImcCalculado(imcCalculado);
         medicaoDoc.setClassificacaoImc(classificacao);
-        var teste = medicao.getTestes().get(0);
+        var teste = medicao.getTeste();
         medicaoDoc.setMassaCorporalGramas(teste.getMassaCorporalGramas());
         medicaoDoc.setAlturaCm(teste.getAlturaCentimetros());
 
@@ -369,6 +379,10 @@ public class AvaliacaoFisicaMapper {
         medicaoDoc.setObservacoes(medicao.getObservacoes());
         medicaoDoc.setVo2MaxCalculado(medicao.getResultado());
         medicaoDoc.setMetsCalculado(medicao.getMetsCalculado());
+        medicaoDoc.setTempoSegundos(medicao.getTempoSegundos());
+        medicaoDoc.setFrequenciaCardiacaBpm(medicao.getFrequenciaCardiacaBpm());
+        medicaoDoc.setPesoKg(medicao.getPesoKg());
+        medicaoDoc.setAquecimento(aquecimentoMapper.toDocument(medicao.getAquecimento()));
 
         if (medicao.getFrequenciasCardiacas() != null && !medicao.getFrequenciasCardiacas().isEmpty()) {
             var fcDocs = medicao.getFrequenciasCardiacas().stream()

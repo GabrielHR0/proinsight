@@ -21,7 +21,7 @@ public class AvaliacaoVo2MaxAdaptado implements AvaliacaoStrategy<AvaliacaoVo2Ma
 
             if (resultado instanceof NivelVo2Max n) {
                 Double vo2 = teste.calcularVo2Max(dados);
-                n.setResultadoVo2Max(vo2 != null ? (int) Math.round(vo2) : null);
+                n.setResultadoVo2Max(vo2);
                 return n;
             }
 

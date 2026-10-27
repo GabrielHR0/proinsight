@@ -1,6 +1,7 @@
 package com.prosup.proinsight.service;
 
 import com.prosup.proinsight.api.dto.response.ProtocoloDetalheResponse;
+import com.prosup.proinsight.api.dto.response.ProtocoloHubResponse;
 import com.prosup.proinsight.api.dto.response.ProtocoloResumoResponse;
 import com.prosup.proinsight.api.dto.response.TesteFuncionalDto;
 import com.prosup.proinsight.domain.enums.TesteFuncionalTipo;
@@ -11,7 +12,6 @@ import com.prosup.proinsight.infrastructure.persistence.repository.UsuarioProtoc
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,18 +29,16 @@ public class ProtocoloHubService {
         this.favoritoRepository = favoritoRepository;
     }
 
-    public Map<String, Object> getHub(String userId) {
+    public ProtocoloHubResponse getHub(String userId) {
         var favoritos = favoritoRepository.findByUserId(userId);
         var favoritoIds = favoritos.stream()
                 .map(UsuarioProtocoloFavoritoDocument::getProtocoloId)
                 .toList();
 
-        var todosProtocolos = protocoloRepository.findAll();
+        var todosProtocolos = protocoloRepository.findAllResumos();
         var protocolosFavoritos = favoritoIds.isEmpty()
-                ? List.of()
-                : protocoloRepository.findAllById(favoritoIds).stream()
-                    .map(this::toResumo)
-                    .toList();
+                ? List.<ProtocoloResumoResponse>of()
+                : toResumos(protocoloRepository.findResumosByIdIn(favoritoIds));
 
         Map<String, List<ProtocoloResumoResponse>> porCategoria = new LinkedHashMap<>();
         for (var protocolo : todosProtocolos) {
@@ -49,16 +47,11 @@ public class ProtocoloHubService {
                     .add(toResumo(protocolo));
         }
 
-        Map<String, Object> hub = new LinkedHashMap<>();
-        hub.put("favoritos", protocolosFavoritos);
-        hub.put("porCategoria", porCategoria);
-        return hub;
+        return new ProtocoloHubResponse(protocolosFavoritos, porCategoria);
     }
 
     public List<ProtocoloResumoResponse> listarTodos() {
-        return protocoloRepository.findAll().stream()
-                .map(this::toResumo)
-                .toList();
+        return toResumos(protocoloRepository.findAllResumos());
     }
 
     public ProtocoloDetalheResponse getDetalhe(String protocoloId) {
@@ -86,13 +79,19 @@ public class ProtocoloHubService {
                 .map(UsuarioProtocoloFavoritoDocument::getProtocoloId)
                 .toList();
 
-        return protocoloRepository.findAllById(protocoloIds).stream()
-                .map(this::toResumo)
-                .toList();
+        return protocoloIds.isEmpty()
+                ? List.of()
+                : toResumos(protocoloRepository.findResumosByIdIn(protocoloIds));
     }
 
     public boolean isFavorito(String userId, String protocoloId) {
         return favoritoRepository.existsByUserIdAndProtocoloId(userId, protocoloId);
+    }
+
+    private List<ProtocoloResumoResponse> toResumos(List<ProtocoloAvaliacaoDocument> docs) {
+        return docs.stream()
+                .map(this::toResumo)
+                .toList();
     }
 
     private ProtocoloResumoResponse toResumo(ProtocoloAvaliacaoDocument doc) {

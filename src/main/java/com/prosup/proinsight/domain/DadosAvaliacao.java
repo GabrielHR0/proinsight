@@ -40,4 +40,10 @@ public class DadosAvaliacao {
     public boolean temSexo() {
         return dados.containsKey("sexo") && dados.get("sexo") != null;
     }
+
+    public DadosAvaliacao copia() {
+        var copia = new DadosAvaliacao();
+        dados.forEach(copia::adicionar);
+        return copia;
+    }
 }

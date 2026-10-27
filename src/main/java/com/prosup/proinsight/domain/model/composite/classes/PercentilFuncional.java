@@ -2,6 +2,7 @@ package com.prosup.proinsight.domain.model.composite.classes;
 
 import com.prosup.proinsight.domain.DadosAvaliacao;
 import com.prosup.proinsight.domain.enums.TipoLimite;
+import com.prosup.proinsight.domain.model.composite.FaixaNumerica;
 import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.teste.Teste;
 
@@ -9,7 +10,7 @@ import com.prosup.proinsight.domain.model.teste.Teste;
  * Representa um nível normativo de percentil para testes de aptidão física funcional (Fullerton).
  * Diferente de testes com categorias qualitativas ("ruim", "bom"), o resultado final entregue é o percentil.
  */
-public class PercentilFuncional extends Leaf {
+public class PercentilFuncional extends Leaf implements FaixaNumerica {
 
     private Integer percentil;
     private Double min;
@@ -38,32 +39,36 @@ public class PercentilFuncional extends Leaf {
 
     @Override
     public Leaf classificarComTeste(Teste teste, DadosAvaliacao dados) {
+        if (teste == null || dados == null || !dados.temIdade()) {
+            return null;
+        }
 
-        var idade = dados.getIdade();
-
-        int idadeMin = dados.get("idadeMin");
-        int idadeMax = dados.get("idadeMax");
+        Integer idade = numeroInteiro(dados.get("idade"));
+        Integer idadeMin = numeroInteiro(dados.get("idadeMin"));
+        Integer idadeMax = numeroInteiro(dados.get("idadeMax"));
+        if (idade == null || idadeMin == null || idadeMax == null || idadeMax < idadeMin) {
+            return null;
+        }
 
         double normalizacao = (double) (idade - idadeMin) / ((idadeMax - idadeMin) + 1);
         if (normalizacao < 0.5) return null;
 
-        String valorStr = teste.getValorClassificacao(dados);
-        if (valorStr == null) return null;
-        try {
-            double valor = Double.parseDouble(valorStr);
-            if (min != null) {
-                if (tipoMin == TipoLimite.EXCLUSIVO && valor <= min) return null;
-                if (tipoMin == TipoLimite.INCLUSIVO && valor < min) return null;
-            }
-
-            if (max != null) {
-                if (tipoMax == TipoLimite.EXCLUSIVO && valor >= max) return null;
-                if (tipoMax == TipoLimite.INCLUSIVO && valor > max) return null;
-            }
-            return this;
-        } catch (NumberFormatException e) {
-            return null;
+        Double valor = teste.getValorNumerico(dados);
+        if (valor == null) return null;
+        if (min != null) {
+            if (tipoMin == TipoLimite.EXCLUSIVO && valor <= min) return null;
+            if (tipoMin == TipoLimite.INCLUSIVO && valor < min) return null;
         }
+
+        if (max != null) {
+            if (tipoMax == TipoLimite.EXCLUSIVO && valor >= max) return null;
+            if (tipoMax == TipoLimite.INCLUSIVO && valor > max) return null;
+        }
+        return this;
+    }
+
+    private Integer numeroInteiro(Object valor) {
+        return valor instanceof Number numero ? numero.intValue() : null;
     }
 
     public Integer getPercentil() {

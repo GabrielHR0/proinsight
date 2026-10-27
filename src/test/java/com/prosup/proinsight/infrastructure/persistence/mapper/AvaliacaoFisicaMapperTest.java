@@ -7,6 +7,7 @@ import com.prosup.proinsight.domain.model.AvaliacaoFisica;
 import com.prosup.proinsight.domain.model.MedicaoFuncional;
 import com.prosup.proinsight.domain.model.MedicaoImc;
 import com.prosup.proinsight.domain.model.MedicaoVo2Max;
+import com.prosup.proinsight.domain.model.aquecimento.AquecimentoVo2MaxCooper;
 import com.prosup.proinsight.domain.model.teste.TesteImc;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxCooper;
 import com.prosup.proinsight.domain.model.teste.TesteVo2MaxEsteiraIncremental;
@@ -44,7 +45,7 @@ class AvaliacaoFisicaMapperTest {
                 "observacao",
                 List.of(teste)
         );
-        medicao.setResultado(45);
+        medicao.setResultado(45.0);
         domain.setMedicoes(List.of(medicao));
 
         AvaliacaoFisicaDocument doc = mapper.toDocument(domain);
@@ -110,7 +111,7 @@ class AvaliacaoFisicaMapperTest {
                 "esteira-test",
                 List.of(teste)
         );
-        medicao.setResultado(42);
+        medicao.setResultado(42.0);
         domain.setMedicoes(List.of(medicao));
 
         AvaliacaoFisicaDocument doc = mapper.toDocument(domain);
@@ -129,11 +130,36 @@ class AvaliacaoFisicaMapperTest {
     }
 
     @Test
+    void shouldRoundTripAquecimentoVo2Max() {
+        var now = Instant.now();
+        var domain = new AvaliacaoFisica();
+        domain.setId("av-aquecimento");
+        domain.setClienteId("cli-aquecimento");
+
+        var medicao = new MedicaoVo2Max(
+                MedicaoTipo.VO2_MAX, now, now, now,
+                "aquecimento",
+                List.of(new TesteVo2MaxCooper(3000))
+        );
+        medicao.setResultado(45.0);
+        medicao.setAquecimento(new AquecimentoVo2MaxCooper(800, 10.0));
+        domain.setMedicoes(List.of(medicao));
+
+        AvaliacaoFisica result = mapper.toDomain(mapper.toDocument(domain));
+
+        var resultMedicao = (MedicaoVo2Max) result.getMedicoes().get(0);
+        assertThat(resultMedicao.getAquecimento()).isInstanceOf(AquecimentoVo2MaxCooper.class);
+        var aquecimento = (AquecimentoVo2MaxCooper) resultMedicao.getAquecimento();
+        assertThat(aquecimento.getDistanciaMetros()).isEqualTo(800);
+        assertThat(aquecimento.getTempoMinutos()).isEqualTo(10.0);
+    }
+
+    @Test
     void shouldThrowWhenProtocoloIsNotSupportedOnRead() {
         var now = Instant.now();
         var medDoc = new MedicaoVo2MaxDocument();
         medDoc.setProtocolo(Protocolo.IMC);
-        medDoc.setVo2MaxCalculado(30);
+        medDoc.setVo2MaxCalculado(30.0);
         medDoc.setMedidoEm(now);
         medDoc.setCreatedAt(now);
         medDoc.setUpdatedAt(now);
@@ -153,7 +179,7 @@ class AvaliacaoFisicaMapperTest {
     void shouldThrowWhenProtocoloIsNullOnRead() {
         var now = Instant.now();
         var medDoc = new MedicaoVo2MaxDocument();
-        medDoc.setVo2MaxCalculado(30);
+        medDoc.setVo2MaxCalculado(30.0);
         medDoc.setMedidoEm(now);
         medDoc.setCreatedAt(now);
         medDoc.setUpdatedAt(now);
@@ -193,7 +219,7 @@ class AvaliacaoFisicaMapperTest {
                 "sem-suporte",
                 List.of(testeNulo)
         );
-        medicao.setResultado(30);
+        medicao.setResultado(30.0);
         domain.setMedicoes(List.of(medicao));
 
         org.junit.jupiter.api.Assertions.assertThrows(
@@ -208,7 +234,7 @@ class AvaliacaoFisicaMapperTest {
         var medDoc = new MedicaoVo2MaxDocument();
         medDoc.setProtocolo(Protocolo.COOPER);
         medDoc.setDistanciaMetros(3000);
-        medDoc.setVo2MaxCalculado(45);
+        medDoc.setVo2MaxCalculado(45.0);
         medDoc.setMedidoEm(now);
         medDoc.setCreatedAt(now);
         medDoc.setUpdatedAt(now);
@@ -226,8 +252,36 @@ class AvaliacaoFisicaMapperTest {
         var resultDoc = (MedicaoVo2MaxDocument) result.getMedicoes().get(0);
         assertThat(resultDoc.getDistanciaMetros()).isEqualTo(3000);
         assertThat(resultDoc.getProtocolo()).isEqualTo(Protocolo.COOPER);
-        assertThat(resultDoc.getVo2MaxCalculado()).isEqualTo(45);
+        assertThat(resultDoc.getVo2MaxCalculado()).isEqualTo(45.0);
         assertThat(resultDoc.getObservacoes()).isEqualTo("teste");
+    }
+
+    @Test
+    void shouldPreserveDadosAdicionaisVo2MaxNoRoundTrip() {
+        var now = Instant.now();
+        var medDoc = new MedicaoVo2MaxDocument();
+        medDoc.setProtocolo(Protocolo.COOPER);
+        medDoc.setDistanciaMetros(3000);
+        medDoc.setVo2MaxCalculado(45.0);
+        medDoc.setMedidoEm(now);
+        medDoc.setCreatedAt(now);
+        medDoc.setUpdatedAt(now);
+        medDoc.setPesoKg(78.5);
+        medDoc.setFrequenciaCardiacaBpm(165);
+        medDoc.setTempoSegundos(720);
+
+        var avaliacaoDoc = new AvaliacaoFisicaDocument();
+        avaliacaoDoc.setId("av-dados-adicionais");
+        avaliacaoDoc.setClienteId("cli-dados-adicionais");
+        avaliacaoDoc.setMedicoes(List.of(medDoc));
+
+        AvaliacaoFisica result = mapper.toDomain(avaliacaoDoc);
+        var resultDoc = (MedicaoVo2MaxDocument)
+                mapper.toDocument(result).getMedicoes().get(0);
+
+        assertThat(resultDoc.getPesoKg()).isEqualTo(78.5);
+        assertThat(resultDoc.getFrequenciaCardiacaBpm()).isEqualTo(165);
+        assertThat(resultDoc.getTempoSegundos()).isEqualTo(720);
     }
 
     @Test

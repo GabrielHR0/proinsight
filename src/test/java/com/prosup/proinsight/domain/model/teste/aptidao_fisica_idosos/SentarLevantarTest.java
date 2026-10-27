@@ -15,6 +15,6 @@ class SentarLevantarTest {
     void shouldReturnValorAsStringInGetValorClassificacao() {
         var teste = new SentarLevantar(TesteFuncionalTipo.SENTAR_LEVANTAR_30S, 14.0);
         assertThat(teste.getValorClassificacao()).isEqualTo("14.0");
-        assertThat(teste.repeticoes).isEqualTo(14);
+        assertThat(teste.getRepeticoes()).isEqualTo(14);
     }
 }

@@ -5,6 +5,7 @@ import com.prosup.proinsight.domain.model.composite.Leaf;
 import com.prosup.proinsight.domain.model.teste.Teste;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Medicao<T extends Teste> {
@@ -14,7 +15,7 @@ public abstract class Medicao<T extends Teste> {
     private Instant createdAt;
     private Instant updatedAt;
     private String observacoes;
-    private List<T> testes;
+    private List<T> testes = new ArrayList<>();
 
     protected Medicao() {
     }
@@ -29,7 +30,7 @@ public abstract class Medicao<T extends Teste> {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.observacoes = observacoes;
-        this.testes = testes;
+        this.testes = testes != null ? new ArrayList<>(testes) : new ArrayList<>();
     }
 
     public List<T> getTestes() {
@@ -37,10 +38,13 @@ public abstract class Medicao<T extends Teste> {
     }
 
     public void setTestes(List<T> testes) {
-        this.testes = testes;
+        this.testes = testes != null ? new ArrayList<>(testes) : new ArrayList<>();
     }
 
     public void addTestes(T teste){
+        if (this.testes == null) {
+            this.testes = new ArrayList<>();
+        }
         this.testes.add(teste);
     }
 

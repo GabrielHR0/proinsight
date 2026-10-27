@@ -74,7 +74,7 @@ class TabelaClassificacaoClampTest {
     }
 
     @Test
-    void idadeAusenteUsaPrimeiraFaixa() {
+    void idadeAusenteNaoClassifica() {
         var tabelaSexo = new TabelaSexo(Sexo.MASCULINO);
         tabelaSexo.add(criarFaixa(20, 29));
         tabelaSexo.add(criarFaixa(40, 49));
@@ -83,8 +83,7 @@ class TabelaClassificacaoClampTest {
 
         Leaf resultado = tabelaSexo.classificarComTeste(testeComValor(15.0), dados);
 
-        // valor 15 na faixa 20-29 -> RUIM (match); na faixa 40-49 -> clamp BOM.
-        assertThat(((NivelVo2Max) resultado).getClassificacao()).isEqualTo("RUIM");
+        assertThat(resultado).isNull();
     }
 
     @Test

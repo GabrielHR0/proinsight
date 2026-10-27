@@ -41,8 +41,13 @@ public class TabelaSexo extends Composite {
             return resultado;
         }
 
-        // A idade não casou com nenhuma faixa (ou está ausente):
-        // usa a faixa de idade mais próxima, em vez de retornar null.
+        // Sem idade não há como escolher uma faixa etária com segurança.
+        if (dados.getIdade() == null) {
+            return null;
+        }
+
+        // A idade não casou com nenhuma faixa: usa a faixa mais próxima,
+        // em vez de retornar null.
         return classificarComFaixaDeIdadeMaisProxima(teste, dados);
     }
 

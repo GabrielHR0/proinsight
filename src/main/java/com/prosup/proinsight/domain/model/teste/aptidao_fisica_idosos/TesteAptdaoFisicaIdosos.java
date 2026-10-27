@@ -25,13 +25,20 @@ public abstract class TesteAptdaoFisicaIdosos implements Teste {
     }
 
     protected Double idadeNormalizada(Integer idade, Integer idadeMin, Integer idadeMax){
-        Double normalizacao = (double) ((idade - idadeMin) / ((idadeMax - idadeMin) + 1));
-        return normalizacao;
+        if (idade == null || idadeMin == null || idadeMax == null) {
+            return null;
+        }
+        return (double) (idade - idadeMin) / ((idadeMax - idadeMin) + 1);
     }
 
     @Override
     public String gerarCodigo() {
         return "FUNC-" + java.util.UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+    }
+
+    @Override
+    public Double getValorNumerico() {
+        return valor;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.prosup.proinsight.api.controller.api.v1;
 
 import com.prosup.proinsight.api.dto.response.ProtocoloDetalheResponse;
+import com.prosup.proinsight.api.dto.response.ProtocoloHubResponse;
 import com.prosup.proinsight.api.dto.response.ProtocoloResumoResponse;
 import com.prosup.proinsight.service.ProtocoloHubService;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +26,7 @@ public class ProtocoloHubController {
 
     @GetMapping("/hub")
     @PreAuthorize("hasAuthority('PROTOCOLOS_LER') and @auth.isCurrentUser(#userId)")
-    public ResponseEntity<Map<String, Object>> getHub(@NotBlank @RequestParam String userId) {
+    public ResponseEntity<ProtocoloHubResponse> getHub(@NotBlank @RequestParam String userId) {
         var hub = hubService.getHub(userId);
         return ResponseEntity.ok(hub);
     }

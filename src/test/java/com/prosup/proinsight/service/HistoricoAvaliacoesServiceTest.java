@@ -79,7 +79,8 @@ class HistoricoAvaliacoesServiceTest {
         verify(mongoTemplate).find(captor.capture(), eq(Document.class), eq("avaliacoesFisicas"));
         Query query = captor.getValue();
 
-        assertThat(query.getQueryObject().getString("clienteId")).isEqualTo("cliente-1");
+        assertThat(query.getQueryObject()).isEqualTo(new Document("clienteId", "cliente-1")
+            .append("academiaId", "acad-1"));
         assertThat(query.getSortObject()).isEqualTo(new Document("createdAt", -1));
         assertThat(query.getFieldsObject()).isEqualTo(new Document()
             .append("clienteId", 1)
@@ -162,6 +163,30 @@ class HistoricoAvaliacoesServiceTest {
         assertThat(r.classificacaoLegivel()).isEqualTo("Normal");
         assertThat(r.detalhes()).containsEntry("massaCorporalGramas", 70000)
             .containsEntry("alturaCm", 175);
+    }
+
+    @Test
+    void deveAceitarIdStringEValoresNumericosInteiros() {
+        when(protocoloRepository.findAll()).thenReturn(List.of());
+        var medicao = new Document()
+            .append("tipo", "IMC")
+            .append("medidoEm", Date.from(Instant.parse("2026-08-11T22:12:11.915Z")))
+            .append("imcCalculado", 23)
+            .append("classificacaoImc", "NORMAL")
+            .append("massaCorporalGramas", 70000)
+            .append("alturaCm", 175);
+        var doc = new Document("_id", "avaliacao-string")
+            .append("clienteId", "cliente-1")
+            .append("protocoloId", "protocolo_imc_oms")
+            .append("createdAt", Date.from(Instant.parse("2026-08-11T22:12:11.915Z")))
+            .append("medicoes", List.of(medicao));
+        when(mongoTemplate.find(any(), eq(Document.class), eq("avaliacoesFisicas")))
+            .thenReturn(List.of(doc));
+
+        AvaliacaoHistoricoResponse r = service.listarPorCliente("cliente-1").get(0);
+
+        assertThat(r.id()).isEqualTo("avaliacao-string");
+        assertThat(r.valor()).isEqualTo(23.0);
     }
 
     @Test

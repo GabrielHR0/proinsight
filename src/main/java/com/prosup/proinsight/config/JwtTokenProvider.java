@@ -19,14 +19,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
@@ -133,16 +132,32 @@ public class JwtTokenProvider {
         Map<String, Set<Permissao>> permissoes = new HashMap<>();
         if (academiaPermissoes != null) {
             for (var entry : academiaPermissoes.entrySet()) {
-                Set<Permissao> perms = entry.getValue().stream()
-                        .map(Permissao::valueOf)
-                        .collect(Collectors.toSet());
-                permissoes.put(entry.getKey(), perms);
+                permissoes.put(
+                        entry.getKey(),
+                        converterPermissoes(entry.getKey(), entry.getValue()));
             }
         }
 
         CustomUserDetails principal = new CustomUserDetails(user, authorities, permissoes);
 
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+    }
+
+    private static Set<Permissao> converterPermissoes(String academiaId, List<String> nomes) {
+        Set<Permissao> permissoes = new HashSet<>();
+        if (nomes == null) {
+            return permissoes;
+        }
+        for (String nome : nomes) {
+            try {
+                permissoes.add(Permissao.valueOf(nome));
+            } catch (IllegalArgumentException | NullPointerException e) {
+                throw new JwtException(
+                        "Permissão desconhecida no token para academia " + academiaId + ": " + nome,
+                        e);
+            }
+        }
+        return permissoes;
     }
 
     public long getExpirationMs() {

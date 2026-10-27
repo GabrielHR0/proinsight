@@ -36,11 +36,21 @@ public class AvaliacaoVo2MaxResponse {
         ClassificacaoVo2Max classificacao,
         String avaliacaoId
     ) {
+        this(clienteId, avaliadorId, classificacao, avaliacaoId, LocalDateTime.now());
+    }
+
+    public AvaliacaoVo2MaxResponse(
+        String clienteId,
+        String avaliadorId,
+        ClassificacaoVo2Max classificacao,
+        String avaliacaoId,
+        LocalDateTime dataAvaliacao
+    ) {
         this.clienteId = clienteId;
         this.avaliadorId = avaliadorId;
         this.classificacao = classificacao;
         this.avaliacaoId = avaliacaoId;
-        this.dataAvaliacao = LocalDateTime.now();
+        this.dataAvaliacao = dataAvaliacao != null ? dataAvaliacao : LocalDateTime.now();
     }
 
     public String getAvaliacaoId() {

@@ -27,14 +27,8 @@ public class TesteVo2MaxCooper extends TesteVo2Max {
     }
 
     @Override
-    public String getValorClassificacao() {
-        return distanciaMetros != null ? String.valueOf(distanciaMetros.doubleValue()) : null;
-    }
-
-    @Override
-    public String getValorClassificacao(DadosAvaliacao dados) {
-        Double vo2max = calcularVo2Max(dados);
-        return vo2max != null ? String.valueOf(vo2max) : null;
+    public Double getValorNumerico() {
+        return distanciaMetros != null ? distanciaMetros.doubleValue() : valorClassificacao;
     }
 
     public Integer getDistanciaMetros() {

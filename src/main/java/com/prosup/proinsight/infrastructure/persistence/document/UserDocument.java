@@ -105,10 +105,16 @@ public class UserDocument {
     }
 
     public String getCref() { return cref; }
-    public void setCref(String cref) { this.cref = cref; }
+    public void setCref(String cref) { this.cref = normalizarOpcional(cref); }
 
     public String getCpf() { return cpf; }
-    public void setCpf(String cpf) { this.cpf = cpf; }
+    public void setCpf(String cpf) { this.cpf = normalizarOpcional(cpf); }
+
+    private static String normalizarOpcional(String valor) {
+        if (valor == null) return null;
+        String normalizado = valor.strip();
+        return normalizado.isEmpty() ? null : normalizado;
+    }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

@@ -7,6 +7,8 @@ import com.prosup.proinsight.infrastructure.persistence.repository.UserRepositor
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -55,15 +57,35 @@ public class UserService {
     }
 
     private void validateRoles(Map<String, Set<String>> academiaRoles) {
-        if (academiaRoles != null) {
-            for (Set<String> roleIds : academiaRoles.values()) {
-                if (roleIds != null) {
-                    for (String rid : roleIds) {
-                        if (!roleRepo.existsById(rid)) {
-                            throw new IllegalArgumentException("Role id not found: " + rid);
-                        }
+        if (academiaRoles == null) {
+            return;
+        }
+
+        Set<String> roleIds = new LinkedHashSet<>();
+        for (Set<String> rolesDaAcademia : academiaRoles.values()) {
+            if (rolesDaAcademia != null) {
+                for (String rid : rolesDaAcademia) {
+                    if (rid == null) {
+                        throw new IllegalArgumentException("Role id not found: null");
                     }
+                    roleIds.add(rid);
                 }
+            }
+        }
+
+        if (roleIds.isEmpty()) {
+            return;
+        }
+
+        // Uma única consulta para todos os ids, em vez de um existsById por role.
+        Set<String> encontrados = new HashSet<>();
+        for (var role : roleRepo.findAllById(roleIds)) {
+            encontrados.add(role.getId());
+        }
+
+        for (String rid : roleIds) {
+            if (!encontrados.contains(rid)) {
+                throw new IllegalArgumentException("Role id not found: " + rid);
             }
         }
     }

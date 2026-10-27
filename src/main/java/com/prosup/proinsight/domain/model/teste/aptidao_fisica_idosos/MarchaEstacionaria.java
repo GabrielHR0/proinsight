@@ -4,7 +4,15 @@ import com.prosup.proinsight.domain.enums.TesteFuncionalTipo;
 
 public class MarchaEstacionaria extends TesteAptdaoFisicaIdosos {
 
-    public Integer passos;
+    private Integer passos;
+
+    public Integer getPassos() {
+        return passos;
+    }
+
+    public void setPassos(Integer passos) {
+        this.passos = passos;
+    }
 
     public MarchaEstacionaria(TesteFuncionalTipo tipo, Double valor, Integer passos) {
         super(tipo, valor);
