@@ -4,6 +4,7 @@ import com.prosup.proinsight.infrastructure.persistence.document.PasswordResetTo
 import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.PasswordResetTokenRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
+import com.prosup.proinsight.infrastructure.transaction.MongoTransactionExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,6 +35,8 @@ class PasswordResetServiceTest {
     private RefreshTokenService refreshTokenService;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private MongoTransactionExecutor transactionExecutor;
 
     private PasswordResetService service;
 
@@ -40,8 +44,10 @@ class PasswordResetServiceTest {
 
     @BeforeEach
     void setUp() {
+        lenient().when(transactionExecutor.execute(any(Supplier.class)))
+                .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
         service = new PasswordResetService(tokenRepository, userRepository,
-                refreshTokenService, passwordEncoder, TTL_MS);
+                refreshTokenService, passwordEncoder, transactionExecutor, TTL_MS);
     }
 
     @Test

@@ -8,15 +8,16 @@ import com.prosup.proinsight.domain.enums.Permissao;
 import com.prosup.proinsight.domain.model.CustomUserDetails;
 import com.prosup.proinsight.domain.model.User;
 import com.prosup.proinsight.infrastructure.persistence.document.AcademiaDocument;
+import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
 import com.prosup.proinsight.infrastructure.persistence.mapper.UserMapper;
 import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
+import com.prosup.proinsight.infrastructure.transaction.MongoTransactionExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,22 +35,24 @@ public class RegistrationService {
     private final RefreshTokenService refreshTokenService;
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService userDetailsService;
+    private final MongoTransactionExecutor transactionExecutor;
 
     public RegistrationService(UserRepository userRepository,
                                AcademiaRepository academiaRepository,
                                PasswordEncoder passwordEncoder,
                                RefreshTokenService refreshTokenService,
                                JwtTokenProvider jwtTokenProvider,
-                               CustomUserDetailsService userDetailsService) {
+                               CustomUserDetailsService userDetailsService,
+                               MongoTransactionExecutor transactionExecutor) {
         this.userRepository = userRepository;
         this.academiaRepository = academiaRepository;
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenService = refreshTokenService;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailsService = userDetailsService;
+        this.transactionExecutor = transactionExecutor;
     }
 
-    @Transactional
     public LoginResponse register(RegisterRequest request) {
         boolean emailDuplicado = userRepository.findByEmail(request.getEmail()).isPresent();
         boolean userNameDuplicado = userRepository.findByUserName(request.getUserName()).isPresent();
@@ -64,49 +67,56 @@ public class RegistrationService {
             }
         }
 
+        // BCrypt é caro e não deve manter uma transação aberta.
         String pwHash = passwordEncoder.encode(request.getPassword());
-        var userDoc = UserMapper.toDocument(request.getUserName(), request.getEmail(), pwHash, new HashMap<>());
-        userDoc.setCref(request.getCref().trim());
-        userDoc.setCpf(request.getCpf().trim());
-        var savedUser = userRepository.save(userDoc);
 
-        String academiaId = null;
-        Map<String, List<String>> academiaPermissoes = new HashMap<>();
+        RegistrationPersistResult persisted = transactionExecutor.execute(
+                () -> persistRegistration(request, pwHash));
 
-        if (request.hasAcademia()) {
-            academiaId = createAcademia(savedUser.getId(), request);
-            savedUser.putAcademiaRole(academiaId, Set.of(RoleInitializer.ROLE_ADMIN_ID));
-            savedUser.addAcademiaId(academiaId);
-            userRepository.save(savedUser);
-            academiaPermissoes.put(academiaId, getPermissoes(RoleInitializer.ROLE_ADMIN_ID));
-        } else {
-            // Usuário sem academia (personal autônomo): cria academia pessoal
-            academiaId = createPersonalAcademia(savedUser.getId(), request.getUserName());
-            savedUser.putAcademiaRole(academiaId, Set.of(RoleInitializer.ROLE_ADMIN_ID));
-            savedUser.addAcademiaId(academiaId);
-            userRepository.save(savedUser);
-            academiaPermissoes.put(academiaId, getPermissoes(RoleInitializer.ROLE_ADMIN_ID));
-        }
-
-        User domainUser = UserMapper.toDomain(savedUser);
+        User domainUser = UserMapper.toDomain(persisted.user());
         CustomUserDetails userDetails = userDetailsService.toUserDetails(domainUser);
 
-        String refreshToken = refreshTokenService.createRefreshToken(userDetails.getUser().getId()).getId();
         var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         String jwt = jwtTokenProvider.generateToken(auth);
 
+        Map<String, List<String>> academiaPermissoes = new HashMap<>();
+        academiaPermissoes.put(persisted.academiaId(), getPermissoes(RoleInitializer.ROLE_ADMIN_ID));
+
         log.info("Usuário registrado: {} (academia={})",
-                request.getEmail(), academiaId);
+                request.getEmail(), persisted.academiaId());
 
         return new LoginResponse(
                 jwt,
-                refreshToken,
+                persisted.refreshToken(),
                 "Bearer",
                 jwtTokenProvider.getExpirationMs() / 1000,
                 userDetails.getUser().getId(),
                 userDetails.getUser().getUserName(),
                 userDetails.getUser().getEmail(),
                 academiaPermissoes);
+    }
+
+    private RegistrationPersistResult persistRegistration(RegisterRequest request, String pwHash) {
+        var userDoc = UserMapper.toDocument(request.getUserName(), request.getEmail(), pwHash, new HashMap<>());
+        userDoc.setCref(request.getCref().trim());
+        userDoc.setCpf(request.getCpf().trim());
+        var savedUser = userRepository.save(userDoc);
+
+        String academiaId = request.hasAcademia()
+                ? createAcademia(savedUser.getId(), request)
+                : createPersonalAcademia(savedUser.getId(), request.getUserName());
+
+        savedUser.putAcademiaRole(academiaId, Set.of(RoleInitializer.ROLE_ADMIN_ID));
+        savedUser.addAcademiaId(academiaId);
+        savedUser = userRepository.save(savedUser);
+
+        String refreshToken = refreshTokenService.createRefreshToken(savedUser.getId()).getId();
+        return new RegistrationPersistResult(savedUser, academiaId, refreshToken);
+    }
+
+    private record RegistrationPersistResult(UserDocument user,
+                                             String academiaId,
+                                             String refreshToken) {
     }
 
     private String createAcademia(String ownerId, RegisterRequest request) {

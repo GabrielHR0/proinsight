@@ -3,6 +3,11 @@ package com.prosup.proinsight.service;
 import com.prosup.proinsight.infrastructure.persistence.document.RefreshTokenDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -12,11 +17,14 @@ import java.util.UUID;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository repository;
+    private final MongoTemplate mongoTemplate;
     private final long refreshExpirationMs;
 
     public RefreshTokenService(RefreshTokenRepository repository,
+                               MongoTemplate mongoTemplate,
                                @Value("${jwt.refresh-expiration:604800000}") long refreshExpirationMs) {
         this.repository = repository;
+        this.mongoTemplate = mongoTemplate;
         this.refreshExpirationMs = refreshExpirationMs;
     }
 
@@ -29,18 +37,20 @@ public class RefreshTokenService {
     }
 
     public RefreshTokenDocument validateAndRevoke(String tokenId) {
-        var doc = repository.findByIdAndRevokedFalse(tokenId)
-                .orElseThrow(() -> new IllegalArgumentException("Refresh token inválido ou já revogado"));
+        Query query = Query.query(Criteria.where("_id").is(tokenId)
+                .and("revoked").is(false)
+                .and("expiryDate").gt(Instant.now()));
+        Update update = new Update().set("revoked", true);
 
-        if (!doc.isValid()) {
-            doc.setRevoked(true);
-            repository.save(doc);
-            throw new IllegalArgumentException("Refresh token expirado");
+        RefreshTokenDocument doc = mongoTemplate.findAndModify(
+                query,
+                update,
+                FindAndModifyOptions.options().returnNew(true),
+                RefreshTokenDocument.class);
+
+        if (doc == null) {
+            throw new IllegalArgumentException("Refresh token inválido, revogado ou expirado");
         }
-
-        doc.setRevoked(true);
-        repository.save(doc);
-
         return doc;
     }
 

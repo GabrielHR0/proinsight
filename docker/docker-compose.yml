@@ -4,6 +4,15 @@ services:
     image: mongo:6.0
     container_name: proinsight-mongo
     restart: unless-stopped
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        set -e
+        openssl rand -base64 756 > /tmp/mongo-keyfile
+        chown 999:999 /tmp/mongo-keyfile
+        chmod 400 /tmp/mongo-keyfile
+        exec /usr/local/bin/docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /tmp/mongo-keyfile
     env_file:
       - ../.env
     environment:
@@ -15,10 +24,38 @@ services:
     volumes:
       - mongo-data:/data/db
     healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'quit(db.adminCommand({ ping: 1 }).ok ? 0 : 1)'"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  mongo-init:
+    image: mongo:6.0
+    container_name: proinsight-mongo-init
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: "no"
+    env_file:
+      - ../.env
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        set -e
+        mongosh --host mongo:27017 \
+          --username "$${MONGO_INITDB_ROOT_USERNAME}" \
+          --password "$${MONGO_INITDB_ROOT_PASSWORD}" \
+          --authenticationDatabase admin \
+          --quiet --eval '
+            try {
+              rs.status();
+              print("Replica set rs0 já inicializado");
+            } catch (e) {
+              rs.initiate({_id: "rs0", members: [{_id: 0, host: "localhost:27017"}]});
+              print("Replica set rs0 inicializado");
+            }
+          '
 
 volumes:
   mongo-data:

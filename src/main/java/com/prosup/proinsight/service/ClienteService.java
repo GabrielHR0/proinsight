@@ -14,10 +14,10 @@ import com.prosup.proinsight.infrastructure.persistence.mapper.ClienteMapper;
 import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.ClienteRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
+import com.prosup.proinsight.infrastructure.transaction.MongoTransactionExecutor;
 import com.prosup.proinsight.service.handler.AvaliacaoImcHandler;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -29,18 +29,21 @@ public class ClienteService {
     private final AcademiaRepository academiaRepository;
     private final UserRepository userRepository;
     private final AvaliacaoImcHandler avaliacaoImcHandler;
+    private final MongoTransactionExecutor transactionExecutor;
 
     public ClienteService(ClienteRepository clienteRepository,
                           ClienteMapper clienteMapper,
                           AcademiaRepository academiaRepository,
                           UserRepository userRepository,
-                          AvaliacaoImcHandler avaliacaoImcHandler)
+                          AvaliacaoImcHandler avaliacaoImcHandler,
+                          MongoTransactionExecutor transactionExecutor)
     {
         this.clienteRepository = clienteRepository;
         this.clienteMapper = clienteMapper;
         this.academiaRepository = academiaRepository;
         this.userRepository = userRepository;
         this.avaliacaoImcHandler = avaliacaoImcHandler;
+        this.transactionExecutor = transactionExecutor;
     }
 
     public ClienteResponse create(ClienteRequest request) {
@@ -65,8 +68,15 @@ public class ClienteService {
         return clienteMapper.toResponse(saved);
     }
 
-    @Transactional
     public ClienteComImcResponse criarComImc(ClienteComImcRequest request) {
+        if (request.temImc()
+                && (request.getAvaliadorId() == null || request.getAvaliadorId().isBlank())) {
+            throw new IllegalArgumentException("É necessário estar logado para cadastrar um aluno com avaliação");
+        }
+        return transactionExecutor.execute(() -> persistClienteComImc(request));
+    }
+
+    private ClienteComImcResponse persistClienteComImc(ClienteComImcRequest request) {
         var doc = toClienteDocument(request);
         var saved = clienteRepository.save(doc);
         var clienteResponse = clienteMapper.toResponse(saved);
@@ -74,10 +84,6 @@ public class ClienteService {
         AvaliacaoImcResponse imcResponse = null;
 
         if (request.temImc()) {
-            if (request.getAvaliadorId() == null || request.getAvaliadorId().isBlank()) {
-                throw new IllegalArgumentException("É necessário estar logado para cadastrar um aluno com avaliação");
-            }
-
             var protocoloId = request.getProtocoloId() != null
                 ? request.getProtocoloId()
                 : "protocolo_imc_oms";

@@ -19,6 +19,7 @@ import com.prosup.proinsight.infrastructure.persistence.repository.UserRepositor
 import com.prosup.proinsight.service.AcademiaService;
 import com.prosup.proinsight.service.CustomUserDetailsService;
 import com.prosup.proinsight.service.LoginLockoutService;
+import com.prosup.proinsight.service.PasswordChangeService;
 import com.prosup.proinsight.service.PasswordResetService;
 import com.prosup.proinsight.service.RateLimitService;
 import com.prosup.proinsight.service.RefreshTokenService;
@@ -36,7 +37,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -72,7 +72,7 @@ public class AuthController {
     private final TokenBlacklistService tokenBlacklistService;
     private final RateLimitService rateLimitService;
     private final PasswordResetService passwordResetService;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordChangeService passwordChangeService;
     private final com.prosup.proinsight.service.UserPermissionService userPermissionService;
 
     public AuthController(AuthenticationManager authenticationManager,
@@ -86,7 +86,7 @@ public class AuthController {
                           TokenBlacklistService tokenBlacklistService,
                           RateLimitService rateLimitService,
                           PasswordResetService passwordResetService,
-                          PasswordEncoder passwordEncoder,
+                          PasswordChangeService passwordChangeService,
                           com.prosup.proinsight.service.UserPermissionService userPermissionService) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
@@ -99,7 +99,7 @@ public class AuthController {
         this.tokenBlacklistService = tokenBlacklistService;
         this.rateLimitService = rateLimitService;
         this.passwordResetService = passwordResetService;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordChangeService = passwordChangeService;
         this.userPermissionService = userPermissionService;
     }
 
@@ -193,19 +193,8 @@ public class AuthController {
                 .getAuthentication().getPrincipal();
         var user = userDetails.getUser();
 
-        var userDoc = userRepository.findById(user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-
-        if (!passwordEncoder.matches(request.getCurrentPassword(), userDoc.getPassword())) {
-            throw new IllegalArgumentException("Senha atual incorreta");
-        }
-
-        userDoc.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userDoc.setFailedLoginAttempts(0);
-        userDoc.setLockedUntil(null);
-        userRepository.save(userDoc);
-
-        refreshTokenService.revokeAllByUserId(user.getId());
+        passwordChangeService.changePassword(
+                user.getId(), request.getCurrentPassword(), request.getNewPassword());
 
         String bearer = httpRequest.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {

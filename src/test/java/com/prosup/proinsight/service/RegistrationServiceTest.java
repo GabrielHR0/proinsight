@@ -10,6 +10,7 @@ import com.prosup.proinsight.infrastructure.persistence.document.RefreshTokenDoc
 import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.AcademiaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
+import com.prosup.proinsight.infrastructure.transaction.MongoTransactionExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,6 +43,7 @@ class RegistrationServiceTest {
     @Mock private RefreshTokenService refreshTokenService;
     @Mock private JwtTokenProvider jwtTokenProvider;
     @Mock private CustomUserDetailsService userDetailsService;
+    @Mock private MongoTransactionExecutor transactionExecutor;
 
     @InjectMocks private RegistrationService registrationService;
 
@@ -56,6 +59,8 @@ class RegistrationServiceTest {
         savedUser.setAcademiaIds(new HashSet<>());
         savedUser.setAcademiaRoles(new HashMap<>());
 
+        when(transactionExecutor.execute(any(Supplier.class)))
+                .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
         when(passwordEncoder.encode(any())).thenReturn("hashed-pw");
         when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
         when(userRepository.findByUserName(any())).thenReturn(Optional.empty());

@@ -5,9 +5,9 @@ import com.prosup.proinsight.infrastructure.persistence.document.AvaliacaoFisica
 import com.prosup.proinsight.infrastructure.persistence.repository.AvaliacaoFisicaRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.ClienteRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
+import com.prosup.proinsight.infrastructure.transaction.AfterCommitExecutor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
@@ -19,19 +19,21 @@ public class AvaliacaoService {
     private final UserRepository userRepository;
     private final AvaliacaoFisicaRepository avaliacaoFisicaRepository;
     private final HistoricoAvaliacoesService historicoAvaliacoesService;
+    private final AfterCommitExecutor afterCommitExecutor;
 
     public AvaliacaoService(ClienteRepository clienteRepository,
                             UserRepository userRepository,
                             AvaliacaoFisicaRepository avaliacaoFisicaRepository,
-                            HistoricoAvaliacoesService historicoAvaliacoesService)
+                            HistoricoAvaliacoesService historicoAvaliacoesService,
+                            AfterCommitExecutor afterCommitExecutor)
     {
         this.clienteRepository = clienteRepository;
         this.userRepository = userRepository;
         this.avaliacaoFisicaRepository = avaliacaoFisicaRepository;
         this.historicoAvaliacoesService = historicoAvaliacoesService;
+        this.afterCommitExecutor = afterCommitExecutor;
     }
 
-    @Transactional
     public AvaliacaoFisicaDocument save(AvaliacaoFisicaDocument avaliacaoDoc) {
         var cliente = clienteRepository.findById(avaliacaoDoc.getClienteId())
             .orElseThrow(() -> new NoSuchElementException(
@@ -54,7 +56,8 @@ public class AvaliacaoService {
 
         var saved = avaliacaoFisicaRepository.save(avaliacaoDoc);
 
-        historicoAvaliacoesService.invalidar(avaliacaoDoc.getClienteId());
+        afterCommitExecutor.execute(
+                () -> historicoAvaliacoesService.invalidar(avaliacaoDoc.getClienteId()));
 
         return saved;
     }

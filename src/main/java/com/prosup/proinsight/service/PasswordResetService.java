@@ -4,10 +4,10 @@ import com.prosup.proinsight.infrastructure.persistence.document.PasswordResetTo
 import com.prosup.proinsight.infrastructure.persistence.document.UserDocument;
 import com.prosup.proinsight.infrastructure.persistence.repository.PasswordResetTokenRepository;
 import com.prosup.proinsight.infrastructure.persistence.repository.UserRepository;
+import com.prosup.proinsight.infrastructure.transaction.MongoTransactionExecutor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -34,17 +34,20 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
+    private final MongoTransactionExecutor transactionExecutor;
     private final long resetTokenTtlMs;
 
     public PasswordResetService(PasswordResetTokenRepository tokenRepository,
                                 UserRepository userRepository,
                                 RefreshTokenService refreshTokenService,
                                 PasswordEncoder passwordEncoder,
+                                MongoTransactionExecutor transactionExecutor,
                                 @Value("${security.password-reset-token-ttl-ms:900000}") long resetTokenTtlMs) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
         this.refreshTokenService = refreshTokenService;
         this.passwordEncoder = passwordEncoder;
+        this.transactionExecutor = transactionExecutor;
         this.resetTokenTtlMs = resetTokenTtlMs;
     }
 
@@ -67,27 +70,44 @@ public class PasswordResetService {
         return rawToken;
     }
 
-    @Transactional
     public void resetPassword(String rawToken, String newPassword) {
-        PasswordResetTokenDocument token = tokenRepository.findByTokenHashAndUsedFalse(sha256(rawToken))
-                .orElseThrow(() -> new NoSuchElementException("Token inválido ou expirado"));
+        String tokenHash = sha256(rawToken);
 
-        if (token.getExpiresAt() == null || token.getExpiresAt().isBefore(Instant.now())) {
+        // Pré-validação fora da transação para não gastar BCrypt com token inválido.
+        PasswordResetTokenDocument tokenPreview = tokenRepository.findByTokenHashAndUsedFalse(tokenHash)
+                .orElseThrow(() -> new NoSuchElementException("Token inválido ou expirado"));
+        if (tokenPreview.isUsed()
+                || tokenPreview.getExpiresAt() == null
+                || tokenPreview.getExpiresAt().isBefore(Instant.now())) {
             throw new NoSuchElementException("Token inválido ou expirado");
         }
 
-        token.setUsed(true);
-        tokenRepository.save(token);
+        String newPasswordHash = passwordEncoder.encode(newPassword);
 
-        UserDocument user = userRepository.findById(token.getUserId())
-                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+        transactionExecutor.execute(() -> {
+            PasswordResetTokenDocument token = tokenRepository.findByTokenHashAndUsedFalse(tokenHash)
+                    .orElseThrow(() -> new NoSuchElementException("Token inválido ou expirado"));
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-        user.setFailedLoginAttempts(0);
-        user.setLockedUntil(null);
-        userRepository.save(user);
+            if (token.isUsed()
+                    || token.getExpiresAt() == null
+                    || token.getExpiresAt().isBefore(Instant.now())) {
+                throw new NoSuchElementException("Token inválido ou expirado");
+            }
 
-        refreshTokenService.revokeAllByUserId(user.getId());
+            token.setUsed(true);
+            tokenRepository.save(token);
+
+            UserDocument user = userRepository.findById(token.getUserId())
+                    .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
+
+            user.setPassword(newPasswordHash);
+            user.setFailedLoginAttempts(0);
+            user.setLockedUntil(null);
+            userRepository.save(user);
+
+            refreshTokenService.revokeAllByUserId(user.getId());
+            return null;
+        });
     }
 
     private static String sha256(String value) {
