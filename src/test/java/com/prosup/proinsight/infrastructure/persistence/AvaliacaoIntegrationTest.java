@@ -79,7 +79,7 @@ class AvaliacaoIntegrationTest extends AbstractIntegrationTest {
 
         var academia = new AcademiaDocument();
         academia.setOwnerId(userId);
-        academia.setCnpj("12.345.678/0001-90");
+        academia.setCnpj("12345678" + suf);
         academia.setNomeFantasia("Academia Teste");
         academiaId = academiaRepository.save(academia).getId();
 

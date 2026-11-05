@@ -9,9 +9,11 @@ services:
       - -c
       - |
         set -e
-        openssl rand -base64 756 > /tmp/mongo-keyfile
-        chown 999:999 /tmp/mongo-keyfile
-        chmod 400 /tmp/mongo-keyfile
+        if [ ! -s /tmp/mongo-keyfile ]; then
+          openssl rand -base64 756 > /tmp/mongo-keyfile
+          chown 999:999 /tmp/mongo-keyfile
+          chmod 400 /tmp/mongo-keyfile
+        fi
         exec /usr/local/bin/docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /tmp/mongo-keyfile
     env_file:
       - ../.env

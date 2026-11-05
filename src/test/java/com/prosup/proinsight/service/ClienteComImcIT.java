@@ -95,7 +95,7 @@ class ClienteComImcIT extends AbstractIntegrationTest {
 
         var academia = new AcademiaDocument();
         academia.setOwnerId(userId);
-        academia.setCnpj("99.888.777/0001-66");
+        academia.setCnpj("99888777" + suf);
         academia.setNomeFantasia("Academia IMC Teste");
         academiaId = academiaRepository.save(academia).getId();
     }

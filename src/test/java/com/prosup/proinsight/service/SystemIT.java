@@ -132,7 +132,7 @@ class SystemIT extends AbstractIntegrationTest {
         var req = buildPersonalReq(suffix);
         req.setAcademiaNome(academiaNome);
         req.setRazaoSocial("Razao " + suffix);
-        req.setCnpj("123456780001" + suffix.substring(0, 2));
+        req.setCnpj("12345678" + suffix);
         return req;
     }
 

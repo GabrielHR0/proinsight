@@ -1,5 +1,6 @@
 package com.prosup.proinsight.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prosup.proinsight.infrastructure.persistence.repository.ApiKeyRepository;
 import com.prosup.proinsight.service.UserPermissionService;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -38,6 +40,12 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(tokenProvider, userPermissionService);
+    }
+
+    @Bean
+    public BackpressureFilter backpressureFilter(BackpressureProperties properties,
+                                                 ObjectMapper objectMapper) {
+        return new BackpressureFilter(properties, objectMapper);
     }
 
     @Bean
@@ -66,6 +74,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
+                                                   BackpressureFilter backpressureFilter,
                                                    TenantRateLimiterFilter tenantRateLimiterFilter,
                                                    ApiKeyAuthenticationFilter apiKeyAuthenticationFilter,
                                                    LoginRateLimiterFilter loginRateLimiterFilter)
@@ -103,6 +112,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").authenticated()
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(backpressureFilter, SecurityContextHolderFilter.class)
                 .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(loginRateLimiterFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

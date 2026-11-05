@@ -17,7 +17,7 @@ public class AcademiaDocument {
     @Indexed
     private String ownerId;
 
-    @Indexed(unique = true)
+    @Indexed(unique = true, sparse = true)
     private String cnpj;
 
     private String nomeFantasia;
